@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mitchtalmadge</groupId>
+    <artifactId>uofu-cs-bot</artifactId>
+    <version>develop-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <xchange.version>4.2.1</xchange.version>
+    </properties>
+
+    <build>
+        <finalName>UofU-CS-Bot</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.6.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Discord-->
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>3.2.0_241</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20170516</version>
+        </dependency>
+
+        <!-- Raygun -->
+        <dependency>
+            <groupId>com.mindscapehq</groupId>
+            <artifactId>raygun4java</artifactId>
+            <version>2.1.1</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mindscapehq</groupId>
+            <artifactId>core</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mindscapehq</groupId>
+            <artifactId>webprovider</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.7</version>
+        </dependency>
+
+        <!-- Utils -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+</project>
