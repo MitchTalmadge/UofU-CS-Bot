@@ -4,6 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.event.EventDistributor;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +29,17 @@ public class DiscordService {
     private final LogService logService;
     private final ConfigurableApplicationContext applicationContext;
     private final EventDistributor eventDistributor;
+    private final CSRoleService csRoleService;
 
     @Autowired
     public DiscordService(LogService logService,
                           ConfigurableApplicationContext applicationContext,
-                          EventDistributor eventDistributor) {
+                          EventDistributor eventDistributor,
+                          CSRoleService csRoleService) {
         this.logService = logService;
         this.applicationContext = applicationContext;
         this.eventDistributor = eventDistributor;
+        this.csRoleService = csRoleService;
     }
 
     @PostConstruct
@@ -45,6 +49,10 @@ public class DiscordService {
                     .setToken(discordToken)
                     .addEventListener(eventDistributor)
                     .buildBlocking();
+
+            // Update the CS roles of each guild that this bot is connected to. (Which is only one, probably).
+            for (Guild guild : jda.getGuilds())
+                csRoleService.updateCSRolesForGuild(guild);
         } catch (LoginException e) {
             throw e;
         } catch (InterruptedException e) {
