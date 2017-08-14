@@ -31,6 +31,7 @@ public class CSRoleService {
 
     /**
      * The prefix for roles based on the nickname suffix class numbers. For example, 3500 = cs-3500
+     * Case insensitive.
      */
     private static final String ROLE_PREFIX = "cs-";
 
@@ -184,7 +185,7 @@ public class CSRoleService {
         String roleName = role.getName();
 
         // Not a class number role.
-        if (!roleName.startsWith(ROLE_PREFIX))
+        if (!roleName.toLowerCase().startsWith(ROLE_PREFIX.toLowerCase()))
             return -1;
 
         // Extract class number from the role by taking substring from the prefix.
