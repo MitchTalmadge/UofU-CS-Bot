@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,15 +30,21 @@ public class ChannelService {
      * @return A list of all channels in the guild for the given type.
      * @throws IllegalArgumentException If the channel type is not TEXT or VOICE; the only two supported.
      */
-    public List<? extends Channel> getAllChannels(Guild guild, ChannelType channelType) throws IllegalArgumentException {
+    public List<Channel> getAllChannels(Guild guild, ChannelType channelType) throws IllegalArgumentException {
+        List<Channel> channels = new ArrayList<>();
+        
         switch (channelType) {
             case TEXT:
-                return guild.getTextChannels();
+                channels.addAll(guild.getTextChannels());
+                break;
             case VOICE:
-                return guild.getVoiceChannels();
+                channels.addAll(guild.getVoiceChannels());
+                break;
             default:
                 throw new IllegalArgumentException("Cannot get all channels of type: " + channelType.name());
         }
+
+        return channels;
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot;
 
 import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.ClassSyncService;
+import com.mitchtalmadge.uofu_cs_bot.service.cs.EntitySyncService;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
@@ -25,7 +25,7 @@ public class FailureAnalyzer implements org.springframework.boot.diagnostics.Fai
                 if (currentException.getBeanName().equalsIgnoreCase(DiscordService.class.getSimpleName())) {
                     // DiscordService
                     return new FailureAnalysis("DiscordService failed to start: " + currentException.getCause().getMessage(), "Check that the discord token is defined and correct.", currentException.getCause());
-                } else if (currentException.getBeanName().equalsIgnoreCase(ClassSyncService.class.getSimpleName())) {
+                } else if (currentException.getBeanName().equalsIgnoreCase(EntitySyncService.class.getSimpleName())) {
                     // ClassSyncService
                     return new FailureAnalysis("ClassSyncService failed to start: " + currentException.getCause().getMessage(), "Check that the classes list is defined and correct.", currentException.getCause());
                 } else {

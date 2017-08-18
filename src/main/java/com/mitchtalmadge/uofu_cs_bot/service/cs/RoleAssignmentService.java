@@ -200,8 +200,10 @@ public class RoleAssignmentService {
             List<Role> rolesByName = guild.getRolesByName(roleName, true);
 
             // The role does not exist.
-            if (rolesByName.isEmpty())
-                throw new IllegalArgumentException("The role " + roleName + " does not exist!");
+            if (rolesByName.isEmpty()) {
+                logService.logError(getClass(), "The role " + roleName + " does not exist!");
+                continue;
+            }
 
             // Warn if there is too many roles found.
             if (rolesByName.size() > 1)
