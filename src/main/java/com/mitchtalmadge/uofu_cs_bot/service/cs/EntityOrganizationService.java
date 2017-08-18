@@ -4,7 +4,9 @@ import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.requests.restaction.order.ChannelOrderAction;
+import net.dv8tion.jda.core.requests.restaction.order.RoleOrderAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,12 +28,15 @@ public class EntityOrganizationService {
 
     private final LogService logService;
     private final ChannelService channelService;
+    private final RoleService roleService;
 
     @Autowired
     public EntityOrganizationService(LogService logService,
-                                     ChannelService channelService) {
+                                     ChannelService channelService,
+                                     RoleService roleService) {
         this.logService = logService;
         this.channelService = channelService;
+        this.roleService = roleService;
     }
 
     /**
@@ -84,12 +89,15 @@ public class EntityOrganizationService {
 
         // Order voice channels.
         orderChannels(guild, false);
+
+        // Order roles
+        orderRoles(guild);
     }
 
     /**
      * Orders the channels of a guild.
      *
-     * @param guild        The guild of the channels.
+     * @param guild        The guild.
      * @param textChannels True to order the text channels, false to order the voice channels.
      */
     private void orderChannels(Guild guild, boolean textChannels) {
@@ -126,8 +134,46 @@ public class EntityOrganizationService {
         channelOrderAction.queue();
     }
 
+    /**
+     * Orders the roles of a guild.
+     *
+     * @param guild The guild.
+     */
     private void orderRoles(Guild guild) {
+        // Get all the roles.
+        List<Role> roles = roleService.getAllRoles(guild);
 
+        // Partition the roles into two, based on whether or not they are class roles.
+        Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(Collectors.partitioningBy(r -> isClassName(r.getName())));
+
+        // Combine the roles back together with the class roles in order at the bottom.
+        // Do not re-order the other roles. We do not care about their order.
+        List<Role> organizedRoles = new ArrayList<>();
+        // Add non class roles.
+        organizedRoles.addAll(partitionedRoles.get(false));
+        // Sort class roles before adding
+        List<Role> classRoles = partitionedRoles.get(true);
+        classRoles.sort(Comparator.comparing(Role::getName));
+        // Add class roles
+        organizedRoles.addAll(classRoles);
+
+        // Remove @everyone role
+        organizedRoles.removeIf(Role::isPublicRole);
+
+        // Get the channel ordering action
+        RoleOrderAction roleOrderAction = guild.getController().modifyRolePositions(false);
+
+        // Order the roles.
+        for (int i = 0; i < organizedRoles.size(); i++) {
+            // Get the index of the current channel in the order list.
+            int currentOrderPosition = roleOrderAction.getCurrentOrder().indexOf(organizedRoles.get(i));
+
+            // Swap the current channel with the channel at the desired position.
+            roleOrderAction.selectPosition(currentOrderPosition).swapPosition(i);
+        }
+
+        // Submit the changes to order.
+        roleOrderAction.queue();
     }
 
     /**
