@@ -65,7 +65,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.2.0_241</version>
+            <version>3.2.0_243</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

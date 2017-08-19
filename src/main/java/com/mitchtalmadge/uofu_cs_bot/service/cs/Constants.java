@@ -57,6 +57,16 @@ class Constants {
     }
 
     /**
+     * The bitrate for voice channels.
+     */
+    static final int CS_CHANNEL_VOICE_BITRATE = 64000;
+
+    /**
+     * The user limit for voice channels; 0 = unlimited. May not be lower than 0 or higher than 99.
+     */
+    static final int CS_CHANNEL_VOICE_USERLIMIT = 0;
+
+    /**
      * Matches class numbers in the suffix of a nickname. Use group #1 to get all, split with the CLASS_NUMBER_SPLIT_REGEX.
      */
     static final Pattern NICKNAME_CLASS_SUFFIX_PATTERN = Pattern.compile("\\[\\s*((\\d{4}(,\\s*)*)+)\\s*]");

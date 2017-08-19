@@ -1,10 +1,12 @@
 package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
+import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.core.requests.restaction.order.OrderAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -12,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -226,10 +229,102 @@ public class EntityOrganizationService {
         List<Channel> channels = channelService.getAllChannels(guild, textChannels ? ChannelType.TEXT : ChannelType.VOICE);
 
         channels.stream().filter(channel -> isClassName(channel.getName())).forEach(channel -> {
+            ChannelManagerUpdatable channelManager = channel.getManagerUpdatable();
+
             // Name
             String channelName = channel.getName();
             if (!channelName.equals(channelName.toLowerCase()))
-                channel.getManager().setName(channelName.toLowerCase()).queue();
+                channelManager = channelManager.getNameField().setValue(channelName.toLowerCase());
+
+            // Permissions
+
+            // Create permission override for the channel role if not already exists.
+            List<PermissionOverride> permissionOverrides = channel.getPermissionOverrides();
+            // Keeps track of whether the channel has a permission override for @everyone and for its own role, respectively.
+            final boolean[] hasPermissionOverride = new boolean[2];
+            permissionOverrides.forEach(override -> {
+                // Delete member overrides
+                if (override.isMemberOverride()) {
+                    override.delete().queue();
+                    return;
+                }
+
+                // @everyone - Deny read/connect, inherit all others.
+                if (override.getRole().isPublicRole()) {
+                    hasPermissionOverride[0] = true;
+                    PermOverrideManagerUpdatable manager = override.getManagerUpdatable();
+
+                    // Clear all permissions
+                    manager = manager.clear(Permission.ALL_PERMISSIONS);
+
+                    // Deny read or connect
+                    if (textChannels)
+                        manager = manager.deny(Permission.MESSAGE_READ);
+                    else
+                        manager = manager.deny(Permission.VOICE_CONNECT);
+
+                    manager.update().queue();
+                    return;
+                }
+
+                // Channel's own role - Grant read/connect, inherit all others.
+                if (override.getRole().getName().equalsIgnoreCase(channelName)) {
+                    hasPermissionOverride[1] = true;
+                    PermOverrideManagerUpdatable manager = override.getManagerUpdatable();
+
+                    // Clear all permissions
+                    manager = manager.clear(Permission.ALL_PERMISSIONS);
+
+                    // Deny read or connect
+                    if (textChannels)
+                        manager = manager.grant(Permission.MESSAGE_READ);
+                    else
+                        manager = manager.grant(Permission.VOICE_CONNECT);
+
+                    manager.update().queue();
+                    return;
+                }
+
+                // Delete all other overrides.
+                override.delete().queue();
+            });
+
+            // Create the channel's @everyone role permission override if not exists.
+            if (!hasPermissionOverride[0]) {
+                PermissionOverrideAction override = channel.createPermissionOverride(roleService.getEveryoneRole(guild));
+
+                if (textChannels)
+                    override = override.setDeny(Permission.MESSAGE_READ);
+                else
+                    override = override.setDeny(Permission.VOICE_CONNECT);
+
+                override.queue();
+            }
+
+            // Create the channel's own role permission override if not exists.
+            if (!hasPermissionOverride[1]) {
+                PermissionOverrideAction override = channel.createPermissionOverride(roleService.getRoleByName(guild, channelName));
+
+                if (textChannels)
+                    override = override.setAllow(Permission.MESSAGE_READ);
+                else
+                    override = override.setAllow(Permission.VOICE_CONNECT);
+
+                override.queue();
+            }
+
+            // NSFW Off
+            if (textChannels)
+                channelManager = channelManager.getNSFWField().setValue(false);
+
+            // Bitrate and User Limit
+            if (!textChannels) {
+                channelManager = channelManager
+                        .getBitrateField().setValue(Constants.CS_CHANNEL_VOICE_BITRATE)
+                        .getUserLimitField().setValue(Constants.CS_CHANNEL_VOICE_USERLIMIT);
+            }
+
+            channelManager.update().queue();
         });
     }
 
@@ -247,22 +342,26 @@ public class EntityOrganizationService {
         List<Role> roles = roleService.getAllRoles(guild);
 
         roles.stream().filter(role -> isClassName(role.getName())).forEach(role -> {
+            RoleManagerUpdatable roleManager = role.getManagerUpdatable();
+
             // Name
             String roleName = role.getName();
             if (!roleName.equals(roleName.toUpperCase()))
-                role.getManager().setName(roleName.toUpperCase()).queue();
+                roleManager.getNameField().setValue(roleName.toUpperCase());
 
             // Permissions
-            role.getManager().setPermissions(Constants.CS_ROLE_PERMISSIONS).queue();
+            roleManager.getPermissionField().setPermissions(Constants.CS_ROLE_PERMISSIONS);
 
             // Color
-            role.getManager().setColor(Constants.CS_ROLE_COLOR).queue();
+            roleManager.getColorField().setValue(Constants.CS_ROLE_COLOR);
 
             // Hoisted (Displayed separately)
-            role.getManager().setHoisted(Constants.CS_ROLE_HOISTED).queue();
+            roleManager.getHoistedField().setValue(Constants.CS_ROLE_HOISTED);
 
             // Mentionable
-            role.getManager().setMentionable(Constants.CS_ROLE_MENTIONABLE).queue();
+            roleManager.getMentionableField().setValue(Constants.CS_ROLE_MENTIONABLE);
+
+            roleManager.update().queue();
         });
     }
 
