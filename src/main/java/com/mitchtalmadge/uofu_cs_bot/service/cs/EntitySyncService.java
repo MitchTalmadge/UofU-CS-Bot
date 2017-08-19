@@ -241,7 +241,7 @@ public class EntitySyncService {
             // No role found; create one.
             String newRoleName = (Constants.CS_PREFIX + classNumber).toLowerCase();
             logService.logInfo(getClass(), "Creating Role: " + newRoleName);
-            roleService.createRole(guild, newRoleName, Constants.CS_ROLE_COLOR, true, true, Constants.CS_ROLE_PERMISSIONS);
+            roleService.createRole(guild, newRoleName, Constants.CS_ROLE_COLOR, Constants.CS_ROLE_HOISTED, Constants.CS_ROLE_MENTIONABLE, Constants.CS_ROLE_PERMISSIONS);
         }
     }
 }

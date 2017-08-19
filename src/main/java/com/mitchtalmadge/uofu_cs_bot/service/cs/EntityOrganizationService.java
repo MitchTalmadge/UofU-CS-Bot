@@ -89,20 +89,20 @@ public class EntityOrganizationService {
      */
     private void organizeGuild(Guild guild) {
 
-        // Rename text channels.
-        renameChannels(guild, true);
+        // Update text channel settings.
+        updateChannelSettings(guild, true);
 
         // Order text channels.
         orderChannels(guild, true);
 
-        // Rename voice channels.
-        renameChannels(guild, false);
+        // Update voice channel settings.
+        updateChannelSettings(guild, false);
 
         // Order voice channels.
         orderChannels(guild, false);
 
-        // Rename roles.
-        renameRoles(guild);
+        // Update role settings.
+        updateRoleSettings(guild);
 
         // Order roles
         orderRoles(guild);
@@ -215,48 +215,54 @@ public class EntityOrganizationService {
     }
 
     /**
-     * Renames channels as necessary.
-     * Class channel names should be lowercase.
+     * Updates the settings of all class channels, including:
+     * - Name
+     * - Permissions (including visibility)
      *
      * @param guild        The guild.
-     * @param textChannels True to rename text channels, false to rename voice channels.
+     * @param textChannels True to update text channels, false to update voice channels.
      */
-    private void renameChannels(Guild guild, boolean textChannels) {
+    private void updateChannelSettings(Guild guild, boolean textChannels) {
         List<Channel> channels = channelService.getAllChannels(guild, textChannels ? ChannelType.TEXT : ChannelType.VOICE);
 
-        channels.forEach(channel -> {
+        channels.stream().filter(channel -> isClassName(channel.getName())).forEach(channel -> {
+            // Name
             String channelName = channel.getName();
-            if (isClassName(channelName) && !channelName.equals(channelName.toLowerCase()))
+            if (!channelName.equals(channelName.toLowerCase()))
                 channel.getManager().setName(channelName.toLowerCase()).queue();
         });
     }
 
     /**
-     * Renames roles as necessary.
-     * Class role names should be uppercase.
+     * Updates the settings of all class roles, including:
+     * - Name
+     * - Permissions
+     * - Colors
+     * - Mentionable status
+     * - Hoisted status
      *
      * @param guild The guild.
      */
-    private void renameRoles(Guild guild) {
+    private void updateRoleSettings(Guild guild) {
         List<Role> roles = roleService.getAllRoles(guild);
 
-        roles.forEach(role -> {
+        roles.stream().filter(role -> isClassName(role.getName())).forEach(role -> {
+            // Name
             String roleName = role.getName();
-            if (isClassName(roleName) && !roleName.equals(roleName.toUpperCase()))
+            if (!roleName.equals(roleName.toUpperCase()))
                 role.getManager().setName(roleName.toUpperCase()).queue();
-        });
-    }
 
-    /**
-     * Updates the permissions of all class roles.
-     *
-     * @param guild The guild.
-     */
-    private void updateRolePermissions(Guild guild) {
-        List<Role> roles = roleService.getAllRoles(guild);
-
-        roles.forEach(role -> {
+            // Permissions
             role.getManager().setPermissions(Constants.CS_ROLE_PERMISSIONS).queue();
+
+            // Color
+            role.getManager().setColor(Constants.CS_ROLE_COLOR).queue();
+
+            // Hoisted (Displayed separately)
+            role.getManager().setHoisted(Constants.CS_ROLE_HOISTED).queue();
+
+            // Mentionable
+            role.getManager().setMentionable(Constants.CS_ROLE_MENTIONABLE).queue();
         });
     }
 

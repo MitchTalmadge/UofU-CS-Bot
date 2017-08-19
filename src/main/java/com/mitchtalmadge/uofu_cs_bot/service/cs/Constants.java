@@ -30,6 +30,16 @@ class Constants {
     static final Color CS_ROLE_COLOR = Color.decode("0x3498DB");
 
     /**
+     * Determines if the class roles are hoisted (displayed separately)
+     */
+    static final boolean CS_ROLE_HOISTED = true;
+
+    /**
+     * Determines if the class roles are mentionable by anyone.
+     */
+    static final boolean CS_ROLE_MENTIONABLE = true;
+
+    /**
      * The permissions used for all CS roles.
      */
     static final Set<Permission> CS_ROLE_PERMISSIONS = new HashSet<>();
