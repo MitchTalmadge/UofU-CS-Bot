@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -32,10 +31,10 @@ public class RoleAssignmentService {
      *
      * @param guild The guild whose members' roles should be updated.
      */
-    public void updateCSRolesForGuild(Guild guild) {
+    public void updateRoleAssignments(Guild guild) {
         // Update each member of the guild.
         for (Member member : guild.getMembers())
-            updateCSRoles(member);
+            updateRoleAssignments(member);
     }
 
     /**
@@ -43,7 +42,7 @@ public class RoleAssignmentService {
      *
      * @param member The member whose roles should be updated.
      */
-    public void updateCSRoles(Member member) {
+    public void updateRoleAssignments(Member member) {
         logService.logInfo(getClass(), "Updating CS roles for " + member.getUser().getName());
 
         // Get the current class numbers

@@ -5,8 +5,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.requests.restaction.order.ChannelOrderAction;
-import net.dv8tion.jda.core.requests.restaction.order.RoleOrderAction;
+import net.dv8tion.jda.core.requests.restaction.order.OrderAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,14 +26,17 @@ public class EntityOrganizationService {
     private final Set<Guild> organizationRequests = new HashSet<>();
 
     private final LogService logService;
+    private final RoleAssignmentService roleAssignmentService;
     private final ChannelService channelService;
     private final RoleService roleService;
 
     @Autowired
     public EntityOrganizationService(LogService logService,
+                                     RoleAssignmentService roleAssignmentService,
                                      ChannelService channelService,
                                      RoleService roleService) {
         this.logService = logService;
+        this.roleAssignmentService = roleAssignmentService;
         this.channelService = channelService;
         this.roleService = roleService;
     }
@@ -71,6 +73,9 @@ public class EntityOrganizationService {
             organizeGuild(guild);
 
             logService.logInfo(getClass(), "Organization Complete.");
+
+            // Update the role assignments for the guild.
+            roleAssignmentService.updateRoleAssignments(guild);
         }
 
         // Clear any old organization requests.
@@ -84,11 +89,20 @@ public class EntityOrganizationService {
      */
     private void organizeGuild(Guild guild) {
 
+        // Rename text channels.
+        renameChannels(guild, true);
+
         // Order text channels.
         orderChannels(guild, true);
 
+        // Rename voice channels.
+        renameChannels(guild, false);
+
         // Order voice channels.
         orderChannels(guild, false);
+
+        // Rename roles.
+        renameRoles(guild);
 
         // Order roles
         orderRoles(guild);
@@ -109,29 +123,19 @@ public class EntityOrganizationService {
 
         // Combine the channels back together with the class channels in order at the bottom.
         // Do not re-order the other channels. We do not care about their order.
-        List<Channel> organizedChannels = new ArrayList<>();
+        List<Channel> orderedChannels = new ArrayList<>();
         // Add non class channels.
-        organizedChannels.addAll(partitionedChannels.get(false));
+        orderedChannels.addAll(partitionedChannels.get(false));
         // Sort class channels before adding
         List<Channel> classChannels = partitionedChannels.get(true);
         classChannels.sort(Comparator.comparing(Channel::getName));
         // Add class channels
-        organizedChannels.addAll(classChannels);
+        orderedChannels.addAll(classChannels);
 
-        // Get the channel ordering action
-        ChannelOrderAction<? extends Channel> channelOrderAction = textChannels ? guild.getController().modifyTextChannelPositions() : guild.getController().modifyVoiceChannelPositions();
-
-        // Order the channels.
-        for (int i = 0; i < organizedChannels.size(); i++) {
-            // Get the index of the current channel in the order list.
-            int currentOrderPosition = channelOrderAction.getCurrentOrder().indexOf(organizedChannels.get(i));
-
-            // Swap the current channel with the channel at the desired position.
-            channelOrderAction.selectPosition(currentOrderPosition).swapPosition(i);
-        }
-
-        // Submit the changes to order.
-        channelOrderAction.queue();
+        // Perform ordering.
+        orderEntities(textChannels
+                ? guild.getController().modifyTextChannelPositions()
+                : guild.getController().modifyVoiceChannelPositions(), orderedChannels);
     }
 
     /**
@@ -148,32 +152,20 @@ public class EntityOrganizationService {
 
         // Combine the roles back together with the class roles in order at the bottom.
         // Do not re-order the other roles. We do not care about their order.
-        List<Role> organizedRoles = new ArrayList<>();
+        List<Role> orderedRoles = new ArrayList<>();
         // Add non class roles.
-        organizedRoles.addAll(partitionedRoles.get(false));
+        orderedRoles.addAll(partitionedRoles.get(false));
         // Sort class roles before adding
         List<Role> classRoles = partitionedRoles.get(true);
-        classRoles.sort(Comparator.comparing(Role::getName));
+        classRoles.sort(Comparator.comparing(o -> o.getName().toUpperCase())); // Ignore case
         // Add class roles
-        organizedRoles.addAll(classRoles);
+        orderedRoles.addAll(classRoles);
 
-        // Remove @everyone role
-        organizedRoles.removeIf(Role::isPublicRole);
+        // Remove @everyone role, as its order cannot be changed.
+        orderedRoles.removeIf(Role::isPublicRole);
 
-        // Get the channel ordering action
-        RoleOrderAction roleOrderAction = guild.getController().modifyRolePositions(false);
-
-        // Order the roles.
-        for (int i = 0; i < organizedRoles.size(); i++) {
-            // Get the index of the current channel in the order list.
-            int currentOrderPosition = roleOrderAction.getCurrentOrder().indexOf(organizedRoles.get(i));
-
-            // Swap the current channel with the channel at the desired position.
-            roleOrderAction.selectPosition(currentOrderPosition).swapPosition(i);
-        }
-
-        // Submit the changes to order.
-        roleOrderAction.queue();
+        // Perform ordering.
+        orderEntities(guild.getController().modifyRolePositions(false), orderedRoles);
     }
 
     /**
@@ -196,6 +188,76 @@ public class EntityOrganizationService {
         }
 
         return true;
+    }
+
+    /**
+     * Orders the entities, with the provided order action, to their order in the provided list.
+     * Submits the order to Discord.
+     *
+     * @param orderAction The order action to use.
+     * @param order       The desired order of the entities.
+     * @param <E>         The entity type.
+     * @param <O>         The OrderAction type.
+     */
+    @SuppressWarnings("unchecked")
+    private <E, O extends OrderAction<? extends E, ? extends O>> void orderEntities(O orderAction, List<E> order) {
+        // Order the channels.
+        for (int i = 0; i < order.size(); i++) {
+            // Get the index of the current channel in the order list.
+            int currentOrderPosition = orderAction.getCurrentOrder().indexOf(order.get(i));
+
+            // Swap the current channel with the channel at the desired position.
+            orderAction.selectPosition(currentOrderPosition).swapPosition(i);
+        }
+
+        // Submit the changes to order.
+        orderAction.queue();
+    }
+
+    /**
+     * Renames channels as necessary.
+     * Class channel names should be lowercase.
+     *
+     * @param guild        The guild.
+     * @param textChannels True to rename text channels, false to rename voice channels.
+     */
+    private void renameChannels(Guild guild, boolean textChannels) {
+        List<Channel> channels = channelService.getAllChannels(guild, textChannels ? ChannelType.TEXT : ChannelType.VOICE);
+
+        channels.forEach(channel -> {
+            String channelName = channel.getName();
+            if (isClassName(channelName) && !channelName.equals(channelName.toLowerCase()))
+                channel.getManager().setName(channelName.toLowerCase()).queue();
+        });
+    }
+
+    /**
+     * Renames roles as necessary.
+     * Class role names should be uppercase.
+     *
+     * @param guild The guild.
+     */
+    private void renameRoles(Guild guild) {
+        List<Role> roles = roleService.getAllRoles(guild);
+
+        roles.forEach(role -> {
+            String roleName = role.getName();
+            if (isClassName(roleName) && !roleName.equals(roleName.toUpperCase()))
+                role.getManager().setName(roleName.toUpperCase()).queue();
+        });
+    }
+
+    /**
+     * Updates the permissions of all class roles.
+     *
+     * @param guild The guild.
+     */
+    private void updateRolePermissions(Guild guild) {
+        List<Role> roles = roleService.getAllRoles(guild);
+
+        roles.forEach(role -> {
+            role.getManager().setPermissions(Constants.CS_ROLE_PERMISSIONS).queue();
+        });
     }
 
 }

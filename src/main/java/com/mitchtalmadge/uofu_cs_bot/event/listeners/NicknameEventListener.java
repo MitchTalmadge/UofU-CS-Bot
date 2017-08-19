@@ -21,7 +21,7 @@ public class NicknameEventListener extends EventListener<GuildMemberNickChangeEv
     public void onEvent(GuildMemberNickChangeEvent event) {
         logService.logInfo(getClass(), "Nickname changed for " + event.getMember().getUser().getName() + ". Old: " + event.getPrevNick() + " - New: " + event.getNewNick());
 
-        roleAssignmentService.updateCSRoles(event.getMember());
+        roleAssignmentService.updateRoleAssignments(event.getMember());
     }
 
 
