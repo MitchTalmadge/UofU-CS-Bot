@@ -3,15 +3,18 @@ package com.mitchtalmadge.uofu_cs_bot.event;
 import com.mitchtalmadge.uofu_cs_bot.event.listeners.EventListener;
 import net.dv8tion.jda.core.events.Event;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import sun.net.www.content.text.Generic;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Service
-public class EventDistributor implements net.dv8tion.jda.core.hooks.EventListener {
+@Component
+public class EventDistributor {
 
     /**
      * Maps Event Listeners to their generic Event types.
@@ -24,13 +27,12 @@ public class EventDistributor implements net.dv8tion.jda.core.hooks.EventListene
         eventListeners.forEach(eventListener -> {
             //noinspection unchecked
             eventListenerMap.put(
-                    (Class<? extends Event>) ((ParameterizedType) eventListener.getClass().getGenericSuperclass()).getActualTypeArguments()[0],
+                    (Class<? extends Event>) GenericTypeResolver.resolveTypeArgument(eventListener.getClass(), EventListener.class),
                     eventListener
             );
         });
     }
 
-    @Override
     public void onEvent(Event event) {
 
         // Look for a listener for the event.
