@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/MitchTalmadge/UofU-CS-Bot.svg?branch=master)](https://travis-ci.org/MitchTalmadge/UofU-CS-Bot)
 [![GitHub issues](https://img.shields.io/github/issues/MitchTalmadge/UofU-CS-Bot.svg)](https://github.com/MitchTalmadge/UofU-CS-Bot/issues)
 
-<img src="http://i.imgur.com/3KUsJiF.png" width="100px" align="left"/>
+<img src="http://i.imgur.com/yQYPYFh.png" width="100px" align="left"/>
 
 The U of U CS Bot is a simple Discord bot for a specific University of Utah Computer Science chat-room.
 
