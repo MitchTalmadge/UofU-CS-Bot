@@ -1,5 +1,6 @@
-package com.mitchtalmadge.uofu_cs_bot.service;
+package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -10,35 +11,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * A service for managing CS roles.
  */
 @Service
-public class CSRoleService {
-
-    /**
-     * Matches class numbers in the suffix of a nickname. Use group #1 to get all, split with the CLASS_NUMBER_SPLIT_REGEX.
-     */
-    private static final Pattern CLASS_NUMBER_SUFFIX_PATTERN = Pattern.compile("\\[\\s*((\\d{4}(,\\s*)*)+)\\s*]");
-
-    /**
-     * Used to split a list of class numbers from a nickname suffix into individual numbers.
-     */
-    private static final String CLASS_NUMBER_SPLIT_REGEX = "(,\\s*)+";
-
-    /**
-     * The prefix for roles based on the nickname suffix class numbers. For example, 3500 = cs-3500
-     * Case insensitive.
-     */
-    private static final String ROLE_PREFIX = "cs-";
+public class RoleAssignmentService {
 
     private final LogService logService;
 
     @Autowired
-    public CSRoleService(LogService logService) {
+    public RoleAssignmentService(LogService logService) {
         this.logService = logService;
     }
 
@@ -47,10 +31,10 @@ public class CSRoleService {
      *
      * @param guild The guild whose members' roles should be updated.
      */
-    public void updateCSRolesForGuild(Guild guild) {
+    public void updateRoleAssignments(Guild guild) {
         // Update each member of the guild.
         for (Member member : guild.getMembers())
-            updateCSRoles(member);
+            updateRoleAssignments(member);
     }
 
     /**
@@ -58,7 +42,7 @@ public class CSRoleService {
      *
      * @param member The member whose roles should be updated.
      */
-    public void updateCSRoles(Member member) {
+    public void updateRoleAssignments(Member member) {
         logService.logInfo(getClass(), "Updating CS roles for " + member.getUser().getName());
 
         // Get the current class numbers
@@ -86,7 +70,7 @@ public class CSRoleService {
             return classNumbers;
 
         // Try to find class numbers.
-        Matcher classNumbersSuffixMatcher = CLASS_NUMBER_SUFFIX_PATTERN.matcher(nickname);
+        Matcher classNumbersSuffixMatcher = Constants.NICKNAME_CLASS_SUFFIX_PATTERN.matcher(nickname);
         boolean matchFound = classNumbersSuffixMatcher.find();
 
         // No class numbers found.
@@ -95,7 +79,7 @@ public class CSRoleService {
 
         // Retrieve found class numbers.
         String classNumbersSuffix = classNumbersSuffixMatcher.group(1);
-        String[] splitClassNumbersSuffix = classNumbersSuffix.split(CLASS_NUMBER_SPLIT_REGEX);
+        String[] splitClassNumbersSuffix = classNumbersSuffix.split(Constants.CLASS_SPLIT_REGEX);
         for (String classNumber : splitClassNumbersSuffix) {
             try {
                 classNumbers.add(Integer.parseInt(classNumber));
@@ -155,7 +139,7 @@ public class CSRoleService {
         Set<String> namesOfRolesToAdd = new HashSet<>();
         for (Integer classNumber : classNumbers) {
             // The name of the role for this class number.
-            String roleName = ROLE_PREFIX + classNumber;
+            String roleName = Constants.CS_PREFIX + classNumber;
 
             // Check that the user already has the role.
             if (roleNames.contains(roleName))
@@ -185,11 +169,11 @@ public class CSRoleService {
         String roleName = role.getName();
 
         // Not a class number role.
-        if (!roleName.toLowerCase().startsWith(ROLE_PREFIX.toLowerCase()))
+        if (!roleName.toLowerCase().startsWith(Constants.CS_PREFIX.toLowerCase()))
             return -1;
 
         // Extract class number from the role by taking substring from the prefix.
-        String classNumber = roleName.substring(ROLE_PREFIX.length());
+        String classNumber = roleName.substring(Constants.CS_PREFIX.length());
 
         // Try to parse the class number.
         try {
@@ -215,8 +199,10 @@ public class CSRoleService {
             List<Role> rolesByName = guild.getRolesByName(roleName, true);
 
             // The role does not exist.
-            if (rolesByName.isEmpty())
-                throw new IllegalArgumentException("The role " + roleName + " does not exist!");
+            if (rolesByName.isEmpty()) {
+                logService.logError(getClass(), "The role " + roleName + " does not exist!");
+                continue;
+            }
 
             // Warn if there is too many roles found.
             if (rolesByName.size() > 1)
