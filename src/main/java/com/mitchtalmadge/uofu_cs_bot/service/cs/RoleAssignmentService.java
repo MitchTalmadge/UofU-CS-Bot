@@ -82,6 +82,9 @@ public class RoleAssignmentService {
         String[] splitClassNumbersSuffix = classNumbersSuffix.split(Constants.CLASS_SPLIT_REGEX);
         for (String classNumber : splitClassNumbersSuffix) {
             try {
+                if(classNumber.contains("TA")) {
+                    //TODO: something
+                }
                 classNumbers.add(Integer.parseInt(classNumber));
             } catch (NumberFormatException e) {
                 logService.logException(getClass(), e, "Could not parse the class number: " + classNumber + " from nickname " + nickname);
