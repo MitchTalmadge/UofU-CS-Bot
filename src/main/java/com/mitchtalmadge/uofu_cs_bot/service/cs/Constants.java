@@ -32,7 +32,7 @@ class Constants {
     /**
      * Determines if the class roles are hoisted (displayed separately)
      */
-    static final boolean CS_ROLE_HOISTED = true;
+    static final boolean CS_ROLE_HOISTED = false;
 
     /**
      * Determines if the class roles are mentionable by anyone.
