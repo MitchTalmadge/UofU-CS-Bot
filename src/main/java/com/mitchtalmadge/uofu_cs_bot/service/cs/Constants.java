@@ -56,8 +56,13 @@ class Constants {
      */
     static final Set<Permission> CS_ROLE_PERMISSIONS = new HashSet<>();
 
+    /**
+     * The permissions used for all CS TA roles.
+     */
+    static final Set<Permission> CS_TA_ROLE_PERMISSIONS = new HashSet<>();
+
     static {
-        // Assign permissions.
+        // Assign permissions for standard CS students.
         CS_ROLE_PERMISSIONS.add(Permission.NICKNAME_CHANGE);
         CS_ROLE_PERMISSIONS.add(Permission.MESSAGE_WRITE);
         CS_ROLE_PERMISSIONS.add(Permission.MESSAGE_EMBED_LINKS);
@@ -66,6 +71,13 @@ class Constants {
         CS_ROLE_PERMISSIONS.add(Permission.MESSAGE_ADD_REACTION);
         CS_ROLE_PERMISSIONS.add(Permission.VOICE_SPEAK);
         CS_ROLE_PERMISSIONS.add(Permission.VOICE_USE_VAD);
+
+        // Assign permissions for TAs.
+        CS_TA_ROLE_PERMISSIONS.addAll(CS_ROLE_PERMISSIONS);
+        CS_TA_ROLE_PERMISSIONS.add(Permission.MESSAGE_MANAGE);
+        CS_TA_ROLE_PERMISSIONS.add(Permission.KICK_MEMBERS);
+        CS_TA_ROLE_PERMISSIONS.add(Permission.VOICE_MUTE_OTHERS);
+        CS_TA_ROLE_PERMISSIONS.add(Permission.VOICE_DEAF_OTHERS);
     }
 
     /**
