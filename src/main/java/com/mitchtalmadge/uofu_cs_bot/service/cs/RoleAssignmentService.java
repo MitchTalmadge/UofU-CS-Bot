@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.NickClassNumber;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -7,9 +8,7 @@ import net.dv8tion.jda.core.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ public class RoleAssignmentService {
         logService.logInfo(getClass(), "Updating CS roles for " + member.getUser().getName());
 
         // Get the current class numbers
-        Set<Integer> classNumbers = extractClassNumbers(member.getNickname());
+        Map<Integer, NickClassNumber> classNumbers = extractClassNumbers(member.getNickname());
 
         // Find the roles to remove and add.
         Set<Role> rolesToRemove = getRolesToRemove(member, classNumbers);
@@ -60,10 +59,10 @@ public class RoleAssignmentService {
      * From the given nickname, extracts the class numbers that the member is in.
      *
      * @param nickname The nickname.
-     * @return An array containing the class numbers the member belongs to.
+     * @return A Map with class number keys mapped to class number instances.
      */
-    private Set<Integer> extractClassNumbers(String nickname) {
-        Set<Integer> classNumbers = new HashSet<>();
+    private Map<Integer, NickClassNumber> extractClassNumbers(String nickname) {
+        Map<Integer, NickClassNumber> classNumbers = new HashMap<>();
 
         // Nickname was removed.
         if (nickname == null)
@@ -82,10 +81,11 @@ public class RoleAssignmentService {
         String[] splitClassNumbersSuffix = classNumbersSuffix.split(Constants.CLASS_SPLIT_REGEX);
         for (String classNumber : splitClassNumbersSuffix) {
             try {
-                if(classNumber.contains("TA")) {
-                    //TODO: something
-                }
-                classNumbers.add(Integer.parseInt(classNumber));
+                // Parse the class number, removing "TA" first if present.
+                int parsedClassNumber = Integer.parseInt(classNumber.replaceAll("TA", "").trim());
+
+                // Create a NickClassNumber instance from the number, and check if the number contains "TA", meaning they are a TA.
+                classNumbers.put(parsedClassNumber, new NickClassNumber(parsedClassNumber, classNumber.contains("TA")));
             } catch (NumberFormatException e) {
                 logService.logException(getClass(), e, "Could not parse the class number: " + classNumber + " from nickname " + nickname);
             }
@@ -101,7 +101,7 @@ public class RoleAssignmentService {
      * @param classNumbers The class numbers the member is assigned to.
      * @return The roles to remove.
      */
-    private Set<Role> getRolesToRemove(Member member, Set<Integer> classNumbers) {
+    private Set<Role> getRolesToRemove(Member member, Map<Integer, NickClassNumber> classNumbers) {
         List<Role> currentRoles = member.getRoles();
 
         // Find the roles which need to be removed.
@@ -115,7 +115,7 @@ public class RoleAssignmentService {
                 continue;
 
             // If the class number does not match one we belong to, add it to the roles to remove.
-            if (!classNumbers.contains(classNumber))
+            if (!classNumbers.containsKey(classNumber))
                 rolesToRemove.add(role);
         }
 
@@ -129,7 +129,7 @@ public class RoleAssignmentService {
      * @param classNumbers The class numbers the member is assigned to.
      * @return The new roles to be added to the member.
      */
-    private Set<Role> getRolesToAdd(Member member, Set<Integer> classNumbers) {
+    private Set<Role> getRolesToAdd(Member member, Map<Integer, NickClassNumber> classNumbers) {
         List<Role> currentRoles = member.getRoles();
 
         // Extract the name of each role, stored in lowercase form.
@@ -140,9 +140,9 @@ public class RoleAssignmentService {
 
         // Find the roles which need to be added.
         Set<String> namesOfRolesToAdd = new HashSet<>();
-        for (Integer classNumber : classNumbers) {
+        for (NickClassNumber classNumber : classNumbers.values()) {
             // The name of the role for this class number.
-            String roleName = Constants.CS_PREFIX + classNumber;
+            String roleName = Constants.CS_PREFIX + classNumber.getClassNumber() + (classNumber.isTeachersAide() ? Constants.CS_TA_SUFFIX : "");
 
             // Check that the user already has the role.
             if (roleNames.contains(roleName))
@@ -175,12 +175,19 @@ public class RoleAssignmentService {
         if (!roleName.toLowerCase().startsWith(Constants.CS_PREFIX.toLowerCase()))
             return -1;
 
-        // Extract class number from the role by taking substring from the prefix.
-        String classNumber = roleName.substring(Constants.CS_PREFIX.length());
+        // Will contain the extracted class number.
+        String classNumber;
+
+        // Substrings must be taken differently to avoid "TA" if it is present.
+        if (roleName.contains("TA")) {
+            classNumber = roleName.substring(Constants.CS_PREFIX.length(), roleName.indexOf("TA"));
+        } else {
+            classNumber = roleName.substring(Constants.CS_PREFIX.length());
+        }
 
         // Try to parse the class number.
         try {
-            return Integer.parseInt(classNumber);
+            return Integer.parseInt(classNumber.trim());
         } catch (NumberFormatException e) {
             // Not a class number.
             return -1;

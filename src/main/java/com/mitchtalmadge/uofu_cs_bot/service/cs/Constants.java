@@ -14,10 +14,17 @@ class Constants {
 
     /**
      * The prefix for roles and channels based on the nickname suffix class numbers.
-     * For example, 3500 = cs-3500
+     * For example, cs-3500
      * Case insensitive.
      */
     static final String CS_PREFIX = "cs-";
+
+    /**
+     * The suffix for roles of Teacher Aides (TAs).
+     * For example, cs-3500-ta
+     * Case insensitive.
+     */
+    static final String CS_TA_SUFFIX = "-ta";
 
     /**
      * The environment variable that contains the list of valid classes.
@@ -28,6 +35,11 @@ class Constants {
      * The color to assign to CS roles.
      */
     static final Color CS_ROLE_COLOR = Color.decode("0x3498DB");
+
+    /**
+     * The color to assign to CS TA roles.
+     */
+    static final Color CS_TA_ROLE_COLOR = Color.decode("0x43C567");
 
     /**
      * Determines if the class roles are hoisted (displayed separately)
