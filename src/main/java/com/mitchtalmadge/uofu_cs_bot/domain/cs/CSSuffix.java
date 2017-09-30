@@ -71,13 +71,13 @@ public enum CSSuffix {
     }
 
     /**
-     * From the given class number, determines which CSSuffix best matches the suffix.
+     * From the given class name, determines which CSSuffix best matches the suffix.
      *
-     * @param classNumber The class number to check.
-     * @return The CSSuffix instance that matches the class number. NONE is default.
+     * @param className The class name to check.
+     * @return The CSSuffix instance that matches the class name. NONE is default.
      */
-    public static CSSuffix fromClassNumber(String classNumber) {
-        classNumber = classNumber.trim();
+    public static CSSuffix fromClassName(String className) {
+        className = className.trim();
 
         // Try each suffix.
         for (CSSuffix suffix : values()) {
@@ -85,7 +85,7 @@ public enum CSSuffix {
             if (suffix == CSSuffix.NONE)
                 continue;
 
-            if (classNumber.toUpperCase().endsWith(suffix.getSuffix()))
+            if (className.toUpperCase().endsWith(suffix.getSuffix()))
                 return suffix;
         }
 

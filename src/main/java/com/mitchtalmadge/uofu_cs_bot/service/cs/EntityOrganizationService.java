@@ -98,11 +98,7 @@ public class EntityOrganizationService {
         // Order voice channels.
         orderChannels(guild, false);
 
-        // Update role settings.
-        updateRoleSettings(guild);
 
-        // Order roles
-        orderRoles(guild);
     }
 
     /**
@@ -135,35 +131,7 @@ public class EntityOrganizationService {
                 : guild.getController().modifyVoiceChannelPositions(), orderedChannels);
     }
 
-    /**
-     * Orders the roles of a guild.
-     *
-     * @param guild The guild.
-     */
-    private void orderRoles(Guild guild) {
-        // Get all the roles.
-        List<Role> roles = roleService.getAllRoles(guild);
 
-        // Partition the roles into two, based on whether or not they are class roles.
-        Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(Collectors.partitioningBy(r -> isClassName(r.getName())));
-
-        // Combine the roles back together with the class roles in order at the bottom.
-        // Do not re-order the other roles. We do not care about their order.
-        List<Role> orderedRoles = new ArrayList<>();
-        // Add non class roles.
-        orderedRoles.addAll(partitionedRoles.get(false));
-        // Sort class roles before adding
-        List<Role> classRoles = partitionedRoles.get(true);
-        classRoles.sort(Comparator.comparing(o -> o.getName().toUpperCase())); // Ignore case
-        // Add class roles
-        orderedRoles.addAll(classRoles);
-
-        // Remove @everyone role, as its order cannot be changed.
-        orderedRoles.removeIf(Role::isPublicRole);
-
-        // Perform ordering.
-        orderEntities(guild.getController().modifyRolePositions(false), orderedRoles);
-    }
 
     /**
      * Determines if the name is for a CS class.
@@ -185,30 +153,6 @@ public class EntityOrganizationService {
         }
 
         return true;
-    }
-
-    /**
-     * Orders the entities, with the provided order action, to their order in the provided list.
-     * Submits the order to Discord.
-     *
-     * @param orderAction The order action to use.
-     * @param order       The desired order of the entities.
-     * @param <E>         The entity type.
-     * @param <O>         The OrderAction type.
-     */
-    @SuppressWarnings("unchecked")
-    private <E, O extends OrderAction<? extends E, ? extends O>> void orderEntities(O orderAction, List<E> order) {
-        // Order the channels.
-        for (int i = 0; i < order.size(); i++) {
-            // Get the index of the current channel in the order list.
-            int currentOrderPosition = orderAction.getCurrentOrder().indexOf(order.get(i));
-
-            // Swap the current channel with the channel at the desired position.
-            orderAction.selectPosition(currentOrderPosition).swapPosition(i);
-        }
-
-        // Submit the changes to order.
-        orderAction.queue();
     }
 
     /**
@@ -306,41 +250,6 @@ public class EntityOrganizationService {
         });
     }
 
-    /**
-     * Updates the settings of all class roles, including:
-     * - Name
-     * - Permissions
-     * - Colors
-     * - Mentionable status
-     * - Hoisted status
-     *
-     * @param guild The guild.
-     */
-    private void updateRoleSettings(Guild guild) {
-        List<Role> roles = roleService.getAllRoles(guild);
 
-        roles.stream().filter(role -> isClassName(role.getName())).forEach(role -> {
-            RoleManagerUpdatable roleManager = role.getManagerUpdatable();
-
-            // Name
-            String roleName = role.getName();
-            if (!roleName.equals(roleName.toLowerCase()))
-                roleManager.getNameField().setValue(roleName.toLowerCase());
-
-            // Permissions
-            roleManager.getPermissionField().setPermissions(CSConstants.CS_ROLE_PERMISSIONS);
-
-            // Color
-            roleManager.getColorField().setValue(CSConstants.CS_ROLE_COLOR);
-
-            // Hoisted (Displayed separately)
-            roleManager.getHoistedField().setValue(CSConstants.CS_ROLE_HOISTED);
-
-            // Mentionable
-            roleManager.getMentionableField().setValue(CSConstants.CS_ROLE_MENTIONABLE);
-
-            roleManager.update().queue();
-        });
-    }
 
 }

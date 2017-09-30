@@ -67,7 +67,7 @@ public class CSRoleSyncService {
             try {
                 // Parse the role as a class.
                 CSClass roleClass = new CSClass(role.getName());
-                CSSuffix roleSuffix = CSSuffix.fromClassNumber(role.getName());
+                CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
 
                 // Remove the class if it exists.
                 if (missingRoles.containsKey(roleClass)) {

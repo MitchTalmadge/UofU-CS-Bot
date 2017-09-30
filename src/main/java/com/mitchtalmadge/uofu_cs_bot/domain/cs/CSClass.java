@@ -22,26 +22,25 @@ public class CSClass implements Comparable<CSClass> {
     }
 
     /**
-     * Constructs a Computer Science class reference from the given class number string.
-     * The number string is how the class might be displayed to a user, such as "cs-3500".
-     * Prefixes and suffixes allowed are those defined in {@link CSConstants}.
+     * Constructs a Computer Science class reference from the given class name.
+     * The class name is how the class might be displayed to a user, such as "cs-3500".
      *
-     * @param numberString May be formatted like: "CS-3500" "cs-3500-ta" "CS3500" "3500" "3500-TA" ... etc
+     * @param className May be formatted like: "CS-3500" "cs-3500-ta" "CS3500" "3500" "3500-TA" ... etc
      */
-    public CSClass(String numberString) {
+    public CSClass(String className) {
 
-        // New string that will be formatted for parsing while leaving the original intact.
-        String formattedNumberString = numberString;
+        // New class name that will be formatted for parsing while leaving the original intact.
+        String formattedClassName = className;
 
         // Remove all delimiters.
-        formattedNumberString = formattedNumberString.replaceAll(CSConstants.CLASS_NUMBER_DELIMITER, "");
+        formattedClassName = formattedClassName.replaceAll(CSConstants.CLASS_NUMBER_DELIMITER, "");
 
         // Remove all whitespace.
-        formattedNumberString = formattedNumberString.replaceAll("\\s", "");
+        formattedClassName = formattedClassName.replaceAll("\\s", "");
 
         // Remove prefixes.
-        if (formattedNumberString.toUpperCase().startsWith(CSConstants.CS_PREFIX))
-            formattedNumberString = formattedNumberString.substring(CSConstants.CS_PREFIX.length());
+        if (formattedClassName.toUpperCase().startsWith(CSConstants.CS_PREFIX))
+            formattedClassName = formattedClassName.substring(CSConstants.CS_PREFIX.length());
 
         // Remove suffixes.
         for (CSSuffix suffix : CSSuffix.values()) {
@@ -50,15 +49,15 @@ public class CSClass implements Comparable<CSClass> {
                 continue;
 
             // Check that the suffix exists in the string, and remove it if it does.
-            if (formattedNumberString.toUpperCase().endsWith(suffix.getSuffix()))
-                formattedNumberString = formattedNumberString.substring(0, formattedNumberString.length() - suffix.getSuffix().length());
+            if (formattedClassName.toUpperCase().endsWith(suffix.getSuffix()))
+                formattedClassName = formattedClassName.substring(0, formattedClassName.length() - suffix.getSuffix().length());
         }
 
-        // Try to parse the formattedNumberString as an int.
+        // Try to parse the formattedClassName as an int.
         try {
-            this.number = Integer.parseInt(formattedNumberString.trim());
+            this.number = Integer.parseInt(formattedClassName.trim());
         } catch (NumberFormatException ignored) {
-            throw new IllegalArgumentException("Could not parse class number string to integer: " + numberString);
+            throw new IllegalArgumentException("Could not convert class name to number: " + className);
         }
     }
 
