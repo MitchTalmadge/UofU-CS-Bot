@@ -62,10 +62,7 @@ public class CSRoleSyncService {
             missingRoles.put(enabledClass, missingSuffixes);
         }
 
-        // This set will contain the roles which should be removed as they are no longer valid.
-        Set<Role> invalidRoles = new HashSet<>();
-
-        // Find the existing roles.
+        // Find the existing roles and delete invalid roles.
         for (Role role : guild.getRoles()) {
             try {
                 // Parse the role as a class.
@@ -76,7 +73,9 @@ public class CSRoleSyncService {
                 if (missingRoles.containsKey(roleClass)) {
                     missingRoles.get(roleClass).remove(roleSuffix);
                 } else {
-                    invalidRoles.add(role);
+                    // Delete the role as it should not exist.
+                    logService.logInfo(getClass(), "Deleting invalid Role: " + role.getName());
+                    role.delete().queue();
                 }
             } catch (IllegalArgumentException ignored) {
                 // This role is not a class role.
@@ -96,42 +95,6 @@ public class CSRoleSyncService {
                     .setPermissions(suffix.getPermissions())
                     .queue();
         }));
-
-        // Delete the invalid roles.
-        invalidRoles.forEach(role -> {
-            logService.logInfo(getClass(), "Deleting invalid Role: " + role.getName());
-            role.delete().queue();
-        });
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

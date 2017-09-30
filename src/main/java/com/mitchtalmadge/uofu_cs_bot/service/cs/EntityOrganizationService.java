@@ -30,18 +30,12 @@ public class EntityOrganizationService {
 
     private final LogService logService;
     private final RoleAssignmentService roleAssignmentService;
-    private final ChannelService channelService;
-    private final RoleService roleService;
 
     @Autowired
     public EntityOrganizationService(LogService logService,
-                                     RoleAssignmentService roleAssignmentService,
-                                     ChannelService channelService,
-                                     RoleService roleService) {
+                                     RoleAssignmentService roleAssignmentService) {
         this.logService = logService;
         this.roleAssignmentService = roleAssignmentService;
-        this.channelService = channelService;
-        this.roleService = roleService;
     }
 
     /**

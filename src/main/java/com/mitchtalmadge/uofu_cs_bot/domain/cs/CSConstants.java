@@ -19,6 +19,11 @@ public class CSConstants {
     public static final String CLASS_NUMBER_DELIMITER = "-";
 
     /**
+     * The category to put all CS Channels into. Case sensitive.
+     */
+    public static final String CS_CHANNEL_CATEGORY = "Classes";
+
+    /**
      * The bitrate for voice channels.
      */
     public static final int CS_CHANNEL_VOICE_BITRATE = 64000;
