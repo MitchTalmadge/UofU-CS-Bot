@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -47,12 +48,6 @@ public class EntitySyncService {
      * Afterwards, calls on EntityOrganizationService to organize the entities, which have likely been altered by this method.
      */
     public void syncEntities(Guild guild) {
-        // Ensure env var exists
-        String classes = System.getenv(Constants.CS_CLASS_ENV_VAR);
-        if (classes == null || classes.isEmpty()) {
-            throw new IllegalArgumentException("The '" + Constants.CS_CLASS_ENV_VAR + "' environment variable is missing or empty!");
-        }
-
         logService.logInfo(getClass(), "Synchronizing CS Classes for Guild '" + guild.getName() + "': " + classes);
 
         // Get class numbers from the env var.
@@ -99,7 +94,7 @@ public class EntitySyncService {
      */
     private int[] getClassNumbersFromClassesList(String classes) throws IllegalArgumentException {
         // Split the classes up and turn them into integers.
-        String[] splitClasses = classes.split(Constants.CLASS_SPLIT_REGEX);
+        String[] splitClasses = classes.split(CSConstants.CLASS_SPLIT_REGEX);
         int[] classNumbers = new int[splitClasses.length];
         for (int i = 0; i < splitClasses.length; i++) {
             try {
@@ -178,20 +173,29 @@ public class EntitySyncService {
      */
     private boolean isOrphanedByName(int[] classNumbers, String name) {
         // Ignore those which do not start with the CS prefix.
-        if (!name.toLowerCase().startsWith(Constants.CS_PREFIX.toLowerCase()))
+        if (!name.toLowerCase().startsWith(CSConstants.CS_PREFIX.toLowerCase()))
             return false;
+
+        // Try to extract a class number.
+        // Substrings must be taken differently to avoid suffixes when present.
+        String extractedClassNumber = "";
+        if (name.toLowerCase().endsWith(CSConstants.CS_TA_SUFFIX.toLowerCase())) {
+            extractedClassNumber = name.substring(CSConstants.CS_PREFIX.length(), name.toLowerCase().indexOf(CSConstants.CS_TA_SUFFIX.toLowerCase()));
+        } else {
+            extractedClassNumber = name.substring(CSConstants.CS_PREFIX.length());
+        }
 
         // Ignore those which do not end in a parsable number.
         try {
             //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(name.substring(Constants.CS_PREFIX.length()));
+            Integer.parseInt(extractedClassNumber);
         } catch (NumberFormatException e) {
             return false;
         }
 
         // Ignore those which exist in the array of class numbers.
         for (int classNumber : classNumbers) {
-            if (name.equalsIgnoreCase(Constants.CS_PREFIX + classNumber))
+            if ((classNumber + "").equalsIgnoreCase(extractedClassNumber))
                 return false;
         }
 
@@ -213,11 +217,11 @@ public class EntitySyncService {
         // Check each number to see if a channel for it exists.
         for (int classNumber : classNumbers) {
             // Find any channel that matches the class number, and continue if one is found.
-            if (channels.stream().anyMatch(c -> c.getName().equalsIgnoreCase(Constants.CS_PREFIX + classNumber)))
+            if (channels.stream().anyMatch(c -> c.getName().equalsIgnoreCase(CSConstants.CS_PREFIX + classNumber)))
                 continue;
 
             // No channel found; create one.
-            String newChannelName = (Constants.CS_PREFIX + classNumber).toLowerCase();
+            String newChannelName = (CSConstants.CS_PREFIX + classNumber).toLowerCase();
             logService.logInfo(getClass(), "Creating Channel: " + newChannelName);
             channelService.createChannel(guild, channelType, newChannelName);
         }
@@ -232,16 +236,30 @@ public class EntitySyncService {
     private void addMissingRoles(Guild guild, int[] classNumbers) {
         List<Role> roles = roleService.getAllRoles(guild);
 
+        // Normal Roles
         // Check each number to see if a role for it exists.
         for (int classNumber : classNumbers) {
             // Find any role that matches the class number, and continue if one is found.
-            if (roles.stream().anyMatch(r -> r.getName().equalsIgnoreCase(Constants.CS_PREFIX + classNumber)))
+            if (roles.stream().anyMatch(r -> r.getName().equalsIgnoreCase(CSConstants.CS_PREFIX + classNumber)))
                 continue;
 
             // No role found; create one.
-            String newRoleName = (Constants.CS_PREFIX + classNumber).toLowerCase();
+            String newRoleName = (CSConstants.CS_PREFIX + classNumber).toLowerCase();
             logService.logInfo(getClass(), "Creating Role: " + newRoleName);
-            roleService.createRole(guild, newRoleName, Constants.CS_ROLE_COLOR, Constants.CS_ROLE_HOISTED, Constants.CS_ROLE_MENTIONABLE, Constants.CS_ROLE_PERMISSIONS);
+            roleService.createRole(guild, newRoleName, CSConstants.CS_ROLE_COLOR, CSConstants.CS_ROLE_HOISTED, CSConstants.CS_ROLE_MENTIONABLE, CSConstants.CS_ROLE_PERMISSIONS);
+        }
+
+        // TA Roles
+        // Check each number to see if a role for it exists.
+        for (int classNumber : classNumbers) {
+            // Find any role that matches the class number, and continue if one is found.
+            if (roles.stream().anyMatch(r -> r.getName().equalsIgnoreCase(CSConstants.CS_PREFIX + classNumber + CSConstants.CS_TA_SUFFIX)))
+                continue;
+
+            // No role found; create one.
+            String newRoleName = (CSConstants.CS_PREFIX + classNumber + CSConstants.CS_TA_SUFFIX).toLowerCase();
+            logService.logInfo(getClass(), "Creating TA Role: " + newRoleName);
+            roleService.createRole(guild, newRoleName, CSConstants.CS_TA_ROLE_COLOR, CSConstants.CS_TA_ROLE_HOISTED, CSConstants.CS_TA_ROLE_MENTIONABLE, CSConstants.CS_TA_ROLE_PERMISSIONS);
         }
     }
 }

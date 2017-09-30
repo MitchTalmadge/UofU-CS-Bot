@@ -1,0 +1,41 @@
+package com.mitchtalmadge.uofu_cs_bot.domain.cs;
+
+import java.util.regex.Pattern;
+
+/**
+ * Constants for Computer Science nicknames, channels, roles, etc.
+ */
+public class CSConstants {
+
+    /**
+     * The prefix of class numbers in nicknames, channels, and roles.
+     * Always in uppercase.
+     */
+    public static final String CS_PREFIX = "CS";
+
+    /**
+     * The delimiter between prefixes, class numbers, and suffixes in a nickname, channel, or role.
+     */
+    public static final String CLASS_NUMBER_DELIMITER = "-";
+
+    /**
+     * The bitrate for voice channels.
+     */
+    public static final int CS_CHANNEL_VOICE_BITRATE = 64000;
+
+    /**
+     * The user limit for voice channels; 0 = unlimited. May not be lower than 0 or higher than 99.
+     */
+    public static final int CS_CHANNEL_VOICE_USERLIMIT = 0;
+
+    /**
+     * Matches class numbers in the suffix of a nickname. Use group #1 to get all, split with the CLASS_SPLIT_REGEX.
+     */
+    public static final Pattern NICKNAME_CLASS_SUFFIX_PATTERN = Pattern.compile("\\[\\s*((\\d{4}\\s*(TA)?(,\\s*)*)+)\\s*]");
+
+    /**
+     * Used to split a list of class numbers from a nickname suffix into individual numbers.
+     */
+    public static final String CLASS_SPLIT_REGEX = "(,\\s*)+";
+
+}

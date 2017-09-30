@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
@@ -178,13 +179,13 @@ public class EntityOrganizationService {
      */
     private boolean isClassName(String name) {
         // Ignore those which do not start with the CS prefix.
-        if (!name.toLowerCase().startsWith(Constants.CS_PREFIX.toLowerCase()))
+        if (!name.toLowerCase().startsWith(CSConstants.CS_PREFIX.toLowerCase()))
             return false;
 
         // Ignore those which do not end in a parsable number.
         try {
             //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(name.substring(Constants.CS_PREFIX.length()));
+            Integer.parseInt(name.substring(CSConstants.CS_PREFIX.length()));
         } catch (NumberFormatException e) {
             return false;
         }
@@ -303,8 +304,8 @@ public class EntityOrganizationService {
             // Bitrate and User Limit
             if (!textChannels) {
                 channelManager = channelManager
-                        .getBitrateField().setValue(Constants.CS_CHANNEL_VOICE_BITRATE)
-                        .getUserLimitField().setValue(Constants.CS_CHANNEL_VOICE_USERLIMIT);
+                        .getBitrateField().setValue(CSConstants.CS_CHANNEL_VOICE_BITRATE)
+                        .getUserLimitField().setValue(CSConstants.CS_CHANNEL_VOICE_USERLIMIT);
             }
 
             channelManager.update().queue();
@@ -329,20 +330,20 @@ public class EntityOrganizationService {
 
             // Name
             String roleName = role.getName();
-            if (!roleName.equals(roleName.toUpperCase()))
-                roleManager.getNameField().setValue(roleName.toUpperCase());
+            if (!roleName.equals(roleName.toLowerCase()))
+                roleManager.getNameField().setValue(roleName.toLowerCase());
 
             // Permissions
-            roleManager.getPermissionField().setPermissions(Constants.CS_ROLE_PERMISSIONS);
+            roleManager.getPermissionField().setPermissions(CSConstants.CS_ROLE_PERMISSIONS);
 
             // Color
-            roleManager.getColorField().setValue(Constants.CS_ROLE_COLOR);
+            roleManager.getColorField().setValue(CSConstants.CS_ROLE_COLOR);
 
             // Hoisted (Displayed separately)
-            roleManager.getHoistedField().setValue(Constants.CS_ROLE_HOISTED);
+            roleManager.getHoistedField().setValue(CSConstants.CS_ROLE_HOISTED);
 
             // Mentionable
-            roleManager.getMentionableField().setValue(Constants.CS_ROLE_MENTIONABLE);
+            roleManager.getMentionableField().setValue(CSConstants.CS_ROLE_MENTIONABLE);
 
             roleManager.update().queue();
         });

@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.NickClassNumber;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.Guild;
@@ -69,7 +70,7 @@ public class RoleAssignmentService {
             return classNumbers;
 
         // Try to find class numbers.
-        Matcher classNumbersSuffixMatcher = Constants.NICKNAME_CLASS_SUFFIX_PATTERN.matcher(nickname);
+        Matcher classNumbersSuffixMatcher = CSConstants.NICKNAME_CLASS_SUFFIX_PATTERN.matcher(nickname);
         boolean matchFound = classNumbersSuffixMatcher.find();
 
         // No class numbers found.
@@ -78,7 +79,7 @@ public class RoleAssignmentService {
 
         // Retrieve found class numbers.
         String classNumbersSuffix = classNumbersSuffixMatcher.group(1);
-        String[] splitClassNumbersSuffix = classNumbersSuffix.split(Constants.CLASS_SPLIT_REGEX);
+        String[] splitClassNumbersSuffix = classNumbersSuffix.split(CSConstants.CLASS_SPLIT_REGEX);
         for (String classNumber : splitClassNumbersSuffix) {
             try {
                 // Parse the class number, removing "TA" first if present.
@@ -142,7 +143,7 @@ public class RoleAssignmentService {
         Set<String> namesOfRolesToAdd = new HashSet<>();
         for (NickClassNumber classNumber : classNumbers.values()) {
             // The name of the role for this class number.
-            String roleName = Constants.CS_PREFIX + classNumber.getClassNumber() + (classNumber.isTeachersAide() ? Constants.CS_TA_SUFFIX : "");
+            String roleName = CSConstants.CS_PREFIX + classNumber.getClassNumber() + (classNumber.isTeachersAide() ? CSConstants.CS_TA_SUFFIX : "");
 
             // Check that the user already has the role.
             if (roleNames.contains(roleName))
@@ -172,17 +173,17 @@ public class RoleAssignmentService {
         String roleName = role.getName();
 
         // Not a class number role.
-        if (!roleName.toLowerCase().startsWith(Constants.CS_PREFIX.toLowerCase()))
+        if (!roleName.toLowerCase().startsWith(CSConstants.CS_PREFIX.toLowerCase()))
             return -1;
 
         // Will contain the extracted class number.
         String classNumber;
 
-        // Substrings must be taken differently to avoid "TA" if it is present.
-        if (roleName.contains("TA")) {
-            classNumber = roleName.substring(Constants.CS_PREFIX.length(), roleName.indexOf("TA"));
+        // Substrings must be taken differently to avoid suffixes when present.
+        if (roleName.toLowerCase().endsWith(CSConstants.CS_TA_SUFFIX.toLowerCase())) {
+            classNumber = roleName.substring(CSConstants.CS_PREFIX.length(), roleName.toLowerCase().indexOf(CSConstants.CS_TA_SUFFIX.toLowerCase()));
         } else {
-            classNumber = roleName.substring(Constants.CS_PREFIX.length());
+            classNumber = roleName.substring(CSConstants.CS_PREFIX.length());
         }
 
         // Try to parse the class number.
