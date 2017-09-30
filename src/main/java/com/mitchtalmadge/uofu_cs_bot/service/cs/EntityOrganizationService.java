@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -257,11 +256,8 @@ public class EntityOrganizationService {
                     // Clear all permissions
                     manager = manager.clear(Permission.ALL_PERMISSIONS);
 
-                    // Deny read or connect
-                    if (textChannels)
-                        manager = manager.deny(Permission.MESSAGE_READ);
-                    else
-                        manager = manager.deny(Permission.VOICE_CONNECT);
+                    // Deny viewing
+                    manager = manager.deny(Permission.VIEW_CHANNEL);
 
                     manager.update().queue();
                     return;
@@ -275,11 +271,8 @@ public class EntityOrganizationService {
                     // Clear all permissions
                     manager = manager.clear(Permission.ALL_PERMISSIONS);
 
-                    // Deny read or connect
-                    if (textChannels)
-                        manager = manager.grant(Permission.MESSAGE_READ);
-                    else
-                        manager = manager.grant(Permission.VOICE_CONNECT);
+                    // Allow viewing
+                    manager = manager.grant(Permission.VIEW_CHANNEL);
 
                     manager.update().queue();
                     return;
@@ -292,24 +285,14 @@ public class EntityOrganizationService {
             // Create the channel's @everyone role permission override if not exists.
             if (!hasPermissionOverride[0]) {
                 PermissionOverrideAction override = channel.createPermissionOverride(roleService.getEveryoneRole(guild));
-
-                if (textChannels)
-                    override = override.setDeny(Permission.MESSAGE_READ);
-                else
-                    override = override.setDeny(Permission.VOICE_CONNECT);
-
+                override = override.setDeny(Permission.VIEW_CHANNEL);
                 override.queue();
             }
 
             // Create the channel's own role permission override if not exists.
             if (!hasPermissionOverride[1]) {
                 PermissionOverrideAction override = channel.createPermissionOverride(roleService.getRoleByName(guild, channelName));
-
-                if (textChannels)
-                    override = override.setAllow(Permission.MESSAGE_READ);
-                else
-                    override = override.setAllow(Permission.VOICE_CONNECT);
-
+                override = override.setAllow(Permission.VIEW_CHANNEL);
                 override.queue();
             }
 
