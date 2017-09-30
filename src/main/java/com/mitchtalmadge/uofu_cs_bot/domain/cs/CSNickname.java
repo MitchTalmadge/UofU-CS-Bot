@@ -64,7 +64,7 @@ public class CSNickname {
                 CSClass csClass = new CSClass(classNumber);
 
                 // Determine suffix.
-                CSSuffix csSuffix = determineSuffixOfClassNumber(classNumber);
+                CSSuffix csSuffix = CSSuffix.fromClassNumber(classNumber);
 
                 // Save.
                 classMap.put(csClass, csSuffix);
@@ -72,29 +72,6 @@ public class CSNickname {
                 // Could not parse the class. Invalid format.
             }
         }
-    }
-
-    /**
-     * From the given class number, determines which CSSuffix best matches the suffix.
-     *
-     * @param classNumber The class number to check.
-     * @return The CSSuffix instance that matches the class number.
-     */
-    private static CSSuffix determineSuffixOfClassNumber(String classNumber) {
-        classNumber = classNumber.trim();
-
-        // Try each suffix.
-        for (CSSuffix suffix : CSSuffix.values()) {
-            // Skip the default suffix.
-            if (suffix == CSSuffix.NONE)
-                continue;
-
-            if (classNumber.toUpperCase().endsWith(suffix.getSuffix()))
-                return suffix;
-        }
-
-        // If no suffix was found, return default suffix.
-        return CSSuffix.NONE;
     }
 
     /**

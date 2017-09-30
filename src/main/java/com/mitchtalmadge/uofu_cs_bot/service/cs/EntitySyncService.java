@@ -122,19 +122,7 @@ public class EntitySyncService {
                 });
     }
 
-    /**
-     * From the guild and array of class numbers, determines which roles must be deleted, and does so.
-     *
-     * @param guild        The guild to delete roles from.
-     * @param classNumbers The valid class numbers.
-     */
-    private void deleteInvalidRoles(Guild guild, int[] classNumbers) {
-        determineRolesToDelete(classNumbers, roleService.getAllRoles(guild))
-                .forEach(r -> {
-                    logService.logInfo(getClass(), "Deleting role: " + r.getName());
-                    roleService.deleteRole(r);
-                });
-    }
+
 
     /**
      * From the current class numbers and channels, determines which channels need to be deleted.
@@ -148,17 +136,7 @@ public class EntitySyncService {
         return channels.stream().filter(c -> isOrphanedByName(classNumbers, c.getName())).collect(Collectors.toSet());
     }
 
-    /**
-     * From the current class numbers and roles, determines which roles need to be deleted.
-     *
-     * @param classNumbers The class numbers.
-     * @param roles        The current roles.
-     * @return A set containing roles which should be deleted from the given list.
-     */
-    private Set<Role> determineRolesToDelete(int[] classNumbers, Collection<Role> roles) {
-        // Filter down the list of roles.
-        return roles.stream().filter(r -> isOrphanedByName(classNumbers, r.getName())).collect(Collectors.toSet());
-    }
+
 
     /**
      * Determines if the name of the channel, role, or whatever else is:
@@ -227,39 +205,5 @@ public class EntitySyncService {
         }
     }
 
-    /**
-     * From the guild and array of class numbers, determines which roles must be created, and does so.
-     *
-     * @param guild        The guild to create roles on.
-     * @param classNumbers The valid class numbers.
-     */
-    private void addMissingRoles(Guild guild, int[] classNumbers) {
-        List<Role> roles = roleService.getAllRoles(guild);
 
-        // Normal Roles
-        // Check each number to see if a role for it exists.
-        for (int classNumber : classNumbers) {
-            // Find any role that matches the class number, and continue if one is found.
-            if (roles.stream().anyMatch(r -> r.getName().equalsIgnoreCase(CSConstants.CS_PREFIX + classNumber)))
-                continue;
-
-            // No role found; create one.
-            String newRoleName = (CSConstants.CS_PREFIX + classNumber).toLowerCase();
-            logService.logInfo(getClass(), "Creating Role: " + newRoleName);
-            roleService.createRole(guild, newRoleName, CSConstants.CS_ROLE_COLOR, CSConstants.CS_ROLE_HOISTED, CSConstants.CS_ROLE_MENTIONABLE, CSConstants.CS_ROLE_PERMISSIONS);
-        }
-
-        // TA Roles
-        // Check each number to see if a role for it exists.
-        for (int classNumber : classNumbers) {
-            // Find any role that matches the class number, and continue if one is found.
-            if (roles.stream().anyMatch(r -> r.getName().equalsIgnoreCase(CSConstants.CS_PREFIX + classNumber + CSConstants.CS_TA_SUFFIX)))
-                continue;
-
-            // No role found; create one.
-            String newRoleName = (CSConstants.CS_PREFIX + classNumber + CSConstants.CS_TA_SUFFIX).toLowerCase();
-            logService.logInfo(getClass(), "Creating TA Role: " + newRoleName);
-            roleService.createRole(guild, newRoleName, CSConstants.CS_TA_ROLE_COLOR, CSConstants.CS_TA_ROLE_HOISTED, CSConstants.CS_TA_ROLE_MENTIONABLE, CSConstants.CS_TA_ROLE_PERMISSIONS);
-        }
-    }
 }

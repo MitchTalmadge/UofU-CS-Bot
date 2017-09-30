@@ -71,6 +71,29 @@ public enum CSSuffix {
     }
 
     /**
+     * From the given class number, determines which CSSuffix best matches the suffix.
+     *
+     * @param classNumber The class number to check.
+     * @return The CSSuffix instance that matches the class number. NONE is default.
+     */
+    public static CSSuffix fromClassNumber(String classNumber) {
+        classNumber = classNumber.trim();
+
+        // Try each suffix.
+        for (CSSuffix suffix : values()) {
+            // Skip the default suffix.
+            if (suffix == CSSuffix.NONE)
+                continue;
+
+            if (classNumber.toUpperCase().endsWith(suffix.getSuffix()))
+                return suffix;
+        }
+
+        // If no suffix was found, return default suffix.
+        return CSSuffix.NONE;
+    }
+
+    /**
      * The suffix itself. Always in uppercase.
      */
     public String getSuffix() {

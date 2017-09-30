@@ -1,9 +1,11 @@
 package com.mitchtalmadge.uofu_cs_bot.domain.cs;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents a Computer Science class, like CS-3500.
  */
-public class CSClass {
+public class CSClass implements Comparable<CSClass> {
 
     /**
      * The number associated with this class (e.g. 3500 for CS-3500).
@@ -44,7 +46,7 @@ public class CSClass {
         // Remove suffixes.
         for (CSSuffix suffix : CSSuffix.values()) {
             // Skip the default suffix.
-            if(suffix == CSSuffix.NONE)
+            if (suffix == CSSuffix.NONE)
                 continue;
 
             // Check that the suffix exists in the string, and remove it if it does.
@@ -82,4 +84,14 @@ public class CSClass {
         return number;
     }
 
+    /**
+     * Compares two CSClass instances by their numbers.
+     *
+     * @param other The CSClass instance to compare to.
+     * @return The result of Integer.compare for the two CSClass instances' numbers.
+     */
+    @Override
+    public int compareTo(@NotNull CSClass other) {
+        return Integer.compare(number, other.number);
+    }
 }
