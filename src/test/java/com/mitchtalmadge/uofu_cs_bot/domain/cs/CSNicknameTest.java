@@ -144,4 +144,43 @@ public class CSNicknameTest {
         // Three classes
         Assert.assertArrayEquals(new CSClass[]{cs2420, cs3500, cs3810}, new CSNickname("John Doe [Supreme Overlord][2420, 3500, 3810]").getClasses().toArray());
     }
+
+    /**
+     * Tests that a null nickname results in no classes parsed.
+     */
+    @Test
+    public void TestNullNickname() throws Exception {
+        Assert.assertArrayEquals(new CSClass[0], new CSNickname(null).getClasses().toArray());
+    }
+
+    /**
+     * Tests updating a nickname to proper naming conventions.
+     */
+    @Test
+    public void TestUpdateNicknameClassGroup() throws Exception {
+        // One class
+        Assert.assertEquals("John Doe [3500] [USD]", new CSNickname("John Doe (CS3500] [USD]").updateNicknameClassGroup("John Doe (CS3500] [USD]"));
+
+        // Two classes
+        Assert.assertEquals("[Super Cool Clan] John Doe [3500, 3810 TA]", new CSNickname("[Super Cool Clan] John Doe (cs-3500, CS-3810-TA)").updateNicknameClassGroup("[Super Cool Clan] John Doe (CS-3500, CS-3810-TA)"));
+
+        // Three classes
+        Assert.assertEquals("John Doe [Supreme Overlord][2420 PROF, 3500, 3810]", new CSNickname("John Doe [Supreme Overlord][3500,    2420prof,      3810]").updateNicknameClassGroup("John Doe [Supreme Overlord][3500,    2420prof,      3810]"));
+    }
+
+    /**
+     * Tests updating a nickname when the CSNickname has parsed no classes.
+     */
+    @Test
+    public void TestUpdateNicknameClassGroupWithNoClasses() throws Exception {
+        Assert.assertEquals("John Doe [USD]", new CSNickname("John Doe [USD]").updateNicknameClassGroup("John Doe [USD]"));
+    }
+
+    /**
+     * Tests updating a nickname when the nickname provided is null.
+     */
+    @Test
+    public void TestUpdateNicknameClassGroupWhenNull() throws Exception {
+        Assert.assertEquals(null, new CSNickname(null).updateNicknameClassGroup(null));
+    }
 }

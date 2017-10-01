@@ -7,6 +7,7 @@ import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.cs.CSClassService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
+import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,10 @@ public class CSRoleAssignmentService {
 
         // Modify the roles of the member.
         modifyMemberRoles(member, rolesToAdd, rolesToRemove);
+
+        // Update the member's nickname if we have power over them.
+        if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
+            updateMemberNickname(member, csNickname);
     }
 
     /**
@@ -138,6 +143,16 @@ public class CSRoleAssignmentService {
 
         // Modify the roles.
         discordService.getGuild().getController().modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
+    }
+
+    /**
+     * Updates the member's nickname to match naming conventions.
+     *
+     * @param member     The member.
+     * @param csNickname The parsed CS nickname for the member.
+     */
+    private void updateMemberNickname(Member member, CSNickname csNickname) {
+        discordService.getGuild().getController().setNickname(member, csNickname.updateNicknameClassGroup(member.getNickname())).queue();
     }
 
 }

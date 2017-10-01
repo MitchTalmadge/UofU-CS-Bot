@@ -1,5 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.domain.cs;
 
+import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +14,7 @@ public class CSNickname {
     /**
      * Pattern used for parsing the group of classes in a nickname: "John Doe [3500, CS-2420-TA]" -> "[3500, CS-2420-TA]".
      */
-    private static final Pattern CLASS_GROUP_PARSE_PATTERN = Pattern.compile("[\\[\\(]\\s*(((CS-?\\s*)?\\d+\\s*(-?[a-zA-Z]+)?(,\\s*)*)+)\\s*[\\]\\)]");
+    private static final Pattern CLASS_GROUP_PARSE_PATTERN = Pattern.compile("[\\[\\(]\\s*(((cs-?\\s*)?\\d+\\s*(-?[a-z]+)?(,\\s*)*)+)\\s*[\\]\\)]", Pattern.CASE_INSENSITIVE);
 
     /**
      * Pattern used for splitting the group of classes into individual class strings.
@@ -35,7 +37,7 @@ public class CSNickname {
         }
 
         // Search for class number group in nickname.
-        Matcher groupMatcher = CLASS_GROUP_PARSE_PATTERN.matcher(nickname.toUpperCase());
+        Matcher groupMatcher = CLASS_GROUP_PARSE_PATTERN.matcher(nickname);
         boolean matchFound = groupMatcher.find();
 
         // No class number group found.
@@ -78,4 +80,18 @@ public class CSNickname {
         return classMap.getOrDefault(csClass, null);
     }
 
+    /**
+     * Given a nickname, replaces the nickname class group with the properly formatted group
+     * composed of this instance's CS classes and suffixes.
+     * For example: "John Doe (CS3500, CS1410-ta)" -> "John Doe [1410 TA, 3500]"
+     *
+     * @param nickname The nickname to replace the group of.
+     * @return The modified nickname with the new class group.
+     */
+    public String updateNicknameClassGroup(String nickname) {
+        if(nickname == null)
+            return null;
+
+        return CLASS_GROUP_PARSE_PATTERN.matcher(nickname).replaceAll(CSNamingConventions.toNicknameClassGroup(classMap));
+    }
 }

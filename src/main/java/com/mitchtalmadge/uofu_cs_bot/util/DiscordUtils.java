@@ -1,5 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.util;
 
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.requests.restaction.order.OrderAction;
 
 import java.util.List;
@@ -31,6 +33,30 @@ public class DiscordUtils {
 
         // Submit the changes to order.
         orderAction.queue();
+    }
+
+    /**
+     * Determines if the right member has equal or higher roles to the left member.
+     *
+     * @param left  The left member.
+     * @param right The right member.
+     * @return True if the right member has equal or higher roles to the left member.
+     */
+    public static boolean hasEqualOrHigherRole(Member left, Member right) {
+        // Owner always has higher power.
+        if(left.isOwner())
+            return false;
+        if(right.isOwner())
+            return true;
+
+        // Get highest left role position.
+        int highLeft = left.getRoles().stream().map(Role::getPosition).reduce(0, Integer::max);
+
+        // Get highest right role position.
+        int highRight = right.getRoles().stream().map(Role::getPosition).reduce(0, Integer::max);
+
+        // Compare.
+        return highRight >= highLeft;
     }
 
 }
