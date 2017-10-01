@@ -33,14 +33,4 @@ public class CSConstants {
      */
     public static final int CS_CHANNEL_VOICE_USERLIMIT = 0;
 
-    /**
-     * Matches class numbers in the suffix of a nickname. Use group #1 to get all, split with the CLASS_SPLIT_REGEX.
-     */
-    public static final Pattern NICKNAME_CLASS_SUFFIX_PATTERN = Pattern.compile("\\[\\s*((\\d{4}\\s*(TA)?(,\\s*)*)+)\\s*]");
-
-    /**
-     * Used to split a list of class numbers from a nickname suffix into individual numbers.
-     */
-    public static final String CLASS_SPLIT_REGEX = "(,\\s*)+";
-
 }
