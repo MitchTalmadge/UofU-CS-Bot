@@ -1,12 +1,15 @@
 package com.mitchtalmadge.uofu_cs_bot.service;
 
 import com.mitchtalmadge.uofu_cs_bot.event.EventDistributor;
+import com.mitchtalmadge.uofu_cs_bot.service.cs.EntitySyncService;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -22,22 +25,25 @@ public class DiscordService {
     @Value("${DISCORD_TOKEN}")
     private String discordToken;
 
-    private final LogService logService;
-
     /**
      * The JDA (Discord API) instance.
      */
     private JDA jda;
 
-    /**
-     * The first guild connected to, which should be the only guild used throughout the application.
-     * (This bot is designed to work with only one guild.)
-     */
-    private Guild guild;
+    private final LogService logService;
+    private final ConfigurableApplicationContext applicationContext;
+    private final EventDistributor eventDistributor;
+    private final EntitySyncService entitySyncService;
 
     @Autowired
-    public DiscordService(LogService logService) {
+    public DiscordService(LogService logService,
+                          ConfigurableApplicationContext applicationContext,
+                          EventDistributor eventDistributor,
+                          EntitySyncService entitySyncService) {
         this.logService = logService;
+        this.applicationContext = applicationContext;
+        this.eventDistributor = eventDistributor;
+        this.entitySyncService = entitySyncService;
     }
 
     @PostConstruct
@@ -45,11 +51,16 @@ public class DiscordService {
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(discordToken)
+                    .addEventListener((EventListener) eventDistributor::onEvent)
                     .buildBlocking();
 
-            this.guild = jda.getGuilds().get(0);
+            // Startup procedures.
+            for (Guild guild : jda.getGuilds()) {
+                // Sync all the class channels, roles, etc.
+                entitySyncService.syncEntities(guild);
+            }
+
         } catch (LoginException e) {
-            logService.logException(getClass(), e, "Could not sign in to Discord");
             throw e;
         } catch (InterruptedException e) {
             logService.logException(getClass(), e, "JDA was interrupted while logging in");
@@ -65,17 +76,9 @@ public class DiscordService {
     }
 
     /**
-     * @return The JDA instance for this bot.
+     * @return The JDA Instance that is being used to connect to Discord.
      */
     public JDA getJDA() {
         return jda;
     }
-
-    /**
-     * @return The Guild that this bot is assigned to.
-     */
-    public Guild getGuild() {
-        return guild;
-    }
-
 }
