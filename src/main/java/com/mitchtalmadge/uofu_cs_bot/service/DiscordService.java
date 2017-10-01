@@ -24,9 +24,7 @@ public class DiscordService {
     private String discordToken;
 
     private final LogService logService;
-    private final ConfigurableApplicationContext applicationContext;
     private final EventDistributor eventDistributor;
-    private final EntitySyncService entitySyncService;
 
     /**
      * The JDA (Discord API) instance.
@@ -41,13 +39,9 @@ public class DiscordService {
 
     @Autowired
     public DiscordService(LogService logService,
-                          ConfigurableApplicationContext applicationContext,
-                          EventDistributor eventDistributor,
-                          EntitySyncService entitySyncService) {
+                          EventDistributor eventDistributor) {
         this.logService = logService;
-        this.applicationContext = applicationContext;
         this.eventDistributor = eventDistributor;
-        this.entitySyncService = entitySyncService;
     }
 
     @PostConstruct

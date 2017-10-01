@@ -29,7 +29,28 @@ public enum CSSuffix {
     /**
      * The suffix for TAs.
      */
-    TA("TA", Color.decode("0x3498DB"), false, true,
+    TA("TA", Color.decode("0x2ECC71"), false, true,
+            new Permission[]{
+                    Permission.NICKNAME_CHANGE,
+                    Permission.MESSAGE_WRITE,
+                    Permission.MESSAGE_EMBED_LINKS,
+                    Permission.MESSAGE_ATTACH_FILES,
+                    Permission.MESSAGE_HISTORY,
+                    Permission.MESSAGE_ADD_REACTION,
+                    Permission.VOICE_SPEAK,
+                    Permission.VOICE_USE_VAD,
+                    // Administrative privileges
+                    Permission.MESSAGE_MANAGE,
+                    Permission.KICK_MEMBERS,
+                    Permission.VOICE_MUTE_OTHERS,
+                    Permission.VOICE_DEAF_OTHERS
+            }
+    ),
+
+    /**
+     * The suffix for Professors.
+     */
+    PROFESSOR("PROF", Color.decode("0xE91E63"), false, true,
             new Permission[]{
                     Permission.NICKNAME_CHANGE,
                     Permission.MESSAGE_WRITE,

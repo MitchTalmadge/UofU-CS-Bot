@@ -5,7 +5,7 @@ import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class NicknameEventListener extends EventListener<GuildMemberNickChangeEvent> {
+public class NicknameEventListener extends EventListenerAbstract<GuildMemberNickChangeEvent> {
 
     private final LogService logService;
     private final RoleAssignmentService roleAssignmentService;
@@ -19,9 +19,7 @@ public class NicknameEventListener extends EventListener<GuildMemberNickChangeEv
 
     @Override
     public void onEvent(GuildMemberNickChangeEvent event) {
-        logService.logInfo(getClass(), "Nickname changed for " + event.getMember().getUser().getName() + ". Old: " + event.getPrevNick() + " - New: " + event.getNewNick());
 
-        roleAssignmentService.updateRoleAssignments(event.getMember());
     }
 
 
