@@ -71,7 +71,6 @@ public class CSRoleAssignmentService {
             Set<CSSuffix> allowedSuffixes = new HashSet<>();
             allowedSuffixes.add(CSSuffix.NONE);
             allowedSuffixes.add(csNickname.getSuffixForClass(csClass));
-
             missingRolesMap.put(csClass, allowedSuffixes);
         });
 

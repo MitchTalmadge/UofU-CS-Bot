@@ -26,20 +26,32 @@ public class CSRoleSyncService {
     private final LogService logService;
     private final DiscordService discordService;
     private final CSClassService csClassService;
+    private final CSRoleOrganizationService csRoleOrganizationService;
+    private final CSRoleAssignmentService csRoleAssignmentService;
 
     @Autowired
     public CSRoleSyncService(LogService logService,
                              DiscordService discordService,
-                             CSClassService csClassService) {
+                             CSClassService csClassService,
+                             CSRoleOrganizationService csRoleOrganizationService,
+                             CSRoleAssignmentService csRoleAssignmentService) {
         this.logService = logService;
         this.discordService = discordService;
         this.csClassService = csClassService;
+        this.csRoleOrganizationService = csRoleOrganizationService;
+        this.csRoleAssignmentService = csRoleAssignmentService;
     }
 
     @PostConstruct
     private void init() {
         // Creates and deletes roles as needed.
         SyncRoles();
+
+        // Organize roles.
+        csRoleOrganizationService.requestOrganization();
+
+        // Assign roles.
+        csRoleAssignmentService.updateAllMemberRoleAssignments();
     }
 
     /**

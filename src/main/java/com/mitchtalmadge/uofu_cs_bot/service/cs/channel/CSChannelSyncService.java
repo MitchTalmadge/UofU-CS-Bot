@@ -22,22 +22,30 @@ public class CSChannelSyncService {
     private final LogService logService;
     private final DiscordService discordService;
     private final CSClassService csClassService;
+    private final CSChannelOrganizationService csChannelOrganizationService;
 
     @Autowired
     public CSChannelSyncService(LogService logService,
                                 DiscordService discordService,
-                                CSClassService csClassService) {
+                                CSClassService csClassService,
+                                CSChannelOrganizationService csChannelOrganizationService) {
         this.logService = logService;
         this.discordService = discordService;
         this.csClassService = csClassService;
+        this.csChannelOrganizationService = csChannelOrganizationService;
     }
 
     @PostConstruct
     private void init() {
+        // Categories
         SyncChannelCategories();
 
+        // Channels
         SyncTextChannels();
         SyncVoiceChannels();
+
+        // Organize
+        csChannelOrganizationService.requestOrganization();
     }
 
     /**

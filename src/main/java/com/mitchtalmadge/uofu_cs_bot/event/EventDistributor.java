@@ -1,12 +1,14 @@
 package com.mitchtalmadge.uofu_cs_bot.event;
 
-import com.mitchtalmadge.uofu_cs_bot.event.listeners.AnyEventListenerAbstract;
 import com.mitchtalmadge.uofu_cs_bot.event.listeners.EventListenerAbstract;
+import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
 import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.hooks.EventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,19 +16,17 @@ import java.util.Set;
 @Component
 public class EventDistributor {
 
+    private final DiscordService discordService;
+
     /**
      * Maps Event Listeners to their parametrized Event types.
      */
     private final Map<Class<? extends Event>, EventListenerAbstract> eventListenerMap = new HashMap<>();
 
-    /**
-     * Should receive all events.
-     */
-    private final Set<AnyEventListenerAbstract> anyEventListeners;
-
     @Autowired
-    public EventDistributor(Set<EventListenerAbstract> eventListeners, Set<AnyEventListenerAbstract> anyEventListeners) {
-        this.anyEventListeners = anyEventListeners;
+    public EventDistributor(DiscordService discordService,
+                            Set<EventListenerAbstract> eventListeners) {
+        this.discordService = discordService;
 
         // Get the generic types and map them to the listeners.
         eventListeners.forEach(eventListener -> {
@@ -38,17 +38,20 @@ public class EventDistributor {
         });
     }
 
+    @PostConstruct
+    private void init() {
+        discordService.getJDA().addEventListener((EventListener) this::onEvent);
+    }
+
     /**
      * Called when a Discord event takes place.
+     *
      * @param event The event that took place.
      */
     public void onEvent(Event event) {
-        // Send event to the listeners who accept all events.
-        anyEventListeners.forEach(listener -> listener.onEvent(event));
-
         // Check for a specific listener for the event.
         eventListenerMap.forEach((aClass, listener) -> {
-            if(aClass.isAssignableFrom(event.getClass()))
+            if (aClass.isAssignableFrom(event.getClass()))
                 //noinspection unchecked
                 listener.onEvent(event);
         });

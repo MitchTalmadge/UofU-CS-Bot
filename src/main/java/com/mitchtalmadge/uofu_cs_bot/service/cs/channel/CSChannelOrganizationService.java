@@ -227,7 +227,7 @@ public class CSChannelOrganizationService {
      */
     private void orderTextChannels() {
         // Get all the channels.
-        List<TextChannel> channels = getClassesCategory().getTextChannels();
+        List<TextChannel> channels = discordService.getGuild().getTextChannels();
 
         // Partition the channels into two, based on whether or not they are class channels.
         Map<Boolean, List<Channel>> partitionedChannels = channels.stream().collect(Collectors.partitioningBy(channel -> {

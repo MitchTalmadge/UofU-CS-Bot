@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.EventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,6 @@ public class DiscordService {
     private String discordToken;
 
     private final LogService logService;
-    private final EventDistributor eventDistributor;
 
     /**
      * The JDA (Discord API) instance.
@@ -36,10 +36,8 @@ public class DiscordService {
     private Guild guild;
 
     @Autowired
-    public DiscordService(LogService logService,
-                          EventDistributor eventDistributor) {
+    public DiscordService(LogService logService) {
         this.logService = logService;
-        this.eventDistributor = eventDistributor;
     }
 
     @PostConstruct
@@ -47,7 +45,6 @@ public class DiscordService {
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(discordToken)
-                    .addEventListener((EventListener) eventDistributor::onEvent)
                     .buildBlocking();
 
             this.guild = jda.getGuilds().get(0);
@@ -68,9 +65,17 @@ public class DiscordService {
     }
 
     /**
+     * @return The JDA instance for this bot.
+     */
+    public JDA getJDA() {
+        return jda;
+    }
+
+    /**
      * @return The Guild that this bot is assigned to.
      */
     public Guild getGuild() {
         return guild;
     }
+
 }

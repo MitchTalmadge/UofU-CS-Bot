@@ -135,7 +135,10 @@ public class CSRoleOrganizationService {
         orderedRoles.addAll(partitionedRoles.get(false));
         // Sort class roles before adding
         List<Role> classRoles = partitionedRoles.get(true);
-        classRoles.sort(Comparator.comparing(o -> o.getName().toUpperCase())); // Ignore case by forcing all to uppercase.
+        classRoles.sort(
+                Comparator.comparing(obj -> CSSuffix.fromClassName(((Role) obj).getName())) // Order by suffix
+                        .thenComparing(obj -> ((Role) obj).getName().toUpperCase()) // Order by name; ignore case by forcing all to uppercase.
+                        .reversed()); // Reverse order so suffixes are at top of roles.
         // Add class roles
         orderedRoles.addAll(classRoles);
 
