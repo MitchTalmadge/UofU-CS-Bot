@@ -4,7 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.command.CommandDistributor;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MessageEventListener extends EventListener<MessageReceivedEvent> {
+public class MessageEventListener extends EventListenerAbstract<MessageReceivedEvent> {
 
     private static final String COMMAND_PREFIX = ",";
 
@@ -17,25 +17,7 @@ public class MessageEventListener extends EventListener<MessageReceivedEvent> {
 
     @Override
     public void onEvent(MessageReceivedEvent event) {
-        // Ignore messages from ourself.
-        if (event.getAuthor().equals(event.getJDA().getSelfUser()))
-            return;
 
-        // TODO: Chat commands
-        return;
-
-        /*switch (event.getChannelType()) {
-            case TEXT:
-                // Check for Command Prefix
-                if (event.getMessage().getRawContent().startsWith(COMMAND_PREFIX)) {
-                    // Split the message into arguments
-                    String[] args = event.getMessage().getRawContent().substring(COMMAND_PREFIX.length()).toLowerCase().split("\\s");
-
-                    // Create a command instance
-                    Command command = new Command(event, args);
-                    commandDistributor.onCommand(command);
-                }
-        }*/
     }
 
 }
