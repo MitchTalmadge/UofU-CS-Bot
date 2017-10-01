@@ -13,6 +13,8 @@ import java.util.TreeMap;
  */
 public class CSNamingConventions {
 
+    private CSNamingConventions() {}
+
     /**
      * Combines a CSClass and CSSuffix into a properly formatted role name.
      *

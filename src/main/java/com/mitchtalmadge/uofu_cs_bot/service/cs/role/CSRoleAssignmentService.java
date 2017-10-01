@@ -5,6 +5,7 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import com.mitchtalmadge.uofu_cs_bot.service.cs.CSClassService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -25,12 +26,15 @@ public class CSRoleAssignmentService {
 
     private final LogService logService;
     private final DiscordService discordService;
+    private final CSClassService csClassService;
 
     @Autowired
     public CSRoleAssignmentService(LogService logService,
-                                   DiscordService discordService) {
+                                   DiscordService discordService,
+                                   CSClassService csClassService) {
         this.logService = logService;
         this.discordService = discordService;
+        this.csClassService = csClassService;
     }
 
     /**
@@ -59,9 +63,15 @@ public class CSRoleAssignmentService {
         Map<CSClass, Set<CSSuffix>> missingRolesMap = new HashMap<>();
         // Populate the missing roles map.
         csNickname.getClasses().forEach(csClass -> {
+            // Don't allow classes which are not enabled.
+            if (!csClassService.getEnabledClasses().contains(csClass))
+                return;
+
+            // The suffixes that a member will be added to always includes NONE, as well as any specific suffix they may have.
             Set<CSSuffix> allowedSuffixes = new HashSet<>();
             allowedSuffixes.add(CSSuffix.NONE);
             allowedSuffixes.add(csNickname.getSuffixForClass(csClass));
+
             missingRolesMap.put(csClass, allowedSuffixes);
         });
 
