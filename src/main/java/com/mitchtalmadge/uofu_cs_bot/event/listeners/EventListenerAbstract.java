@@ -4,7 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
 import net.dv8tion.jda.core.events.Event;
 
 @InheritedComponent
-public abstract class EventListener<E extends Event> {
+public abstract class EventListenerAbstract<E extends Event> {
 
     public abstract void onEvent(E event);
 
