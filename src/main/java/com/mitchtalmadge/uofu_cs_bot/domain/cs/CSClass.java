@@ -26,8 +26,9 @@ public class CSClass implements Comparable<CSClass> {
      * The class name is how the class might be displayed to a user, such as "cs-3500".
      *
      * @param className May be formatted like: "CS-3500" "cs-3500-ta" "CS3500" "3500" "3500-TA" ... etc
+     * @throws InvalidClassNameException If the provided class name cannot be parsed.
      */
-    public CSClass(String className) {
+    public CSClass(String className) throws InvalidClassNameException {
 
         // New class name that will be formatted for parsing while leaving the original intact.
         String formattedClassName = className;
@@ -57,7 +58,7 @@ public class CSClass implements Comparable<CSClass> {
         try {
             this.number = Integer.parseInt(formattedClassName.trim());
         } catch (NumberFormatException ignored) {
-            throw new IllegalArgumentException("Could not convert class name to number: " + className);
+            throw new InvalidClassNameException(className);
         }
     }
 
@@ -66,6 +67,11 @@ public class CSClass implements Comparable<CSClass> {
      */
     public int getNumber() {
         return number;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(number);
     }
 
     @Override
@@ -92,5 +98,12 @@ public class CSClass implements Comparable<CSClass> {
     @Override
     public int compareTo(@NotNull CSClass other) {
         return Integer.compare(number, other.number);
+    }
+
+    public static class InvalidClassNameException extends Exception {
+
+        private InvalidClassNameException(String className) {
+            super("The provided class name ('" + className + "') is invalid and cannot be parsed.");
+        }
     }
 }

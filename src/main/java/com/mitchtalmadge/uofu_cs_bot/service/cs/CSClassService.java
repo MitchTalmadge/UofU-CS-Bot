@@ -53,8 +53,8 @@ public class CSClassService {
         for (String classNumber : classNumbers) {
             try {
                 enabledClasses.add(new CSClass(classNumber));
-            } catch (IllegalArgumentException e) {
-                logService.logException(getClass(), e, "A class number could not be parsed from the list of enabled classes.");
+            } catch (CSClass.InvalidClassNameException e) {
+                logService.logException(getClass(), e, "A class name could not be parsed from the list of enabled classes.");
             }
         }
     }

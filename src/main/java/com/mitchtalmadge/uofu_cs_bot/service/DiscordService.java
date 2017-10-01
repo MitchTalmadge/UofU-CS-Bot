@@ -1,7 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service;
 
 import com.mitchtalmadge.uofu_cs_bot.event.EventDistributor;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.EntitySyncService;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.EventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;

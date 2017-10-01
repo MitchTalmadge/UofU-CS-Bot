@@ -102,7 +102,7 @@ public class CSChannelOrganizationService {
                 updater = updater.getNSFWField().setValue(false);
 
                 updater.update().queue();
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This is not a class channel
             }
         });
@@ -135,7 +135,7 @@ public class CSChannelOrganizationService {
                         .getUserLimitField().setValue(CSConstants.CS_CHANNEL_VOICE_USERLIMIT);
 
                 updater.update().queue();
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This is not a class channel
             }
         });
@@ -196,7 +196,7 @@ public class CSChannelOrganizationService {
                     manager = manager.grant(Permission.VIEW_CHANNEL);
 
                     manager.update().queue();
-                } catch (IllegalArgumentException ignored) {
+                } catch (CSClass.InvalidClassNameException ignored) {
                     // This is not a class role. Delete its override.
                     override.delete().queue();
                 }
@@ -235,7 +235,7 @@ public class CSChannelOrganizationService {
             try {
                 new CSClass(channel.getName());
                 return true;
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 return false;
             }
         }));
@@ -268,7 +268,7 @@ public class CSChannelOrganizationService {
             try {
                 new CSClass(channel.getName());
                 return true;
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 return false;
             }
         }));

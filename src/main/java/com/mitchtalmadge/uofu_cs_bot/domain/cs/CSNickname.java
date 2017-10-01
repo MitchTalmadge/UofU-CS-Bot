@@ -1,11 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.domain.cs;
 
-import net.dv8tion.jda.core.entities.Member;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +12,7 @@ public class CSNickname {
     /**
      * Pattern used for parsing the group of classes in a nickname: "John Doe [3500, CS-2420-TA]" -> "[3500, CS-2420-TA]".
      */
-    private static final Pattern CLASS_GROUP_PARSE_PATTERN = Pattern.compile("\\[?\\(?\\s*(((CS\\s*)?\\d+\\s*(-?[a-zA-Z]+)?(,\\s*)*)+)\\s*]?\\)?");
+    private static final Pattern CLASS_GROUP_PARSE_PATTERN = Pattern.compile("[\\[\\(]\\s*(((CS-?\\s*)?\\d+\\s*(-?[a-zA-Z]+)?(,\\s*)*)+)\\s*[\\]\\)]");
 
     /**
      * Pattern used for splitting the group of classes into individual class strings.
@@ -25,30 +20,22 @@ public class CSNickname {
     private static final Pattern CLASS_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
     /**
-     * The member associated with this nickname.
-     */
-    private final Member member;
-
-    /**
      * Maps the member's discovered classes to the suffixes associated with those classes.
      */
-    private Map<CSClass, CSSuffix> classMap = new HashMap<>();
+    private Map<CSClass, CSSuffix> classMap = new TreeMap<>();
 
     /**
-     * Constructs an instance from the specified guild member.
+     * Constructs an instance from the specified nickname.
      *
-     * @param member The guild member whose nickname should be parsed.
+     * @param nickname The nickname to parse. May be null for no roles.
      */
-    public CSNickname(Member member) {
-        this.member = member;
-
-        // Make sure member has a nickname
-        if (member.getNickname() == null) {
+    public CSNickname(String nickname) {
+        if (nickname == null) {
             return;
         }
 
         // Search for class number group in nickname.
-        Matcher groupMatcher = CLASS_GROUP_PARSE_PATTERN.matcher(member.getNickname());
+        Matcher groupMatcher = CLASS_GROUP_PARSE_PATTERN.matcher(nickname.toUpperCase());
         boolean matchFound = groupMatcher.find();
 
         // No class number group found.
@@ -68,17 +55,10 @@ public class CSNickname {
 
                 // Save.
                 classMap.put(csClass, csSuffix);
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // Could not parse the class. Invalid format.
             }
         }
-    }
-
-    /**
-     * @return The member associated with this nickname.
-     */
-    public Member getMember() {
-        return member;
     }
 
     /**

@@ -84,7 +84,7 @@ public class CSChannelSyncService {
                     logService.logInfo(getClass(), "Deleting invalid Text Channel: " + channel.getName());
                     channel.delete().queue();
                 }
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This channel is not a class channel.
             }
         });
@@ -125,7 +125,7 @@ public class CSChannelSyncService {
                     logService.logInfo(getClass(), "Deleting invalid Voice Channel: " + channel.getName());
                     channel.delete().queue();
                 }
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This channel is not a class channel.
             }
         });

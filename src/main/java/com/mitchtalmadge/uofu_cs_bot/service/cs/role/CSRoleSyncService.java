@@ -77,7 +77,7 @@ public class CSRoleSyncService {
                     logService.logInfo(getClass(), "Deleting invalid Role: " + role.getName());
                     role.delete().queue();
                 }
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This role is not a class role.
             }
         }

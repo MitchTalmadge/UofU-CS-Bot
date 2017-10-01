@@ -4,7 +4,6 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.CSClassService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Role;
@@ -48,7 +47,7 @@ public class CSRoleOrganizationService {
 
     /**
      * Organizes roles and ensures that they have the proper permissions.
-     * Afterwards, calls on the {@link RoleAssignmentService} to re-check assignments.
+     * Afterwards, calls on the {@link CSRoleAssignmentService} to re-check assignments.
      * <p>
      * Will only organize when requested via the requestOrganization method.
      * <p>
@@ -105,7 +104,7 @@ public class CSRoleOrganizationService {
                 roleManager.getPermissionField().setPermissions(roleSuffix.getPermissions());
 
                 roleManager.update().queue();
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 // This is not a class role.
             }
         });
@@ -124,7 +123,7 @@ public class CSRoleOrganizationService {
             try {
                 new CSClass(role.getName());
                 return true;
-            } catch (IllegalArgumentException ignored) {
+            } catch (CSClass.InvalidClassNameException ignored) {
                 return false;
             }
         }));
