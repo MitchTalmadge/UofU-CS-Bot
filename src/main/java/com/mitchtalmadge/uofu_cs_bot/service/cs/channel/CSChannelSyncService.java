@@ -37,6 +37,14 @@ public class CSChannelSyncService {
 
     @PostConstruct
     private void init() {
+        BeginSynchronization();
+    }
+
+    /**
+     * Determines which channels and categories are missing or invalid,
+     * and adds or deletes them as necessary.
+     */
+    public void BeginSynchronization() {
         // Categories
         SyncChannelCategories();
 
@@ -68,7 +76,7 @@ public class CSChannelSyncService {
      * Ensures that all required text channels exist for the enabled classes.
      */
     private void SyncTextChannels() {
-        logService.logInfo(getClass(), "Synchronizing Channels...");
+        logService.logInfo(getClass(), "Synchronizing Text Channels...");
 
         Guild guild = discordService.getGuild();
         Set<CSClass> enabledClasses = csClassService.getEnabledClasses();
@@ -109,7 +117,7 @@ public class CSChannelSyncService {
      * Ensures that all required voice channels exist for the enabled classes.
      */
     private void SyncVoiceChannels() {
-        logService.logInfo(getClass(), "Synchronizing Channels...");
+        logService.logInfo(getClass(), "Synchronizing Voice Channels...");
 
         Guild guild = discordService.getGuild();
         Set<CSClass> enabledClasses = csClassService.getEnabledClasses();
