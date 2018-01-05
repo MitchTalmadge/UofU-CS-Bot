@@ -22,9 +22,20 @@ public class CSNickname {
     private static final Pattern CLASS_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
     /**
+     * An immutable, empty CS Nickname.
+     */
+    public static final CSNickname EMPTY = new CSNickname();
+
+    /**
      * Maps the member's discovered classes to the suffixes associated with those classes.
      */
     private Map<CSClass, CSSuffix> classMap = new TreeMap<>();
+
+    /**
+     * Creates an empty CS Nickname instance.
+     */
+    private CSNickname() {
+    }
 
     /**
      * Constructs an instance from the specified nickname.

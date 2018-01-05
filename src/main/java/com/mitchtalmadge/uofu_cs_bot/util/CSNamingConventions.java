@@ -53,8 +53,7 @@ public class CSNamingConventions {
      */
     public static String toNicknameClassGroup(Map<CSClass, CSSuffix> csClassMap) {
         // Sort the classes.
-        Map<CSClass, CSSuffix> sortedMap = new TreeMap<>();
-        sortedMap.putAll(csClassMap);
+        Map<CSClass, CSSuffix> sortedMap = new TreeMap<>(csClassMap);
 
         StringBuilder output = new StringBuilder();
         output.append('[');

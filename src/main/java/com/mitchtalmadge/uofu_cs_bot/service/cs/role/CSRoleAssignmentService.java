@@ -151,8 +151,8 @@ public class CSRoleAssignmentService {
      * @param member     The member.
      * @param csNickname The parsed CS nickname for the member.
      */
-    private void updateMemberNickname(Member member, CSNickname csNickname) {
-        discordService.getGuild().getController().setNickname(member, csNickname.updateNicknameClassGroup(member.getNickname())).queue();
+    public void updateMemberNickname(Member member, CSNickname csNickname) {
+        discordService.getGuild().getController().setNickname(member, csNickname.updateNicknameClassGroup(member.getNickname())).complete();
     }
 
 }
