@@ -59,7 +59,7 @@ public class CSNamingConventions {
         output.append('[');
 
         // Join all classes together.
-        StringJoiner classJoiner = new StringJoiner(", ");
+        StringJoiner classJoiner = new StringJoiner(",");
         sortedMap.forEach((csClass, suffix) -> classJoiner.add(toNicknameClass(csClass, suffix)));
         output.append(classJoiner);
 
@@ -80,7 +80,7 @@ public class CSNamingConventions {
         output.append(csClass.getNumber());
 
         if (csSuffix != CSSuffix.NONE)
-            output.append(' ').append(csSuffix.getSuffix());
+            output.append(csSuffix.getSuffix());
 
         return output.toString().toUpperCase();
     }

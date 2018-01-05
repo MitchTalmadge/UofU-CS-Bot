@@ -9,13 +9,10 @@ import com.mitchtalmadge.uofu_cs_bot.service.cs.role.CSRoleAssignmentService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.Month;
 import java.time.MonthDay;
 import java.time.ZoneId;
@@ -35,26 +32,18 @@ public class SemesterResetService {
      */
     private static final MonthDay[] SEMESTER_RESET_DAYS = {
             MonthDay.of(Month.AUGUST, 10),
-            MonthDay.of(Month.JANUARY, 5)
+            MonthDay.of(Month.JANUARY, 4)
     };
 
     /**
      * The announcement to send when the semester resets.
      */
-    private static final String SEMESTER_RESET_ANNOUNCEMENT;
-
-    static {
-
-        // Load announcement from file
-        String tempAnnouncement = null;
-        try {
-            tempAnnouncement = new String(Files.readAllBytes(new ClassPathResource("semester_reset_announcement.md").getFile().toPath()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        SEMESTER_RESET_ANNOUNCEMENT = tempAnnouncement;
-    }
+    private static final String SEMESTER_RESET_ANNOUNCEMENT = "@everyone\n" +
+            "\n" +
+            "Welcome to a new semester! **All class-specific channels and roles have been reset.** Please update your nickname with any CS classes you are enrolled in this semester, and remember to invite your friends!\n" +
+            "\n" +
+            "*Note: If you are a TA for any classes, just let a moderator know.*\n" +
+            "*Invite Link:* **bit.ly/csattheu**";
 
     private final LogService logService;
     private final DiscordService discordService;
@@ -80,7 +69,7 @@ public class SemesterResetService {
      * <p>
      * Finally, puts out an announcement that it is the end of the semester.
      */
-    @Scheduled(cron = "0 0 19 * * *")
+    @Scheduled(cron = "0 0 12 * * *", zone = "America/Denver")
     @Async
     protected void semesterReset() {
 
