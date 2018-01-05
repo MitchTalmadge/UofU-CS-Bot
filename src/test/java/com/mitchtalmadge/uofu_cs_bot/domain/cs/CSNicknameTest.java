@@ -162,10 +162,10 @@ public class CSNicknameTest {
         Assert.assertEquals("John Doe [3500] [USD]", new CSNickname("John Doe (CS3500] [USD]").updateNicknameClassGroup("John Doe (CS3500] [USD]"));
 
         // Two classes
-        Assert.assertEquals("[Super Cool Clan] John Doe [3500, 3810 TA]", new CSNickname("[Super Cool Clan] John Doe (cs-3500, CS-3810-TA)").updateNicknameClassGroup("[Super Cool Clan] John Doe (CS-3500, CS-3810-TA)"));
+        Assert.assertEquals("[Super Cool Clan] John Doe [3500,3810TA]", new CSNickname("[Super Cool Clan] John Doe (cs-3500, CS-3810-TA)").updateNicknameClassGroup("[Super Cool Clan] John Doe (CS-3500, CS-3810-TA)"));
 
         // Three classes
-        Assert.assertEquals("John Doe [Supreme Overlord][2420 PROF, 3500, 3810]", new CSNickname("John Doe [Supreme Overlord][3500,    2420prof,      3810]").updateNicknameClassGroup("John Doe [Supreme Overlord][3500,    2420prof,      3810]"));
+        Assert.assertEquals("John Doe [Supreme Overlord][2420PROF,3500,3810]", new CSNickname("John Doe [Supreme Overlord][3500,    2420prof,      3810]").updateNicknameClassGroup("John Doe [Supreme Overlord][3500,    2420prof,      3810]"));
     }
 
     /**

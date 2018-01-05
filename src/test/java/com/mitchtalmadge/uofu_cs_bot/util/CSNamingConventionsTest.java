@@ -42,6 +42,6 @@ public class CSNamingConventionsTest {
         classMap.put(cs3500, CSSuffix.NONE);
         classMap.put(cs1410, CSSuffix.TA);
 
-        Assert.assertEquals("[1410 TA, 3500]", CSNamingConventions.toNicknameClassGroup(classMap));
+        Assert.assertEquals("[1410TA,3500]", CSNamingConventions.toNicknameClassGroup(classMap));
     }
 }

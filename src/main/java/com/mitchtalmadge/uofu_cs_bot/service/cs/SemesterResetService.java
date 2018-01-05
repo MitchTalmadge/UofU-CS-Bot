@@ -32,7 +32,7 @@ public class SemesterResetService {
      */
     private static final MonthDay[] SEMESTER_RESET_DAYS = {
             MonthDay.of(Month.AUGUST, 10),
-            MonthDay.of(Month.JANUARY, 4)
+            MonthDay.of(Month.JANUARY, 5)
     };
 
     /**
