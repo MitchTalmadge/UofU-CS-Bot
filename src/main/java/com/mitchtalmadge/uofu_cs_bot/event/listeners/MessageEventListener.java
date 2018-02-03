@@ -1,12 +1,13 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
+import com.mitchtalmadge.uofu_cs_bot.command.Command;
 import com.mitchtalmadge.uofu_cs_bot.command.CommandDistributor;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MessageEventListener extends EventListenerAbstract<MessageReceivedEvent> {
 
-    private static final String COMMAND_PREFIX = ",";
+    private static final String COMMAND_PREFIX = "!";
 
     private final CommandDistributor commandDistributor;
 
@@ -18,6 +19,10 @@ public class MessageEventListener extends EventListenerAbstract<MessageReceivedE
     @Override
     public void onEvent(MessageReceivedEvent event) {
 
+        // Check for command prefix
+        if(event.getMessage().getContent().startsWith(COMMAND_PREFIX)) {
+            commandDistributor.onCommand(new Command(event, event.getMessage().getContent().substring(1).split("\\s")));
+        }
     }
 
 }
