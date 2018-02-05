@@ -1,7 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.event;
 
 import com.mitchtalmadge.uofu_cs_bot.event.listeners.EventListenerAbstract;
-import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.hooks.EventListener;
 import org.springframework.beans.factory.annotation.Autowired;

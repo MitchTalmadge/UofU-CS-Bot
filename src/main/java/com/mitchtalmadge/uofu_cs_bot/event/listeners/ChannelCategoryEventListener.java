@@ -1,23 +1,24 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
-import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent;
+import net.dv8tion.jda.core.events.channel.category.GenericCategoryEvent;
+import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Receives all voice-channel-based events.
+ * Receives all Channel-Category-based events.
  */
-public class VoiceChannelEventListener extends EventListenerAbstract<GenericVoiceChannelEvent> {
+public class ChannelCategoryEventListener extends EventListenerAbstract<GenericCategoryEvent> {
 
     private final ChannelSynchronizationService channelSynchronizationService;
 
     @Autowired
-    public VoiceChannelEventListener(ChannelSynchronizationService channelSynchronizationService) {
+    public ChannelCategoryEventListener(ChannelSynchronizationService channelSynchronizationService) {
         this.channelSynchronizationService = channelSynchronizationService;
     }
 
     @Override
-    public void onEvent(GenericVoiceChannelEvent event) {
+    public void onEvent(GenericCategoryEvent event) {
         channelSynchronizationService.requestSynchronization();
     }
 

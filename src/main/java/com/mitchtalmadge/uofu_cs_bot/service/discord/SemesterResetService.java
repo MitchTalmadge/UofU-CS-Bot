@@ -1,11 +1,10 @@
-package com.mitchtalmadge.uofu_cs_bot.service.cs;
+package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
-import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.channel.CSChannelSyncService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.role.CSRoleAssignmentService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.CSRoleAssignmentService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,20 +39,20 @@ public class SemesterResetService {
      */
     private static final String SEMESTER_RESET_ANNOUNCEMENT = "@everyone\n" +
             "\n" +
-            "Welcome to a new semester! **All class-specific channels and roles have been reset.** Please update your nickname with any CS classes you are enrolled in this semester, and remember to invite your friends!\n" +
+            "Welcome to a new semester! **All class-specific channels and roles have been reset.** Please update your nickname with any CS courses you are enrolled in this semester, and remember to invite your friends!\n" +
             "\n" +
-            "*Note: If you are a TA for any classes, just let a moderator know.*\n" +
+            "*Note: If you are a TA for any courses, just let a moderator know.*\n" +
             "*Invite Link:* **bit.ly/csattheu**";
 
     private final LogService logService;
     private final DiscordService discordService;
-    private final CSChannelSyncService channelSyncService;
+    private final ChannelSynchronizationService channelSyncService;
     private final CSRoleAssignmentService roleAssignmentService;
 
     @Autowired
     public SemesterResetService(LogService logService,
                                 DiscordService discordService,
-                                CSChannelSyncService channelSyncService,
+                                ChannelSynchronizationService channelSyncService,
                                 CSRoleAssignmentService roleAssignmentService) {
         this.logService = logService;
         this.discordService = discordService;
@@ -112,25 +111,25 @@ public class SemesterResetService {
 
     /**
      * Removes all CS channels, which will automatically be re-added by the
-     * {@link com.mitchtalmadge.uofu_cs_bot.service.cs.channel.CSChannelSyncService}
+     * {@link ChannelSynchronizationService}
      */
     private void resetChannels() {
         // Delete all CS channels
         discordService.getGuild().getTextChannels().forEach(channel -> {
             try {
-                // Parse the channel as a class to ensure it is actually a class channel.
-                new CSClass(channel.getName());
+                // Parse the channel as a course to ensure it is actually a course channel.
+                new Course(channel.getName());
 
                 logService.logInfo(getClass(), "Deleting Text Channel: " + channel.getName());
                 channel.delete().complete();
 
-            } catch (CSClass.InvalidClassNameException ignored) {
-                // This channel is not a class channel.
+            } catch (Course.InvalidCourseNameException ignored) {
+                // This channel is not a course channel.
             }
         });
 
-        // Request organization, which will re-add CS channels.
-        channelSyncService.BeginSynchronization();
+        // Request synchronization, which will re-add CS channels.
+        channelSyncService.requestSynchronization();
     }
 
     /**

@@ -1,11 +1,11 @@
-package com.mitchtalmadge.uofu_cs_bot.service.cs.role;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
-import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.CSClassService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Member;
@@ -27,15 +27,15 @@ public class CSRoleAssignmentService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private final CSClassService csClassService;
+    private final CourseService courseService;
 
     @Autowired
     public CSRoleAssignmentService(LogService logService,
                                    DiscordService discordService,
-                                   CSClassService csClassService) {
+                                   CourseService courseService) {
         this.logService = logService;
         this.discordService = discordService;
-        this.csClassService = csClassService;
+        this.courseService = courseService;
     }
 
     /**
@@ -58,14 +58,14 @@ public class CSRoleAssignmentService {
         // Get nickname of member.
         CSNickname csNickname = new CSNickname(member.getNickname());
 
-        // This map will initially contain all expected combinations of CSClass instances and CSSuffix instances that the
+        // This map will initially contain all expected combinations of Course instances and CSSuffix instances that the
         // member should be assigned to. Once found, the suffixes will be removed one-by-one. The remaining suffixes determine
         // which roles are missing from the member.
-        Map<CSClass, Set<CSSuffix>> missingRolesMap = new HashMap<>();
+        Map<Course, Set<CSSuffix>> missingRolesMap = new HashMap<>();
         // Populate the missing roles map.
         csNickname.getClasses().forEach(csClass -> {
-            // Don't allow classes which are not enabled.
-            if (!csClassService.getEnabledClasses().contains(csClass))
+            // Don't allow courses which are not enabled.
+            if (!courseService.getEnabledCourses().contains(csClass))
                 return;
 
             // The suffixes that a member will be added to always includes NONE, as well as any specific suffix they may have.
@@ -81,7 +81,7 @@ public class CSRoleAssignmentService {
         // Check each role of the member.
         member.getRoles().forEach(role -> {
             try {
-                CSClass roleClass = new CSClass(role.getName());
+                Course roleClass = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
 
                 // Check that this class role is allowed.
@@ -100,7 +100,7 @@ public class CSRoleAssignmentService {
 
                 // Remove this role from the missing map as it is present.
                 missingRolesMap.get(roleClass).remove(roleSuffix);
-            } catch (CSClass.InvalidClassNameException ignored) {
+            } catch (Course.InvalidCourseNameException ignored) {
                 // Not a class role.
             }
         });

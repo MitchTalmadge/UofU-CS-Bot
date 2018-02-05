@@ -35,6 +35,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return true;
             }
+
         };
 
         LOOSE_MATCH_A = new CommandPattern() {
@@ -52,6 +53,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return false;
             }
+
         };
 
         STRICT_MATCH_AB = new CommandPattern() {
@@ -69,6 +71,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return true;
             }
+
         };
 
         LOOSE_MATCH_AB = new CommandPattern() {
@@ -86,6 +89,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return false;
             }
+
         };
 
         STRICT_MATCH_ABC = new CommandPattern() {
@@ -103,6 +107,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return true;
             }
+
         };
 
         LOOSE_MATCH_ABC = new CommandPattern() {
@@ -120,6 +125,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return false;
             }
+
         };
 
         NO_MATCH = new CommandPattern() {
@@ -137,6 +143,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return false;
             }
+
         };
 
         EMPTY = new CommandPattern() {
@@ -154,6 +161,7 @@ public class CommandPatternComparatorTest {
             public boolean strict() {
                 return true;
             }
+
         };
     }
 

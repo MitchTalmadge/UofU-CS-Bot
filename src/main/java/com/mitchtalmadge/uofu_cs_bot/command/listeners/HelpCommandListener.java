@@ -9,16 +9,25 @@ public class HelpCommandListener extends CommandListener {
     @Override
     public String onCommand(Command command) {
 
-        String helpContent = null;
-
         if (command.getArgs().length > 1) {
-            //Sub help topics
+
+            switch (command.getArgs()[1].toLowerCase()) {
+                case "club":
+                case "clubs":
+                    return "Club Commands:\n" +
+                            "```\n" +
+                            "!club <join|leave> <club name> - Join or leave a club.\n" +
+                            "   Example: !club join acm - Join the acm club.\n" +
+                            "```";
+            }
+
         }
 
-        //TODO: Help message command
-        String message = "this is the help menu";
-
-        return message;
+        return "Valid Commands:\n" +
+                "```\n" +
+                "!help [subtopic] - Brings up this menu.\n" +
+                "!club <join|leave> <club name> - Join or leave a club.\n" +
+                "```";
     }
 
 }

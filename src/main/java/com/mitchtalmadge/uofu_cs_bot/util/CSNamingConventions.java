@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.util;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 
@@ -16,49 +16,49 @@ public class CSNamingConventions {
     private CSNamingConventions() {}
 
     /**
-     * Combines a CSClass and CSSuffix into a properly formatted role name.
+     * Combines a Course and CSSuffix into a properly formatted role name.
      *
-     * @param csClass  The class.
+     * @param course  The class.
      * @param csSuffix The suffix.
      * @return The role name.
      */
-    public static String toRoleName(CSClass csClass, CSSuffix csSuffix) {
+    public static String toRoleName(Course course, CSSuffix csSuffix) {
         StringBuilder output = new StringBuilder();
 
         // Append prefix and class number.
-        output.append(CSConstants.CS_PREFIX).append(CSConstants.CLASS_NUMBER_DELIMITER).append(csClass.getNumber());
+        output.append(CSConstants.CS_PREFIX).append(CSConstants.COURSE_NUMBER_DELIMITER).append(course.getNumber());
 
         // Append suffix if necessary.
         if (csSuffix != CSSuffix.NONE)
-            output.append(CSConstants.CLASS_NUMBER_DELIMITER).append(csSuffix.getSuffix());
+            output.append(CSConstants.COURSE_NUMBER_DELIMITER).append(csSuffix.getSuffix());
 
         return output.toString().toLowerCase();
     }
 
     /**
-     * From a CSClass instance, creates a properly formatted text/voice channel name.
+     * From a Course instance, creates a properly formatted text/voice channel name.
      *
-     * @param csClass The class.
+     * @param course The class.
      * @return The channel name.
      */
-    public static String toChannelName(CSClass csClass) {
-        return (CSConstants.CS_PREFIX + CSConstants.CLASS_NUMBER_DELIMITER + csClass.getNumber()).toLowerCase();
+    public static String toChannelName(Course course) {
+        return (CSConstants.CS_PREFIX + CSConstants.COURSE_NUMBER_DELIMITER + course.getNumber()).toLowerCase();
     }
 
     /**
-     * From a map of classes to suffixes, creates a properly formatted nickname class group (e.g. "[2420 TA, 3500]")
+     * From a map of courses to suffixes, creates a properly formatted nickname class group (e.g. "[2420 TA, 3500]")
      *
-     * @param csClassMap The map of classes to suffixes.
+     * @param csClassMap The map of courses to suffixes.
      * @return The nickname class group.
      */
-    public static String toNicknameClassGroup(Map<CSClass, CSSuffix> csClassMap) {
-        // Sort the classes.
-        Map<CSClass, CSSuffix> sortedMap = new TreeMap<>(csClassMap);
+    public static String toNicknameClassGroup(Map<Course, CSSuffix> csClassMap) {
+        // Sort the courses.
+        Map<Course, CSSuffix> sortedMap = new TreeMap<>(csClassMap);
 
         StringBuilder output = new StringBuilder();
         output.append('[');
 
-        // Join all classes together.
+        // Join all courses together.
         StringJoiner classJoiner = new StringJoiner(",");
         sortedMap.forEach((csClass, suffix) -> classJoiner.add(toNicknameClass(csClass, suffix)));
         output.append(classJoiner);
@@ -69,15 +69,15 @@ public class CSNamingConventions {
     }
 
     /**
-     * Combines a CSClass and CSSuffix into a properly formatted class name for a guild member's nickname.
+     * Combines a Course and CSSuffix into a properly formatted class name for a guild member's nickname.
      *
-     * @param csClass  The class.
+     * @param course  The class.
      * @param csSuffix The suffix.
      * @return The class name.
      */
-    public static String toNicknameClass(CSClass csClass, CSSuffix csSuffix) {
+    public static String toNicknameClass(Course course, CSSuffix csSuffix) {
         StringBuilder output = new StringBuilder();
-        output.append(csClass.getNumber());
+        output.append(course.getNumber());
 
         if (csSuffix != CSSuffix.NONE)
             output.append(csSuffix.getSuffix());
