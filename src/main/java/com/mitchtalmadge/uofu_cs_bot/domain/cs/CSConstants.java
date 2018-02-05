@@ -16,12 +16,7 @@ public class CSConstants {
     /**
      * The delimiter between prefixes, class numbers, and suffixes in a nickname, channel, or role.
      */
-    public static final String CLASS_NUMBER_DELIMITER = "-";
-
-    /**
-     * The category to put all CS Channels into. Case sensitive.
-     */
-    public static final String CS_CHANNEL_CATEGORY = "Classes";
+    public static final String COURSE_NUMBER_DELIMITER = "-";
 
     /**
      * The bitrate for voice channels.

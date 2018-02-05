@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.Permission;
 import java.awt.*;
 
 /**
- * Contains all valid suffixes for CS classes.
+ * Contains all valid suffixes for CS courses.
  * Suffixes act as modifiers that can determine a user's capabilities.
  */
 public enum CSSuffix {

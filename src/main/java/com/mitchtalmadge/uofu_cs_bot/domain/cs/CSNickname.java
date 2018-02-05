@@ -7,17 +7,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents the CS classes within a single guild member's nickname.
+ * Represents the CS courses within a single guild member's nickname.
  */
 public class CSNickname {
 
     /**
-     * Pattern used for parsing the group of classes in a nickname: "John Doe [3500, CS-2420-TA]" -> "[3500, CS-2420-TA]".
+     * Pattern used for parsing the group of courses in a nickname: "John Doe [3500, CS-2420-TA]" -> "[3500, CS-2420-TA]".
      */
     private static final Pattern CLASS_GROUP_PARSE_PATTERN = Pattern.compile("[\\[\\(]\\s*(((cs-?\\s*)?\\d+\\s*(-?[a-z]+)?(,\\s*)*)+)\\s*[\\]\\)]", Pattern.CASE_INSENSITIVE);
 
     /**
-     * Pattern used for splitting the group of classes into individual class strings.
+     * Pattern used for splitting the group of courses into individual class strings.
      */
     private static final Pattern CLASS_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
@@ -27,9 +27,9 @@ public class CSNickname {
     public static final CSNickname EMPTY = new CSNickname();
 
     /**
-     * Maps the member's discovered classes to the suffixes associated with those classes.
+     * Maps the member's discovered courses to the suffixes associated with those courses.
      */
-    private Map<CSClass, CSSuffix> classMap = new TreeMap<>();
+    private Map<Course, CSSuffix> classMap = new TreeMap<>();
 
     /**
      * Creates an empty CS Nickname instance.
@@ -61,39 +61,39 @@ public class CSNickname {
         for (String classNumber : classNumbers) {
             try {
                 // Determine class.
-                CSClass csClass = new CSClass(classNumber);
+                Course course = new Course(classNumber);
 
                 // Determine suffix.
                 CSSuffix csSuffix = CSSuffix.fromClassName(classNumber);
 
                 // Save.
-                classMap.put(csClass, csSuffix);
-            } catch (CSClass.InvalidClassNameException ignored) {
+                classMap.put(course, csSuffix);
+            } catch (Course.InvalidCourseNameException ignored) {
                 // Could not parse the class. Invalid format.
             }
         }
     }
 
     /**
-     * @return An unmodifiable set of classes parsed from this nickname.
+     * @return An unmodifiable set of courses parsed from this nickname.
      */
-    public Set<CSClass> getClasses() {
+    public Set<Course> getClasses() {
         return Collections.unmodifiableSet(classMap.keySet());
     }
 
     /**
      * Gets the suffix associated with the given class.
      *
-     * @param csClass The class.
+     * @param course The class.
      * @return The suffix of the given class, or null if the nickname does not include the given class.
      */
-    public CSSuffix getSuffixForClass(CSClass csClass) {
-        return classMap.getOrDefault(csClass, null);
+    public CSSuffix getSuffixForClass(Course course) {
+        return classMap.getOrDefault(course, null);
     }
 
     /**
      * Given a nickname, replaces the nickname class group with the properly formatted group
-     * composed of this instance's CS classes and suffixes.
+     * composed of this instance's CS courses and suffixes.
      * For example: "John Doe (CS3500, CS1410-ta)" -> "John Doe [1410 TA, 3500]"
      *
      * @param nickname The nickname to replace the group of.
