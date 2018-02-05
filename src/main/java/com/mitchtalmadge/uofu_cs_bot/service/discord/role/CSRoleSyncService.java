@@ -1,10 +1,10 @@
-package com.mitchtalmadge.uofu_cs_bot.service.cs.role;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
-import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.cs.CSClassService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
@@ -25,19 +25,19 @@ public class CSRoleSyncService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private final CSClassService csClassService;
+    private final CourseService courseService;
     private final CSRoleOrganizationService csRoleOrganizationService;
     private final CSRoleAssignmentService csRoleAssignmentService;
 
     @Autowired
     public CSRoleSyncService(LogService logService,
                              DiscordService discordService,
-                             CSClassService csClassService,
+                             CourseService courseService,
                              CSRoleOrganizationService csRoleOrganizationService,
                              CSRoleAssignmentService csRoleAssignmentService) {
         this.logService = logService;
         this.discordService = discordService;
-        this.csClassService = csClassService;
+        this.courseService = courseService;
         this.csRoleOrganizationService = csRoleOrganizationService;
         this.csRoleAssignmentService = csRoleAssignmentService;
     }
@@ -55,20 +55,20 @@ public class CSRoleSyncService {
     }
 
     /**
-     * Finds and creates any missing roles based on the enabled classes.
-     * Deletes any roles which are based on non-enabled classes.
+     * Finds and creates any missing roles based on the enabled courses.
+     * Deletes any roles which are based on non-enabled courses.
      */
     private void SyncRoles() {
         Guild guild = discordService.getGuild();
-        Set<CSClass> enabledClasses = csClassService.getEnabledClasses();
+        Set<Course> enabledClasses = courseService.getEnabledCourses();
         logService.logInfo(getClass(), "Synchronizing Roles...");
 
-        // This map starts by containing all enabled classes mapped to all suffixes. Suffixes are removed one-by-one as their roles are found.
-        // The remaining suffixes which have not been removed must be created as new roles for the mapped classes.
-        Map<CSClass, Set<CSSuffix>> missingRoles = new HashMap<>();
+        // This map starts by containing all enabled courses mapped to all suffixes. Suffixes are removed one-by-one as their roles are found.
+        // The remaining suffixes which have not been removed must be created as new roles for the mapped courses.
+        Map<Course, Set<CSSuffix>> missingRoles = new HashMap<>();
 
         // Pre-fill the missingRoles map.
-        for (CSClass enabledClass : enabledClasses) {
+        for (Course enabledClass : enabledClasses) {
             Set<CSSuffix> missingSuffixes = new HashSet<>();
             missingSuffixes.addAll(Arrays.asList(CSSuffix.values()));
             missingRoles.put(enabledClass, missingSuffixes);
@@ -78,7 +78,7 @@ public class CSRoleSyncService {
         for (Role role : guild.getRoles()) {
             try {
                 // Parse the role as a class.
-                CSClass roleClass = new CSClass(role.getName());
+                Course roleClass = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
 
                 // Remove the class if it exists.
@@ -89,7 +89,7 @@ public class CSRoleSyncService {
                     logService.logInfo(getClass(), "Deleting invalid Role: " + role.getName());
                     role.delete().queue();
                 }
-            } catch (CSClass.InvalidClassNameException ignored) {
+            } catch (Course.InvalidCourseNameException ignored) {
                 // This role is not a class role.
             }
         }

@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
-import com.mitchtalmadge.uofu_cs_bot.service.cs.role.CSRoleOrganizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.CSRoleOrganizationService;
 import net.dv8tion.jda.core.events.role.GenericRoleEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 

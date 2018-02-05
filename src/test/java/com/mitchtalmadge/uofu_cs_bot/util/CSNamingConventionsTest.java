@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.util;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,14 +8,12 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-
 public class CSNamingConventionsTest {
 
-    private static final CSClass cs1410 = new CSClass(1410);
-    private static final CSClass cs2420 = new CSClass(2420);
-    private static final CSClass cs3500 = new CSClass(3500);
-    private static final CSClass cs3810 = new CSClass(3810);
+    private static final Course cs1410 = new Course(1410);
+    private static final Course cs2420 = new Course(2420);
+    private static final Course cs3500 = new Course(3500);
+    private static final Course cs3810 = new Course(3810);
 
     @Test
     public void TestRoleNamingConvention() throws Exception {
@@ -38,7 +36,7 @@ public class CSNamingConventionsTest {
 
     @Test
     public void TestNicknameClassGroupNamingConvention() throws Exception {
-        Map<CSClass, CSSuffix> classMap = new HashMap<>();
+        Map<Course, CSSuffix> classMap = new HashMap<>();
         classMap.put(cs3500, CSSuffix.NONE);
         classMap.put(cs1410, CSSuffix.TA);
 

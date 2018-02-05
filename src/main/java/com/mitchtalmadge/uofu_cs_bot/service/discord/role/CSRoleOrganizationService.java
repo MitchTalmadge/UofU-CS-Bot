@@ -1,8 +1,8 @@
-package com.mitchtalmadge.uofu_cs_bot.service.cs.role;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
-import com.mitchtalmadge.uofu_cs_bot.service.DiscordService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
@@ -83,7 +83,7 @@ public class CSRoleOrganizationService {
 
         roles.forEach(role -> {
             try {
-                CSClass roleClass = new CSClass(role.getName());
+                Course roleClass = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
 
                 RoleManagerUpdatable roleManager = role.getManagerUpdatable();
@@ -104,7 +104,7 @@ public class CSRoleOrganizationService {
                 roleManager.getPermissionField().setPermissions(roleSuffix.getPermissions());
 
                 roleManager.update().queue();
-            } catch (CSClass.InvalidClassNameException ignored) {
+            } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a class role.
             }
         });
@@ -121,9 +121,9 @@ public class CSRoleOrganizationService {
         Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(Collectors.partitioningBy(role -> {
             // Attempt to parse the role as a CS Class. If successful, return true.
             try {
-                new CSClass(role.getName());
+                new Course(role.getName());
                 return true;
-            } catch (CSClass.InvalidClassNameException ignored) {
+            } catch (Course.InvalidCourseNameException ignored) {
                 return false;
             }
         }));

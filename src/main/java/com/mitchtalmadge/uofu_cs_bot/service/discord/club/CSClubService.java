@@ -1,9 +1,6 @@
-package com.mitchtalmadge.uofu_cs_bot.service.cs;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClass;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClub;
-import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +26,7 @@ public class CSClubService {
     private static final Pattern CLUB_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
     /**
-     * The enabled CS classes for the server.
+     * The enabled CS courses for the server.
      */
     private Set<CSClub> enabledClubs = new HashSet<>();
 

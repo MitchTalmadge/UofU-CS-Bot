@@ -1,6 +1,7 @@
-package com.mitchtalmadge.uofu_cs_bot.service;
+package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
 import com.mitchtalmadge.uofu_cs_bot.event.EventDistributor;
+import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
