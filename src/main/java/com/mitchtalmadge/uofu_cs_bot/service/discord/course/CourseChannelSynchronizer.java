@@ -19,19 +19,19 @@ import java.util.stream.Collectors;
 /**
  * Implementation of {@link ChannelSynchronizer} for Courses.
  */
-public class CourseSynchronizer extends ChannelSynchronizer {
+public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
     private static final String COURSE_CATEGORY_NAME = "Courses";
 
     private CourseService courseService;
 
     @Autowired
-    public CourseSynchronizer(CourseService CourseService) {
+    public CourseChannelSynchronizer(CourseService CourseService) {
         this.courseService = CourseService;
     }
 
     /**
-     * @return The category that all Course Channels belong to. May be null if the category does not yet exist.
+     * @return The category that all Course Channels belong to. May be null if the Category does not yet exist.
      */
     private Category getCoursesCategory(Guild guild) {
         List<Category> categories = guild.getCategoriesByName(COURSE_CATEGORY_NAME, false);
@@ -43,18 +43,19 @@ public class CourseSynchronizer extends ChannelSynchronizer {
 
     @Override
     public Pair<Collection<Category>, Collection<String>> synchronizeChannelCategories(List<Category> categories) {
+        // TODO: Create Courses Voice Category
 
-        // Create collections for returning.
+        // Create Collections for returning.
         Collection<Category> categoriesToRemove = new HashSet<>();
         Collection<String> categoriesToCreate = new HashSet<>();
 
-        // Check if the Courses category does not exist.
+        // Check if the Courses Category does not exist.
         if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_CATEGORY_NAME))) {
-            // Create the Courses category.
+            // Create the Courses Category.
             categoriesToCreate.add(COURSE_CATEGORY_NAME);
         }
 
-        // Return collections.
+        // Return Collections.
         return Pair.of(categoriesToRemove, categoriesToCreate);
     }
 

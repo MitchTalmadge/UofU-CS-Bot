@@ -2,6 +2,7 @@ package com.mitchtalmadge.uofu_cs_bot.command.listeners;
 
 import com.mitchtalmadge.uofu_cs_bot.command.Command;
 import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
+import net.dv8tion.jda.core.entities.Member;
 
 @InheritedComponent
 public abstract class CommandListener {

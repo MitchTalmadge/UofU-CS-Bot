@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSClub;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Keeps track of the enabled CS Clubs from the environment variables.
  */
 @Service
-public class CSClubService {
+public class ClubService {
 
     /**
      * The environment variable that contains the list of enabled clubs.
@@ -28,7 +28,7 @@ public class CSClubService {
     /**
      * The enabled CS courses for the server.
      */
-    private Set<CSClub> enabledClubs = new HashSet<>();
+    private Set<Club> enabledClubs = new HashSet<>();
 
     @PostConstruct
     private void init() {
@@ -43,14 +43,33 @@ public class CSClubService {
 
         // Parse each class number.
         for (String clubName : clubNames) {
-            enabledClubs.add(new CSClub(clubName));
+            enabledClubs.add(new Club(clubName));
         }
     }
 
     /**
      * @return An unmodifiable set of enabled clubs.
      */
-    public Set<CSClub> getEnabledClubs() {
+    public Set<Club> getEnabledClubs() {
         return Collections.unmodifiableSet(enabledClubs);
+    }
+
+    /**
+     * Given a Club name, returns the matching Club instance if one exists.
+     *
+     * @param clubName The name of the Club. Case-insensitive.
+     * @return The Club instance matching the name, or null if one does not exist.
+     */
+    public Club getClubFromName(String clubName) {
+
+        // Search for Club.
+        for (Club club : enabledClubs) {
+            // Compare names ignoring case.
+            if(club.getName().equalsIgnoreCase(clubName))
+                return club;
+        }
+
+        // No Club found.
+        return null;
     }
 }

@@ -20,7 +20,7 @@ public class CourseService {
     /**
      * The environment variable that contains the list of enabled courses.
      */
-    private static final String CS_COURSES_ENV_VAR = "CLASSES";
+    private static final String CS_COURSES_ENV_VAR = "COURSES";
 
     /**
      * Pattern used for splitting the enabled courses into individual course numbers.

@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.command;
 
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -26,5 +27,16 @@ public class Command {
 
     public String[] getArgs() {
         return args;
+    }
+
+    /**
+     * @return The Member that sent this command, determined either by the Guild the command was received in,
+     * or the first mutual Guild in the case of a private message.
+     */
+    public Member getMember() {
+        if(messageReceivedEvent.getMember() != null)
+            return messageReceivedEvent.getMember();
+
+        return messageReceivedEvent.getAuthor().getMutualGuilds().get(0).getMember(messageReceivedEvent.getAuthor());
     }
 }

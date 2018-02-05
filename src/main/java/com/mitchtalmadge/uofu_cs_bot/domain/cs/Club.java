@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Represents a Computer Science club, like ACM.
  */
-public class CSClub implements Comparable<CSClub> {
+public class Club implements Comparable<Club> {
 
     /**
      * The name associated with this club (eg. "ACM").
@@ -19,7 +19,7 @@ public class CSClub implements Comparable<CSClub> {
      *
      * @param name The name of the club (eg. "ACM").
      */
-    public CSClub(String name) {
+    public Club(String name) {
         this.name = name;
     }
 
@@ -39,8 +39,8 @@ public class CSClub implements Comparable<CSClub> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CSClub csClub = (CSClub) o;
-        return Objects.equals(name, csClub.name);
+        Club club = (Club) o;
+        return Objects.equals(name, club.name);
     }
 
     @Override
@@ -52,11 +52,11 @@ public class CSClub implements Comparable<CSClub> {
     /**
      * Compares two clubs by their names.
      *
-     * @param other The CSClub instance to compare to.
+     * @param other The Club instance to compare to.
      * @return The result of string comparison (ignoring case) for the club names.
      */
     @Override
-    public int compareTo(@NotNull CSClub other) {
+    public int compareTo(@NotNull Club other) {
         return name.compareToIgnoreCase(other.name);
     }
 }
