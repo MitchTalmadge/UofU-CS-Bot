@@ -64,7 +64,7 @@ public class CSNickname {
                 Course course = new Course(classNumber);
 
                 // Determine suffix.
-                CSSuffix csSuffix = CSSuffix.fromClassName(classNumber);
+                CSSuffix csSuffix = CSSuffix.fromCourseName(classNumber);
 
                 // Save.
                 classMap.put(course, csSuffix);

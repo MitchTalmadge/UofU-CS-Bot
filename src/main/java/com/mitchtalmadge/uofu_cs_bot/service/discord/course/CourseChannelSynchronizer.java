@@ -311,7 +311,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                 try { // Class role
                     Course course = new Course(role.getName());
 
-                    CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
+                    CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
                     overrideDetectionMap.put(roleSuffix, true);
 

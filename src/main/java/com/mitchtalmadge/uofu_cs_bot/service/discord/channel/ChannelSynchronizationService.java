@@ -28,15 +28,6 @@ public class ChannelSynchronizationService {
     private final DiscordService discordService;
     private Set<ChannelSynchronizer> channelSynchronizers;
 
-    /**
-     * Whenever another class requests synchronization, this field will be set to true. <br/>
-     * On the next scheduled synchronization, this field is checked to determine if synchronization should take place. <br/>
-     * Once finished, this field is set to false again.
-     * <p>
-     * This field is set to true initially so that synchronization occurs at least once on startup.
-     */
-    private boolean synchronizationRequested = true;
-
     @Autowired
     public ChannelSynchronizationService(LogService logService,
                                          DiscordService discordService,
@@ -47,31 +38,10 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Requests that Categories and Channels be synchronized at the next scheduled time.
-     */
-    public void requestSynchronization() {
-        synchronizationRequested = true;
-    }
-
-    /**
      * Begins synchronization of Channel Categories, Text Channels, and Voice Channels. <br/>
      * This may involve creating, deleting, modifying, or moving Categories and Channels as needed.
-     * <p>
-     * Synchronization only takes place if synchronizationRequested is true.
-     * <p>
-     * This method will fire every 60 seconds, with an initial delay of 15 seconds.
-     *
-     * @see ChannelSynchronizationService#synchronizationRequested
      */
-    @Scheduled(fixedDelay = 60_000, initialDelay = 15_000)
-    @Async
-    protected void synchronize() {
-
-        // Skip synchronization if not requested.
-        if (!synchronizationRequested)
-            return;
-
-        synchronizationRequested = false;
+    public void synchronize() {
 
         logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
 
@@ -112,7 +82,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(category -> {
                         logService.logInfo(getClass(), "--> Deleting Category: " + category.getName());
-                        category.delete().queue();
+                        category.delete().complete();
                     });
                 }
 
@@ -120,7 +90,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(categoryName -> {
                         logService.logInfo(getClass(), "--> Creating Category: " + categoryName);
-                        discordService.getGuild().getController().createCategory(categoryName).queue();
+                        discordService.getGuild().getController().createCategory(categoryName).complete();
                     });
                 }
 
@@ -144,7 +114,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(textChannel -> {
                         logService.logInfo(getClass(), "--> Deleting Text Channel: " + textChannel.getName());
-                        textChannel.delete().queue();
+                        textChannel.delete().complete();
                     });
                 }
 
@@ -152,7 +122,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(textChannelName -> {
                         logService.logInfo(getClass(), "--> Creating Text Channel: " + textChannelName);
-                        discordService.getGuild().getController().createTextChannel(textChannelName).queue();
+                        discordService.getGuild().getController().createTextChannel(textChannelName).complete();
                     });
                 }
 
@@ -176,7 +146,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(voiceChannel -> {
                         logService.logInfo(getClass(), "--> Deleting Voice Channel: " + voiceChannel.getName());
-                        voiceChannel.delete().queue();
+                        voiceChannel.delete().complete();
                     });
                 }
 
@@ -184,7 +154,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(voiceChannelName -> {
                         logService.logInfo(getClass(), "--> Creating Voice Channel: " + voiceChannelName);
-                        discordService.getGuild().getController().createVoiceChannel(voiceChannelName).queue();
+                        discordService.getGuild().getController().createVoiceChannel(voiceChannelName).complete();
                     });
                 }
 
@@ -205,7 +175,7 @@ public class ChannelSynchronizationService {
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -224,7 +194,7 @@ public class ChannelSynchronizationService {
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -243,7 +213,7 @@ public class ChannelSynchronizationService {
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -265,12 +235,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -278,7 +248,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }
@@ -301,12 +271,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -314,7 +284,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }
@@ -337,12 +307,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -350,7 +320,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }

@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.PermissionOverride;
@@ -9,16 +10,21 @@ import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Channel Synchronizers listen for and act upon channel synchronization lifecycle events.
+ * Channel Synchronizers listen for and act upon Channel synchronization lifecycle events.
  * Channels must be added, removed, and organized in a specific order to prevent collisions.
  */
+@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @InheritedComponent
 public abstract class ChannelSynchronizer {
+
+    @Autowired
+    protected DiscordService discordService;
 
     /**
      * Creates and/or deletes Channel Categories as necessary.
@@ -60,7 +66,7 @@ public abstract class ChannelSynchronizer {
      * Ensures that all Channel Categories have the correct settings.
      *
      * @param categories A List of all Channel Categories in the Guild.
-     * @return A Collection of ChannelManagerUpdatable instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
      */
     public abstract Collection<ChannelManagerUpdatable> updateChannelCategorySettings(List<Category> categories);
 
@@ -68,7 +74,7 @@ public abstract class ChannelSynchronizer {
      * Ensures that all Text Channels have the correct settings.
      *
      * @param textChannels A List of all Text Channels in the Guild.
-     * @return A Collection of ChannelManagerUpdatable instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
      */
     public abstract Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> textChannels);
 
@@ -76,7 +82,7 @@ public abstract class ChannelSynchronizer {
      * Ensures that all Voice Channels have the correct settings.
      *
      * @param voiceChannels A List of all Voice Channels in the Guild.
-     * @return A Collection of ChannelManagerUpdatable instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
      */
     public abstract Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> voiceChannels);
 
@@ -88,11 +94,11 @@ public abstract class ChannelSynchronizer {
      * <ol>
      * <li>Another Pair containing
      * <ol>
-     * <li>A Collection of PermissionOverrides to delete.</li>
-     * <li>A Collection of PermissionOverrideActions to queue.</li>
+     * <li>A Collection of {@link PermissionOverride} to delete.</li>
+     * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of PermOverrideManagerUpdatables to queue.</li>
+     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
      * </ol>
      */
     public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateChannelCategoryPermissions(List<Category> categories);
@@ -105,11 +111,11 @@ public abstract class ChannelSynchronizer {
      * <ol>
      * <li>Another Pair containing
      * <ol>
-     * <li>A Collection of PermissionOverrides to delete.</li>
-     * <li>A Collection of PermissionOverrideActions to queue.</li>
+     * <li>A Collection of {@link PermissionOverride} to delete.</li>
+     * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of PermOverrideManagerUpdatables to queue.</li>
+     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
      * </ol>
      */
     public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> textChannels);
@@ -122,11 +128,11 @@ public abstract class ChannelSynchronizer {
      * <ol>
      * <li>Another Pair containing
      * <ol>
-     * <li>A Collection of PermissionOverrides to delete.</li>
-     * <li>A Collection of PermissionOverrideActions to queue.</li>
+     * <li>A Collection of {@link PermissionOverride} to delete.</li>
+     * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of PermOverrideManagerUpdatables to queue.</li>
+     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
      * </ol>
      */
     public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> voiceChannels);

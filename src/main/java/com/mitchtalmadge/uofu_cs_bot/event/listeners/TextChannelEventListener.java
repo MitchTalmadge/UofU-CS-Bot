@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
-import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationService;
 import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TextChannelEventListener extends EventListenerAbstract<GenericTextChannelEvent> {
 
-    private final ChannelSynchronizationService channelSynchronizationService;
+    private final DiscordSynchronizationService discordSynchronizationService;
 
     @Autowired
-    public TextChannelEventListener(ChannelSynchronizationService channelSynchronizationService) {
-        this.channelSynchronizationService = channelSynchronizationService;
+    public TextChannelEventListener(DiscordSynchronizationService discordSynchronizationService) {
+        this.discordSynchronizationService = discordSynchronizationService;
     }
 
     @Override
     public void onEvent(GenericTextChannelEvent event) {
-        channelSynchronizationService.requestSynchronization();
+        discordSynchronizationService.requestSynchronization();
     }
 
 }

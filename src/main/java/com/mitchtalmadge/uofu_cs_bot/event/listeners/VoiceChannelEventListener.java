@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
-import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationService;
 import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class VoiceChannelEventListener extends EventListenerAbstract<GenericVoiceChannelEvent> {
 
-    private final ChannelSynchronizationService channelSynchronizationService;
+    private final DiscordSynchronizationService discordSynchronizationService;
 
     @Autowired
-    public VoiceChannelEventListener(ChannelSynchronizationService channelSynchronizationService) {
-        this.channelSynchronizationService = channelSynchronizationService;
+    public VoiceChannelEventListener(DiscordSynchronizationService discordSynchronizationService) {
+        this.discordSynchronizationService = discordSynchronizationService;
     }
 
     @Override
     public void onEvent(GenericVoiceChannelEvent event) {
-        channelSynchronizationService.requestSynchronization();
+        discordSynchronizationService.requestSynchronization();
     }
 
 }
