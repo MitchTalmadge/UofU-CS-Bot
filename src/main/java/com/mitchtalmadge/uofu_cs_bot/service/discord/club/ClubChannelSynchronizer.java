@@ -1,6 +1,9 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
+import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
@@ -8,9 +11,7 @@ import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Implementation of {@link ChannelSynchronizer} for Clubs.
@@ -39,8 +40,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public Pair<Collection<Category>, Collection<String>> synchronizeChannelCategories(List<Category> categories) {
-        // TODO: Create Clubs Voice Category
-
         // Create Collections for returning.
         Collection<Category> categoriesToRemove = new HashSet<>();
         Collection<String> categoriesToCreate = new HashSet<>();
@@ -51,15 +50,50 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
             categoriesToCreate.add(CLUB_CATEGORY_NAME);
         }
 
+        // TODO: Create Clubs Voice Category
+
         // Return Collections.
         return Pair.of(categoriesToRemove, categoriesToCreate);
     }
 
     @Override
     public Pair<Collection<TextChannel>, Collection<String>> synchronizeTextChannels(List<TextChannel> textChannels) {
-        // TODO: Create club and club admin channels.
+        // Create collections for returning.
+        Collection<TextChannel> channelsToRemove = new HashSet<>();
+        Collection<String> channelsToCreate = new HashSet<>();
 
-        return null;
+        // Get all enabled Clubs.
+        Set<Club> enabledClubs = clubService.getEnabledClubs();
+
+        // For each club, determine what channels must be created.
+        enabledClubs.forEach(club -> {
+
+            // Find public club channel
+            if (discordService.getGuild().getTextChannelsByName(getChannelNameFromClub(club, false), false).size() == 0)
+                channelsToCreate.add(getChannelNameFromClub(club, false));
+
+            // Find admin club channel
+            if (discordService.getGuild().getTextChannelsByName(getChannelNameFromClub(club, true), false).size() == 0)
+                channelsToCreate.add(getChannelNameFromClub(club, true));
+        });
+
+        // Make sure each the club associated with any given channel is enabled.
+        // If not, delete the channel.
+        textChannels.forEach(channel -> {
+            // Ensure channel is a club channel.
+            if (!channel.getName().startsWith("club-"))
+                return;
+
+            // Get club from channel.
+            Club club = getClubFromChannel(channel);
+
+            // Delete channel if the club is not enabled.
+            if (club == null)
+                channelsToRemove.add(channel);
+        });
+
+        // Return collections.
+        return Pair.of(channelsToRemove, channelsToCreate);
     }
 
     @Override
@@ -67,6 +101,32 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         // TODO: Create club and club admin channels.
 
         return null;
+    }
+
+    /**
+     * From the given channel, returns the associated club (determined by channel name).
+     *
+     * @param channel The channel.
+     * @return The club associated with the channel, or null if one could not be associated.
+     */
+    private Club getClubFromChannel(Channel channel) {
+        // Iterate over all clubs and compare names.
+        return clubService.getEnabledClubs()
+                .stream()
+                .filter(club -> channel.getName().toLowerCase().startsWith("club-" + club.getName().toLowerCase()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * From a club, determines the name of the channel related to that club.
+     *
+     * @param club         The club.
+     * @param adminChannel Whether the channel is for admins or not.
+     * @return The name of the channel for the club.
+     */
+    private String getChannelNameFromClub(Club club, boolean adminChannel) {
+        return "club-" + club.getName().toLowerCase() + (adminChannel ? "-admin" : "");
     }
 
     @Override
