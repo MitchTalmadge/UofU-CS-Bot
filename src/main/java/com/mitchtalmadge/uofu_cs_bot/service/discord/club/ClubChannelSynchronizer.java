@@ -4,6 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
@@ -71,9 +72,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         // Make sure each the club associated with any given channel is enabled.
         // If not, delete the channel.
         filteredChannels.forEach(channel -> {
-            // Ensure channel is a club channel.
-            if (!channel.getName().startsWith("club-"))
-                return;
 
             // Get club from channel.
             Club club = getClubFromChannel(channel);
@@ -106,10 +104,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
 
         filteredChannels.forEach(textChannel -> {
-
-            // Ensure channel is a club channel.
-            if (!textChannel.getName().startsWith("club-"))
-                return;
 
             // Get club from channel.
             Club club = getClubFromChannel(textChannel);
@@ -144,7 +138,105 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
-        return null;
+        // Create Collections for returning.
+        Collection<PermissionOverride> permissionOverrides = new HashSet<>();
+        Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
+        Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
+
+        filteredChannels.forEach(textChannel -> {
+
+            // Get club
+            Club club = getClubFromChannel(textChannel);
+
+            // Admin Permissions
+            if (textChannel.getName().endsWith("admin")) {
+                // Delete any overrides that don't belong.
+                textChannel.getPermissionOverrides().forEach(permissionOverride -> {
+                    if (permissionOverride.getRole().isPublicRole()
+                            || (permissionOverride.getRole().getName().startsWith("club-") && permissionOverride.getRole().getName().endsWith("admin")))
+                        return;
+
+                    permissionOverrides.add(permissionOverride);
+                });
+
+                // Recreate overrides that do belong.
+
+                PermissionOverride override;
+
+                // @everyone
+                if ((override = textChannel.getPermissionOverride(textChannel.getGuild().getPublicRole())) == null) {
+                    // Create new Permissions
+                    PermissionOverrideAction overrideAction = textChannel.createPermissionOverride(textChannel.getGuild().getPublicRole());
+                    overrideAction = overrideAction.setDeny(Permission.VIEW_CHANNEL);
+                    permissionOverrideActions.add(overrideAction);
+                } else {
+                    // Update existing Permissions
+                    permOverrideManagerUpdatables.add(
+                            override.getManagerUpdatable()
+                                    .clear(Permission.ALL_PERMISSIONS)
+                                    .deny(Permission.VIEW_CHANNEL));
+                }
+
+                // Admin role
+                if ((override = textChannel.getPermissionOverride(textChannel.getGuild().getRolesByName("club-" + club.getName().toLowerCase() + "-admin", true).get(0))) == null) {
+                    // Create new Permissions
+                    PermissionOverrideAction overrideAction = textChannel.createPermissionOverride(textChannel.getGuild().getRolesByName("club-" + club.getName().toLowerCase() + "-admin", true).get(0));
+                    overrideAction = overrideAction.setAllow(Permission.VIEW_CHANNEL);
+                    permissionOverrideActions.add(overrideAction);
+                } else {
+                    // Update existing Permissions
+                    permOverrideManagerUpdatables.add(
+                            override.getManagerUpdatable()
+                                    .clear(Permission.ALL_PERMISSIONS)
+                                    .grant(Permission.VIEW_CHANNEL));
+                }
+            } else { // Public permissions
+
+                // Delete any overrides that don't belong.
+                textChannel.getPermissionOverrides().forEach(permissionOverride -> {
+                    if (permissionOverride.getRole().isPublicRole()
+                            || (permissionOverride.getRole().getName().startsWith("club-") && !permissionOverride.getRole().getName().endsWith("admin")))
+                        return;
+
+                    permissionOverrides.add(permissionOverride);
+                });
+
+                // Recreate overrides that do belong.
+
+                PermissionOverride override;
+
+                // @everyone
+                if ((override = textChannel.getPermissionOverride(textChannel.getGuild().getPublicRole())) == null) {
+                    // Create new Permissions
+                    PermissionOverrideAction overrideAction = textChannel.createPermissionOverride(textChannel.getGuild().getPublicRole());
+                    overrideAction = overrideAction.setDeny(Permission.VIEW_CHANNEL);
+                    permissionOverrideActions.add(overrideAction);
+                } else {
+                    // Update existing Permissions
+                    permOverrideManagerUpdatables.add(
+                            override.getManagerUpdatable()
+                                    .clear(Permission.ALL_PERMISSIONS)
+                                    .deny(Permission.VIEW_CHANNEL));
+                }
+
+                // Public role
+                if ((override = textChannel.getPermissionOverride(textChannel.getGuild().getRolesByName("club-" + club.getName().toLowerCase(), true).get(0))) == null) {
+                    // Create new Permissions
+                    PermissionOverrideAction overrideAction = textChannel.createPermissionOverride(textChannel.getGuild().getRolesByName("club-" + club.getName().toLowerCase(), true).get(0));
+                    overrideAction = overrideAction.setAllow(Permission.VIEW_CHANNEL);
+                    permissionOverrideActions.add(overrideAction);
+                } else {
+                    // Update existing Permissions
+                    permOverrideManagerUpdatables.add(
+                            override.getManagerUpdatable()
+                                    .clear(Permission.ALL_PERMISSIONS)
+                                    .grant(Permission.VIEW_CHANNEL));
+                }
+            }
+        });
+
+        // Return Collections.
+        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagerUpdatables);
     }
 
     @Override
