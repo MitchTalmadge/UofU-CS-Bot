@@ -103,32 +103,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         return null;
     }
 
-    /**
-     * From the given channel, returns the associated club (determined by channel name).
-     *
-     * @param channel The channel.
-     * @return The club associated with the channel, or null if one could not be associated.
-     */
-    private Club getClubFromChannel(Channel channel) {
-        // Iterate over all clubs and compare names.
-        return clubService.getEnabledClubs()
-                .stream()
-                .filter(club -> channel.getName().toLowerCase().startsWith("club-" + club.getName().toLowerCase()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * From a club, determines the name of the channel related to that club.
-     *
-     * @param club         The club.
-     * @param adminChannel Whether the channel is for admins or not.
-     * @return The name of the channel for the club.
-     */
-    private String getChannelNameFromClub(Club club, boolean adminChannel) {
-        return "club-" + club.getName().toLowerCase() + (adminChannel ? "-admin" : "");
-    }
-
     @Override
     public Collection<ChannelManagerUpdatable> updateChannelCategorySettings(List<Category> categories) {
         return null;
@@ -172,6 +146,32 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     @Override
     public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> voiceChannels) {
         return null;
+    }
+
+    /**
+     * From the given channel, returns the associated club (determined by channel name).
+     *
+     * @param channel The channel.
+     * @return The club associated with the channel, or null if one could not be associated.
+     */
+    private Club getClubFromChannel(Channel channel) {
+        // Iterate over all clubs and compare names.
+        return clubService.getEnabledClubs()
+                .stream()
+                .filter(club -> channel.getName().toLowerCase().startsWith("club-" + club.getName().toLowerCase()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * From a club, determines the name of the channel related to that club.
+     *
+     * @param club         The club.
+     * @param adminChannel Whether the channel is for admins or not.
+     * @return The name of the channel for the club.
+     */
+    private String getChannelNameFromClub(Club club, boolean adminChannel) {
+        return "club-" + club.getName().toLowerCase() + (adminChannel ? "-admin" : "");
     }
 
 }
