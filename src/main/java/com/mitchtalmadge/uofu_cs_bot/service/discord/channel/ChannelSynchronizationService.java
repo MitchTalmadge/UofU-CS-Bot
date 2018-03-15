@@ -2,11 +2,9 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -17,9 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChannelSynchronizationService {
@@ -106,7 +103,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform synchronization
-            Pair<Collection<TextChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeTextChannels(discordService.getGuild().getTextChannels());
+            Pair<Collection<TextChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeTextChannels(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             if (synchronizationResult != null) {
 
@@ -138,7 +135,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform synchronization
-            Pair<Collection<VoiceChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeVoiceChannels(discordService.getGuild().getVoiceChannels());
+            Pair<Collection<VoiceChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeVoiceChannels(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             if (synchronizationResult != null) {
 
@@ -189,7 +186,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateTextChannelSettings(discordService.getGuild().getTextChannels());
+            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateTextChannelSettings(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
@@ -208,7 +205,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateVoiceChannelSettings(discordService.getGuild().getVoiceChannels());
+            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateVoiceChannelSettings(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
@@ -263,7 +260,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateTextChannelPermissions(discordService.getGuild().getTextChannels());
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateTextChannelPermissions(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -299,7 +296,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(discordService.getGuild().getVoiceChannels());
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -350,15 +347,32 @@ public class ChannelSynchronizationService {
     private void updateTextChannelOrdering() {
         logService.logInfo(getClass(), "Updating Text Channel Ordering...");
 
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            List<TextChannel> updateResult = channelSynchronizer.updateTextChannelOrdering(discordService.getGuild().getTextChannels());
+        // Will contain all the roles in their sorted order.
+        List<TextChannel> sortedChannels = new ArrayList<>();
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
-                DiscordUtils.orderEntities(discordService.getGuild().getController().modifyTextChannelPositions(), updateResult);
-            }
-        });
+        // Add each synchronizer's sorted channels.
+        channelSynchronizers
+                .stream()
+                .sorted(Comparator.comparingInt(ChannelSynchronizer::getOrderingPriority).thenComparing(ChannelSynchronizer::getChannelPrefix))
+                .forEach(channelSynchronizer -> {
+                    // Perform Update
+                    List<TextChannel> updateResult = channelSynchronizer.updateTextChannelOrdering(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
+
+                    // Store results
+                    if (updateResult != null) {
+                        sortedChannels.addAll(updateResult);
+                    }
+                });
+
+        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
+        sortedChannels.addAll(0,
+                discordService.getGuild().getTextChannels()
+                        .stream()
+                        .filter(channel -> !sortedChannels.contains(channel))
+                        .collect(Collectors.toList()));
+
+        // Perform ordering.
+        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyTextChannelPositions(), sortedChannels);
     }
 
     /**
@@ -367,15 +381,58 @@ public class ChannelSynchronizationService {
     private void updateVoiceChannelOrdering() {
         logService.logInfo(getClass(), "Updating Voice Channel Ordering...");
 
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            List<VoiceChannel> updateResult = channelSynchronizer.updateVoiceChannelOrdering(discordService.getGuild().getVoiceChannels());
+        // Will contain all the roles in their sorted order.
+        List<VoiceChannel> sortedChannels = new ArrayList<>();
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
-                DiscordUtils.orderEntities(discordService.getGuild().getController().modifyVoiceChannelPositions(), updateResult);
-            }
-        });
+        // Add each synchronizer's sorted channels.
+        channelSynchronizers
+                .stream()
+                .sorted(Comparator.comparingInt(ChannelSynchronizer::getOrderingPriority).thenComparing(ChannelSynchronizer::getChannelPrefix))
+                .forEach(channelSynchronizer -> {
+                    // Perform Update
+                    List<VoiceChannel> updateResult = channelSynchronizer.updateVoiceChannelOrdering(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
+
+                    // Store results
+                    if (updateResult != null) {
+                        sortedChannels.addAll(updateResult);
+                    }
+                });
+
+        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
+        sortedChannels.addAll(0,
+                discordService.getGuild().getVoiceChannels()
+                        .stream()
+                        .filter(channel -> !sortedChannels.contains(channel))
+                        .collect(Collectors.toList()));
+
+        // Perform ordering.
+        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyVoiceChannelPositions(), sortedChannels);
+    }
+
+    /**
+     * Filters and returns the text channels that are requested by the given synchronizer.
+     *
+     * @param channelSynchronizer The synchronizer.
+     * @return The filtered text channels.
+     */
+    private List<TextChannel> getFilteredTextChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
+        return discordService.getGuild().getTextChannels().stream()
+                // Ignore case when filtering.
+                .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters and returns the voice channels that are requested by the given synchronizer.
+     *
+     * @param channelSynchronizer The synchronizer.
+     * @return The filtered voice channels.
+     */
+    private List<VoiceChannel> getFilteredVoiceChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
+        return discordService.getGuild().getVoiceChannels().stream()
+                // Ignore case when filtering.
+                .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
 }

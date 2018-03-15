@@ -54,6 +54,12 @@ public class DiscordSynchronizationService {
     @Async
     protected void synchronize() {
 
+        // Make sure we have a requested synchronization.
+        if(!synchronizationRequested)
+            return;
+
+        synchronizationRequested = false;
+
         // Roles first (important).
         roleSynchronizationService.synchronize();
 

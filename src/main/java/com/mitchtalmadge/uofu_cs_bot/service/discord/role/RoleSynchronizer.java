@@ -78,19 +78,10 @@ public abstract class RoleSynchronizer {
      */
     public abstract List<Role> updateRoleOrdering(List<Role> filteredRoles);
 
-    /**
-     * @return The prefix to filter out roles for each method in the synchronizer.
-     * Only roles that begin with this prefix will be given as parameters to the methods.
-     * Case Insensitive.
-     */
     public String getRolePrefix() {
         return rolePrefix;
     }
 
-    /**
-     * @return Determines the order in which different synchronizers will order their roles relative
-     * to each other. 0 means the roles for this synchronizer will be placed at the top.
-     */
     public int getOrderingPriority() {
         return orderingPriority;
     }

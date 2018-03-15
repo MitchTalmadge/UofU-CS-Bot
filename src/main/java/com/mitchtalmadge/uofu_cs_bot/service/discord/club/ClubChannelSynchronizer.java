@@ -25,6 +25,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
     @Autowired
     ClubChannelSynchronizer(ClubService clubService) {
+        super("club-", 1);
         this.clubService = clubService;
     }
 
@@ -47,7 +48,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Collection<TextChannel>, Collection<String>> synchronizeTextChannels(List<TextChannel> textChannels) {
+    public Pair<Collection<TextChannel>, Collection<String>> synchronizeTextChannels(List<TextChannel> filteredChannels) {
         // Create collections for returning.
         Collection<TextChannel> channelsToRemove = new HashSet<>();
         Collection<String> channelsToCreate = new HashSet<>();
@@ -69,7 +70,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
         // Make sure each the club associated with any given channel is enabled.
         // If not, delete the channel.
-        textChannels.forEach(channel -> {
+        filteredChannels.forEach(channel -> {
             // Ensure channel is a club channel.
             if (!channel.getName().startsWith("club-"))
                 return;
@@ -87,7 +88,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> voiceChannels) {
+    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> filteredChannels) {
         // TODO: Create club and club admin channels.
 
         return null;
@@ -99,12 +100,12 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> textChannels) {
+    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> filteredChannels) {
 
         // Create Collection to be returned.
         Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
 
-        textChannels.forEach(textChannel -> {
+        filteredChannels.forEach(textChannel -> {
 
             // Ensure channel is a club channel.
             if (!textChannel.getName().startsWith("club-"))
@@ -132,7 +133,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> voiceChannels) {
+    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
         return null;
     }
 
@@ -142,12 +143,12 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> textChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
         return null;
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> voiceChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
         return null;
     }
 
@@ -157,29 +158,15 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public List<TextChannel> updateTextChannelOrdering(List<TextChannel> textChannels) {
-        // Partition the channels into two, based on whether or not they are club channels.
-        Map<Boolean, List<TextChannel>> partitionedChannels = textChannels.stream().collect(
-                Collectors.partitioningBy(textChannel -> textChannel.getName().startsWith("club-")));
+    public List<TextChannel> updateTextChannelOrdering(List<TextChannel> filteredChannels) {
+        // Sort filtered channels by name.
+        filteredChannels.sort(Comparator.comparing(Channel::getName));
 
-        // Combine the Channels back together with the club channels in order at the bottom.
-        // Do not re-order the other channels; we do not care about their order.
-
-        // Add non club channels.
-        List<TextChannel> orderedTextChannels = new ArrayList<>(partitionedChannels.get(false));
-
-        // Sort club channels before adding
-        List<TextChannel> courseChannels = partitionedChannels.get(true);
-        courseChannels.sort(Comparator.comparing(Channel::getName));
-
-        // Add club channels
-        orderedTextChannels.addAll(courseChannels);
-
-        return orderedTextChannels;
+        return filteredChannels;
     }
 
     @Override
-    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> voiceChannels) {
+    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> filteredChannels) {
         return null;
     }
 

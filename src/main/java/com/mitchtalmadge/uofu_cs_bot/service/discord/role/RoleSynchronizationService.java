@@ -138,7 +138,7 @@ public class RoleSynchronizationService {
                     // Perform Update
                     List<Role> updateResult = roleSynchronizer.updateRoleOrdering(getFilteredRolesForSynchronizer(roleSynchronizer));
 
-                    // Queue any requested Updatable instances.
+                    // Store results
                     if (updateResult != null) {
                         sortedRoles.addAll(updateResult);
                     }
