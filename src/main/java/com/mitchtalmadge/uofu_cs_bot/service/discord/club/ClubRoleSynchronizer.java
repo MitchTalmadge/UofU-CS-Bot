@@ -1,5 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
 
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
@@ -12,10 +13,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link RoleSynchronizer} for Clubs.
@@ -127,8 +127,25 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
 
     @Override
     public List<Role> updateRoleOrdering(List<Role> roles) {
-        // TODO: Order club default and admin roles.
-        return null;
+        // Partition the roles into two, based on whether or not they are club roles.
+        Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(
+                Collectors.partitioningBy(role -> role.getName().startsWith("club-")));
+
+        // Combine the roles back together with the club roles in order at the bottom.
+        // Do not re-order the other roles. We are not concerned with their order.
+
+        // Add non-club roles.
+        List<Role> orderedRoles = new ArrayList<>(partitionedRoles.get(false));
+
+        // Sort club Roles before adding.
+        List<Role> clubRoles = partitionedRoles.get(true);
+        clubRoles.sort(Comparator.comparing(Role::getName)); // Order by name.
+
+        // Add club Roles
+        orderedRoles.addAll(clubRoles);
+
+        // Return ordered Roles.
+        return orderedRoles;
     }
 
     /**

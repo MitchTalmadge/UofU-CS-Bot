@@ -135,7 +135,7 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
         }));
 
         // Combine the roles back together with the Course Roles in order at the bottom.
-        // Do not re-order the other Roles. We do not care about their order.
+        // Do not re-order the other Roles. We are not concerned with their order.
 
         // Add non-Course Roles.
         List<Role> orderedRoles = new ArrayList<>(partitionedRoles.get(false));
