@@ -32,7 +32,7 @@ public class DiscordUtils {
         }
 
         // Submit the changes to order.
-        orderAction.queue();
+        orderAction.complete();
     }
 
     /**
