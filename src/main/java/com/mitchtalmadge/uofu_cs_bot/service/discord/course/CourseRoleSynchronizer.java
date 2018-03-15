@@ -22,11 +22,12 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
 
     @Autowired
     public CourseRoleSynchronizer(CourseService courseService) {
+        super("cs-", 0);
         this.courseService = courseService;
     }
 
     @Override
-    public Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> roles) {
+    public Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> filteredRoles) {
 
         // Create Collections for returning.
         Collection<Role> rolesToRemove = new HashSet<>();
@@ -46,7 +47,7 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
         }
 
         // Find the existing roles and delete invalid roles.
-        for (Role role : roles) {
+        for (Role role : filteredRoles) {
             try {
                 // Parse the role as a course.
                 Course course = new Course(role.getName());
@@ -83,12 +84,12 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> roles) {
+    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles) {
 
         // Create collection to return.
         Collection<RoleManagerUpdatable> updatables = new HashSet<>();
 
-        roles.forEach(role -> {
+        filteredRoles.forEach(role -> {
             try {
                 Course course = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
@@ -121,37 +122,14 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public List<Role> updateRoleOrdering(List<Role> roles) {
-
-        // Partition the roles into two, based on whether or not they are Course Roles.
-        Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(Collectors.partitioningBy(role -> {
-            // Attempt to parse the Role as a Course. If successful, return true.
-            try {
-                new Course(role.getName());
-                return true;
-            } catch (Course.InvalidCourseNameException ignored) {
-                return false;
-            }
-        }));
-
-        // Combine the roles back together with the Course Roles in order at the bottom.
-        // Do not re-order the other Roles. We are not concerned with their order.
-
-        // Add non-Course Roles.
-        List<Role> orderedRoles = new ArrayList<>(partitionedRoles.get(false));
-
-        // Sort Course Roles before adding.
-        List<Role> courseRoles = partitionedRoles.get(true);
-        courseRoles.sort(
+    public List<Role> updateRoleOrdering(List<Role> filteredRoles) {
+        // Sort filtered roles by suffix, then by name.
+        filteredRoles.sort(
                 Comparator.comparing(obj -> CSSuffix.fromCourseName(((Role) obj).getName())) // Order by suffix
                         .thenComparing(obj -> ((Role) obj).getName().toUpperCase()) // Order by name; ignore case by forcing all to uppercase.
                         .reversed()); // Reverse order so suffixes are at top of roles.
 
-        // Add Course Roles
-        orderedRoles.addAll(courseRoles);
-
-        // Return ordered Roles.
-        return orderedRoles;
+        return filteredRoles;
     }
 
 }

@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ChannelSynchronizer} for Clubs.
@@ -25,17 +26,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     @Autowired
     ClubChannelSynchronizer(ClubService clubService) {
         this.clubService = clubService;
-    }
-
-    /**
-     * @return The category that all Club Channels belong to. May be null if the Category does not yet exist.
-     */
-    private Category getClubsCategory(Guild guild) {
-        List<Category> categories = guild.getCategoriesByName(CLUB_CATEGORY_NAME, false);
-        if (categories.size() > 0)
-            return categories.get(0);
-
-        return null;
     }
 
     @Override
@@ -110,7 +100,35 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> textChannels) {
-        return null;
+
+        // Create Collection to be returned.
+        Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
+
+        textChannels.forEach(textChannel -> {
+
+            // Ensure channel is a club channel.
+            if (!textChannel.getName().startsWith("club-"))
+                return;
+
+            // Get club from channel.
+            Club club = getClubFromChannel(textChannel);
+
+            ChannelManagerUpdatable updater = textChannel.getManagerUpdatable();
+
+            // Name
+            updater = updater.getNameField().setValue(getChannelNameFromClub(club, textChannel.getName().endsWith("admin")));
+
+            // Category
+            updater = updater.getParentField().setValue(getClubsCategory(textChannel.getGuild()));
+
+            // NSFW Off
+            updater = updater.getNSFWField().setValue(false);
+
+            channelManagerUpdatables.add(updater);
+        });
+
+        // Return updatables to be queued.
+        return channelManagerUpdatables;
     }
 
     @Override
@@ -140,7 +158,24 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public List<TextChannel> updateTextChannelOrdering(List<TextChannel> textChannels) {
-        return null;
+        // Partition the channels into two, based on whether or not they are club channels.
+        Map<Boolean, List<TextChannel>> partitionedChannels = textChannels.stream().collect(
+                Collectors.partitioningBy(textChannel -> textChannel.getName().startsWith("club-")));
+
+        // Combine the Channels back together with the club channels in order at the bottom.
+        // Do not re-order the other channels; we do not care about their order.
+
+        // Add non club channels.
+        List<TextChannel> orderedTextChannels = new ArrayList<>(partitionedChannels.get(false));
+
+        // Sort club channels before adding
+        List<TextChannel> courseChannels = partitionedChannels.get(true);
+        courseChannels.sort(Comparator.comparing(Channel::getName));
+
+        // Add club channels
+        orderedTextChannels.addAll(courseChannels);
+
+        return orderedTextChannels;
     }
 
     @Override
@@ -172,6 +207,17 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
      */
     private String getChannelNameFromClub(Club club, boolean adminChannel) {
         return "club-" + club.getName().toLowerCase() + (adminChannel ? "-admin" : "");
+    }
+
+    /**
+     * @return The category that all Club Channels belong to. May be null if the Category does not yet exist.
+     */
+    private Category getClubsCategory(Guild guild) {
+        List<Category> categories = guild.getCategoriesByName(CLUB_CATEGORY_NAME, false);
+        if (categories.size() > 0)
+            return categories.get(0);
+
+        return null;
     }
 
 }

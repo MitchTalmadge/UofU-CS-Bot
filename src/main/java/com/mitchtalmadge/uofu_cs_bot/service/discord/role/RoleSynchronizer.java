@@ -19,35 +19,79 @@ import java.util.List;
 @InheritedComponent
 public abstract class RoleSynchronizer {
 
+    /**
+     * The prefix to filter out roles for each method in the synchronizer.
+     * Only roles that begin with this prefix will be given as parameters to the methods.
+     * Case Insensitive.
+     */
+    private final String rolePrefix;
+
+    /**
+     * Determines the order in which different synchronizers will order their roles relative
+     * to each other. 0 means the roles for this synchronizer will be placed at the top.
+     */
+    private final int orderingPriority;
+
     @Autowired
     protected DiscordService discordService;
 
     /**
+     * Constructs the Role Synchronizer.
+     *
+     * @param rolePrefix       The prefix to filter out roles for each method in the synchronizer.
+     *                         Only roles that begin with this prefix will be given as parameters to the methods.
+     *                         Case Insensitive.
+     * @param orderingPriority Determines the order in which different synchronizers will order their roles relative
+     *                         to each other. 0 means the roles for this synchronizer will be placed at the top.
+     */
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public RoleSynchronizer(String rolePrefix, int orderingPriority) {
+        this.rolePrefix = rolePrefix;
+        this.orderingPriority = orderingPriority;
+    }
+
+    /**
      * Creates and/or deletes Roles as necessary.
      *
-     * @param roles A List of all Roles in the Guild.
+     * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
      * @return A Pair containing
      * <ol>
      * <li>A Collection of Roles to delete.</li>
      * <li>A Collection of RoleActions which will be queued later. Used to create Roles.</li>
      * </ol>
      */
-    public abstract Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> roles);
+    public abstract Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> filteredRoles);
 
     /**
      * Ensures that all Roles have the correct settings.
      *
-     * @param roles A List of all Roles in the Guild.
+     * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
      * @return A Collection of {@link RoleManagerUpdatable} instances with updated settings, which will be queued later.
      */
-    public abstract Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> roles);
+    public abstract Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles);
 
     /**
      * Updates the order of Roles in the Guild.
      *
-     * @param roles A List of all Roles in the Guild in their current order.
+     * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
      * @return A List of all Roles in the order they should appear in the Guild.
      */
-    public abstract List<Role> updateRoleOrdering(List<Role> roles);
+    public abstract List<Role> updateRoleOrdering(List<Role> filteredRoles);
 
+    /**
+     * @return The prefix to filter out roles for each method in the synchronizer.
+     * Only roles that begin with this prefix will be given as parameters to the methods.
+     * Case Insensitive.
+     */
+    public String getRolePrefix() {
+        return rolePrefix;
+    }
+
+    /**
+     * @return Determines the order in which different synchronizers will order their roles relative
+     * to each other. 0 means the roles for this synchronizer will be placed at the top.
+     */
+    public int getOrderingPriority() {
+        return orderingPriority;
+    }
 }

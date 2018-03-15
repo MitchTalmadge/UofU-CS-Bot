@@ -56,11 +56,12 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
 
     @Autowired
     ClubRoleSynchronizer(ClubService clubService) {
+        super("club-", 1);
         this.clubService = clubService;
     }
 
     @Override
-    public Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> roles) {
+    public Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(List<Role> filteredRoles) {
 
         // Create Collections for returning.
         Collection<Role> rolesToRemove = new HashSet<>();
@@ -102,7 +103,7 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
         });
 
         // Determine which roles need to be deleted.
-        roles.forEach(role -> {
+        filteredRoles.forEach(role -> {
             // Ensure role is a club role.
             if (!role.getName().startsWith("club-"))
                 return;
@@ -120,32 +121,17 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> roles) {
+    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles) {
         // TODO: Update club default and admin role settings.
         return null;
     }
 
     @Override
-    public List<Role> updateRoleOrdering(List<Role> roles) {
-        // Partition the roles into two, based on whether or not they are club roles.
-        Map<Boolean, List<Role>> partitionedRoles = roles.stream().collect(
-                Collectors.partitioningBy(role -> role.getName().startsWith("club-")));
+    public List<Role> updateRoleOrdering(List<Role> filteredRoles) {
+        // Sort filtered roles by name.
+        filteredRoles.sort(Comparator.comparing(Role::getName));
 
-        // Combine the roles back together with the club roles in order at the bottom.
-        // Do not re-order the other roles. We are not concerned with their order.
-
-        // Add non-club roles.
-        List<Role> orderedRoles = new ArrayList<>(partitionedRoles.get(false));
-
-        // Sort club Roles before adding.
-        List<Role> clubRoles = partitionedRoles.get(true);
-        clubRoles.sort(Comparator.comparing(Role::getName)); // Order by name.
-
-        // Add club Roles
-        orderedRoles.addAll(clubRoles);
-
-        // Return ordered Roles.
-        return orderedRoles;
+        return filteredRoles;
     }
 
     /**

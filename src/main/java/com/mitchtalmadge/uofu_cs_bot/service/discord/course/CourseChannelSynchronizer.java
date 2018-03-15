@@ -361,7 +361,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     @Override
     public List<TextChannel> updateTextChannelOrdering(List<TextChannel> textChannels) {
 
-        // Partition the channels into two, based on whether or not they are class channels.
+        // Partition the channels into two, based on whether or not they are course channels.
         Map<Boolean, List<TextChannel>> partitionedChannels = textChannels.stream().collect(Collectors.partitioningBy(textChannel -> {
             // Attempt to parse the channel as a Course. If successful, return true.
             try {
@@ -375,14 +375,14 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         // Combine the Channels back together with the Course Channels in order at the bottom.
         // Do not re-order the other Channels; we do not care about their order.
 
-        // Add non class channels.
+        // Add non course channels.
         List<TextChannel> orderedTextChannels = new ArrayList<>(partitionedChannels.get(false));
 
-        // Sort class channels before adding
+        // Sort course channels before adding
         List<TextChannel> courseChannels = partitionedChannels.get(true);
         courseChannels.sort(Comparator.comparing(Channel::getName));
 
-        // Add class channels
+        // Add course channels
         orderedTextChannels.addAll(courseChannels);
 
         return orderedTextChannels;
@@ -391,7 +391,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     @Override
     public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> voiceChannels) {
 
-        // Partition the channels into two, based on whether or not they are class channels.
+        // Partition the channels into two, based on whether or not they are course channels.
         Map<Boolean, List<VoiceChannel>> partitionedChannels = voiceChannels.stream().collect(Collectors.partitioningBy(voiceChannel -> {
             // Attempt to parse the channel as a Course. If successful, return true.
             try {
@@ -405,14 +405,14 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         // Combine the Channels back together with the Course Channels in order at the bottom.
         // Do not re-order the other Channels; we do not care about their order.
 
-        // Add non class channels.
+        // Add non course channels.
         List<VoiceChannel> orderedVoiceChannels = new ArrayList<>(partitionedChannels.get(false));
 
-        // Sort class channels before adding
+        // Sort course channels before adding
         List<VoiceChannel> courseChannels = partitionedChannels.get(true);
         courseChannels.sort(Comparator.comparing(Channel::getName));
 
-        // Add class channels
+        // Add course channels
         orderedVoiceChannels.addAll(courseChannels);
 
         return orderedVoiceChannels;

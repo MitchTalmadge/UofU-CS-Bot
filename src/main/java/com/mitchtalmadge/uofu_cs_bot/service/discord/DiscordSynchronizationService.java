@@ -46,11 +46,11 @@ public class DiscordSynchronizationService {
      * <p>
      * Synchronization only takes place if synchronizationRequested is true.
      * <p>
-     * This method will fire every 60 seconds, with an initial delay of 15 seconds.
+     * This method will fire every 15 seconds, with an initial delay of 15 seconds.
      *
      * @see #synchronizationRequested
      */
-    @Scheduled(fixedDelay = 60_000, initialDelay = 15_000)
+    @Scheduled(fixedDelay = 15_000, initialDelay = 15_000)
     @Async
     protected void synchronize() {
 

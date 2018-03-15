@@ -15,9 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleSynchronizationService {
@@ -68,7 +67,7 @@ public class RoleSynchronizationService {
 
         roleSynchronizers.forEach(roleSynchronizer -> {
             // Perform synchronization
-            Pair<Collection<Role>, Collection<RoleAction>> synchronizationResult = roleSynchronizer.synchronizeRoles(discordService.getGuild().getRoles());
+            Pair<Collection<Role>, Collection<RoleAction>> synchronizationResult = roleSynchronizer.synchronizeRoles(getFilteredRolesForSynchronizer(roleSynchronizer));
 
             if (synchronizationResult != null) {
 
@@ -111,7 +110,7 @@ public class RoleSynchronizationService {
 
         roleSynchronizers.forEach(roleSynchronizer -> {
             // Perform Update
-            Collection<RoleManagerUpdatable> updateResult = roleSynchronizer.updateRoleSettings(discordService.getGuild().getRoles());
+            Collection<RoleManagerUpdatable> updateResult = roleSynchronizer.updateRoleSettings(getFilteredRolesForSynchronizer(roleSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
@@ -128,20 +127,49 @@ public class RoleSynchronizationService {
     private void updateRoleOrdering() {
         logService.logInfo(getClass(), "Updating Role Ordering...");
 
-        roleSynchronizers.forEach(roleSynchronizer -> {
-            // Perform Update
-            List<Role> updateResult = roleSynchronizer.updateRoleOrdering(discordService.getGuild().getRoles());
+        // Will contain all the roles in their sorted order.
+        List<Role> sortedRoles = new ArrayList<>();
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
+        // Add each synchronizer's sorted roles.
+        roleSynchronizers
+                .stream()
+                .sorted(Comparator.comparingInt(RoleSynchronizer::getOrderingPriority).thenComparing(RoleSynchronizer::getRolePrefix))
+                .forEach(roleSynchronizer -> {
+                    // Perform Update
+                    List<Role> updateResult = roleSynchronizer.updateRoleOrdering(getFilteredRolesForSynchronizer(roleSynchronizer));
 
-                // Remove @everyone role since it cannot be sorted.
-                updateResult.removeIf(Role::isPublicRole);
+                    // Queue any requested Updatable instances.
+                    if (updateResult != null) {
+                        sortedRoles.addAll(updateResult);
+                    }
+                });
 
-                // Perform ordering.
-                DiscordUtils.orderEntities(discordService.getGuild().getController().modifyRolePositions(false), updateResult);
-            }
-        });
+        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
+        sortedRoles.addAll(0,
+                discordService.getGuild().getRoles()
+                        .stream()
+                        .filter(role -> !sortedRoles.contains(role))
+                        .collect(Collectors.toList()));
+
+
+        // Remove @everyone role since it cannot be sorted.
+        sortedRoles.removeIf(Role::isPublicRole);
+
+        // Perform ordering.
+        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyRolePositions(false), sortedRoles);
+    }
+
+    /**
+     * Filters and returns the roles that are requested by the given synchronizer.
+     *
+     * @param roleSynchronizer The synchronizer.
+     * @return The filtered roles.
+     */
+    private List<Role> getFilteredRolesForSynchronizer(RoleSynchronizer roleSynchronizer) {
+        return discordService.getGuild().getRoles().stream()
+                // Ignore case when filtering.
+                .filter(role -> role.getName().toLowerCase().startsWith(roleSynchronizer.getRolePrefix().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
 }
