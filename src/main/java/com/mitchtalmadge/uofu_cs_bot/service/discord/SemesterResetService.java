@@ -46,18 +46,18 @@ public class SemesterResetService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private final ChannelSynchronizationService channelSyncService;
-    private final CSRoleAssignmentService roleAssignmentService;
+    private final DiscordSynchronizationService discordSynchronizationService;
+    private final CSRoleAssignmentService csRoleAssignmentService;
 
     @Autowired
     public SemesterResetService(LogService logService,
                                 DiscordService discordService,
-                                ChannelSynchronizationService channelSyncService,
-                                CSRoleAssignmentService roleAssignmentService) {
+                                DiscordSynchronizationService discordSynchronizationService,
+                                CSRoleAssignmentService csRoleAssignmentService) {
         this.logService = logService;
         this.discordService = discordService;
-        this.channelSyncService = channelSyncService;
-        this.roleAssignmentService = roleAssignmentService;
+        this.discordSynchronizationService = discordSynchronizationService;
+        this.csRoleAssignmentService = csRoleAssignmentService;
     }
 
     /**
@@ -103,8 +103,8 @@ public class SemesterResetService {
         discordService.getGuild().getMembers().forEach(member -> {
             // Update the member's nickname if we have power over them.
             if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member)) {
-                roleAssignmentService.updateMemberNickname(member, CSNickname.EMPTY);
-                roleAssignmentService.updateRoleAssignments(member);
+                csRoleAssignmentService.updateMemberNickname(member, CSNickname.EMPTY);
+                csRoleAssignmentService.updateRoleAssignments(member);
             }
         });
     }
@@ -129,7 +129,7 @@ public class SemesterResetService {
         });
 
         // Request synchronization, which will re-add CS channels.
-        channelSyncService.requestSynchronization();
+        discordSynchronizationService.requestSynchronization();
     }
 
     /**

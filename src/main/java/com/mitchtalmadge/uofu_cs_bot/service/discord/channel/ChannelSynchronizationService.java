@@ -2,11 +2,9 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -17,9 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChannelSynchronizationService {
@@ -27,15 +24,6 @@ public class ChannelSynchronizationService {
     private final LogService logService;
     private final DiscordService discordService;
     private Set<ChannelSynchronizer> channelSynchronizers;
-
-    /**
-     * Whenever another class requests synchronization, this field will be set to true. <br/>
-     * On the next scheduled synchronization, this field is checked to determine if synchronization should take place. <br/>
-     * Once finished, this field is set to false again.
-     * <p>
-     * This field is set to true initially so that synchronization occurs at least once on startup.
-     */
-    private boolean synchronizationRequested = true;
 
     @Autowired
     public ChannelSynchronizationService(LogService logService,
@@ -47,31 +35,10 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Requests that Categories and Channels be synchronized at the next scheduled time.
-     */
-    public void requestSynchronization() {
-        synchronizationRequested = true;
-    }
-
-    /**
      * Begins synchronization of Channel Categories, Text Channels, and Voice Channels. <br/>
      * This may involve creating, deleting, modifying, or moving Categories and Channels as needed.
-     * <p>
-     * Synchronization only takes place if synchronizationRequested is true.
-     * <p>
-     * This method will fire every 60 seconds, with an initial delay of 15 seconds.
-     *
-     * @see ChannelSynchronizationService#synchronizationRequested
      */
-    @Scheduled(fixedDelay = 60_000, initialDelay = 15_000)
-    @Async
-    protected void synchronize() {
-
-        // Skip synchronization if not requested.
-        if (!synchronizationRequested)
-            return;
-
-        synchronizationRequested = false;
+    public void synchronize() {
 
         logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
 
@@ -112,7 +79,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(category -> {
                         logService.logInfo(getClass(), "--> Deleting Category: " + category.getName());
-                        category.delete().queue();
+                        category.delete().complete();
                     });
                 }
 
@@ -120,7 +87,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(categoryName -> {
                         logService.logInfo(getClass(), "--> Creating Category: " + categoryName);
-                        discordService.getGuild().getController().createCategory(categoryName).queue();
+                        discordService.getGuild().getController().createCategory(categoryName).complete();
                     });
                 }
 
@@ -136,7 +103,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform synchronization
-            Pair<Collection<TextChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeTextChannels(discordService.getGuild().getTextChannels());
+            Pair<Collection<TextChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeTextChannels(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             if (synchronizationResult != null) {
 
@@ -144,7 +111,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(textChannel -> {
                         logService.logInfo(getClass(), "--> Deleting Text Channel: " + textChannel.getName());
-                        textChannel.delete().queue();
+                        textChannel.delete().complete();
                     });
                 }
 
@@ -152,7 +119,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(textChannelName -> {
                         logService.logInfo(getClass(), "--> Creating Text Channel: " + textChannelName);
-                        discordService.getGuild().getController().createTextChannel(textChannelName).queue();
+                        discordService.getGuild().getController().createTextChannel(textChannelName).complete();
                     });
                 }
 
@@ -168,7 +135,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform synchronization
-            Pair<Collection<VoiceChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeVoiceChannels(discordService.getGuild().getVoiceChannels());
+            Pair<Collection<VoiceChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeVoiceChannels(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             if (synchronizationResult != null) {
 
@@ -176,7 +143,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getLeft() != null) {
                     synchronizationResult.getLeft().forEach(voiceChannel -> {
                         logService.logInfo(getClass(), "--> Deleting Voice Channel: " + voiceChannel.getName());
-                        voiceChannel.delete().queue();
+                        voiceChannel.delete().complete();
                     });
                 }
 
@@ -184,7 +151,7 @@ public class ChannelSynchronizationService {
                 if (synchronizationResult.getRight() != null) {
                     synchronizationResult.getRight().forEach(voiceChannelName -> {
                         logService.logInfo(getClass(), "--> Creating Voice Channel: " + voiceChannelName);
-                        discordService.getGuild().getController().createVoiceChannel(voiceChannelName).queue();
+                        discordService.getGuild().getController().createVoiceChannel(voiceChannelName).complete();
                     });
                 }
 
@@ -205,7 +172,7 @@ public class ChannelSynchronizationService {
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -219,12 +186,12 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateTextChannelSettings(discordService.getGuild().getTextChannels());
+            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateTextChannelSettings(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -238,12 +205,12 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateVoiceChannelSettings(discordService.getGuild().getVoiceChannels());
+            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateVoiceChannelSettings(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
                 updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().queue();
+                    channelManagerUpdatable.update().complete();
                 });
             }
         });
@@ -265,12 +232,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -278,7 +245,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }
@@ -293,7 +260,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateTextChannelPermissions(discordService.getGuild().getTextChannels());
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateTextChannelPermissions(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -301,12 +268,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -314,7 +281,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }
@@ -329,7 +296,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(discordService.getGuild().getVoiceChannels());
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -337,12 +304,12 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
+                        updateResult.getLeft().getRight().forEach(RestAction::complete);
                     }
 
                 }
@@ -350,7 +317,7 @@ public class ChannelSynchronizationService {
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
                     updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().queue();
+                        permOverrideManagerUpdatable.update().complete();
                     });
                 }
             }
@@ -380,15 +347,32 @@ public class ChannelSynchronizationService {
     private void updateTextChannelOrdering() {
         logService.logInfo(getClass(), "Updating Text Channel Ordering...");
 
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            List<TextChannel> updateResult = channelSynchronizer.updateTextChannelOrdering(discordService.getGuild().getTextChannels());
+        // Will contain all the roles in their sorted order.
+        List<TextChannel> sortedChannels = new ArrayList<>();
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
-                DiscordUtils.orderEntities(discordService.getGuild().getController().modifyTextChannelPositions(), updateResult);
-            }
-        });
+        // Add each synchronizer's sorted channels.
+        channelSynchronizers
+                .stream()
+                .sorted(Comparator.comparingInt(ChannelSynchronizer::getOrderingPriority).thenComparing(ChannelSynchronizer::getChannelPrefix))
+                .forEach(channelSynchronizer -> {
+                    // Perform Update
+                    List<TextChannel> updateResult = channelSynchronizer.updateTextChannelOrdering(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
+
+                    // Store results
+                    if (updateResult != null) {
+                        sortedChannels.addAll(updateResult);
+                    }
+                });
+
+        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
+        sortedChannels.addAll(0,
+                discordService.getGuild().getTextChannels()
+                        .stream()
+                        .filter(channel -> !sortedChannels.contains(channel))
+                        .collect(Collectors.toList()));
+
+        // Perform ordering.
+        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyTextChannelPositions(), sortedChannels);
     }
 
     /**
@@ -397,15 +381,58 @@ public class ChannelSynchronizationService {
     private void updateVoiceChannelOrdering() {
         logService.logInfo(getClass(), "Updating Voice Channel Ordering...");
 
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            List<VoiceChannel> updateResult = channelSynchronizer.updateVoiceChannelOrdering(discordService.getGuild().getVoiceChannels());
+        // Will contain all the roles in their sorted order.
+        List<VoiceChannel> sortedChannels = new ArrayList<>();
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
-                DiscordUtils.orderEntities(discordService.getGuild().getController().modifyVoiceChannelPositions(), updateResult);
-            }
-        });
+        // Add each synchronizer's sorted channels.
+        channelSynchronizers
+                .stream()
+                .sorted(Comparator.comparingInt(ChannelSynchronizer::getOrderingPriority).thenComparing(ChannelSynchronizer::getChannelPrefix))
+                .forEach(channelSynchronizer -> {
+                    // Perform Update
+                    List<VoiceChannel> updateResult = channelSynchronizer.updateVoiceChannelOrdering(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
+
+                    // Store results
+                    if (updateResult != null) {
+                        sortedChannels.addAll(updateResult);
+                    }
+                });
+
+        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
+        sortedChannels.addAll(0,
+                discordService.getGuild().getVoiceChannels()
+                        .stream()
+                        .filter(channel -> !sortedChannels.contains(channel))
+                        .collect(Collectors.toList()));
+
+        // Perform ordering.
+        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyVoiceChannelPositions(), sortedChannels);
+    }
+
+    /**
+     * Filters and returns the text channels that are requested by the given synchronizer.
+     *
+     * @param channelSynchronizer The synchronizer.
+     * @return The filtered text channels.
+     */
+    private List<TextChannel> getFilteredTextChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
+        return discordService.getGuild().getTextChannels().stream()
+                // Ignore case when filtering.
+                .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters and returns the voice channels that are requested by the given synchronizer.
+     *
+     * @param channelSynchronizer The synchronizer.
+     * @return The filtered voice channels.
+     */
+    private List<VoiceChannel> getFilteredVoiceChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
+        return discordService.getGuild().getVoiceChannels().stream()
+                // Ignore case when filtering.
+                .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
 }

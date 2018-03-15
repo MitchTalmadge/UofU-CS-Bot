@@ -5,9 +5,13 @@
 
 <img src="http://i.imgur.com/yQYPYFh.png" width="100px" align="left"/>
 
-The U of U CS Bot is a simple Discord bot for a specific University of Utah Computer Science chat-room.
+The U of U CS Bot is a Discord bot that is used to automatically organize a large Computer Science chatroom. 
 
-Currently, the sole purpose of the bot is to manage roles based on users' nicknames. This was created to organize the server and remove the hassle of managing who is in which CS classes.
+This bot automatically creates, deletes, and organizes private channels for every CS class, with automatic role-assignment based on users' nicknames.
+
+For example, a user named `Mitch [2420-TA, 3505, 3810]` would gain access to the CS-2420, CS-3505, and CS-3810 class channels. Additionally, since he is a TA, the user would be able to kick users and delete messages from the CS-2420 channel.
+
+The bot also has the ability to manage private club channels, where entire clubs can meet together on Discord in their own channels. Users can join clubs using text commands, such as `!club join acm`.
 
 ## Architecture
 The U of U CS Bot is build upon the [Spring Boot](https://github.com/spring-projects/spring-boot) framework. 

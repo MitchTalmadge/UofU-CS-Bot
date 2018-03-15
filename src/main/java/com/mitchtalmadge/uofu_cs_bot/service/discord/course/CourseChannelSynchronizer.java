@@ -27,6 +27,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
     @Autowired
     public CourseChannelSynchronizer(CourseService CourseService) {
+        super("cs-", 0);
         this.courseService = CourseService;
     }
 
@@ -60,7 +61,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Collection<TextChannel>, Collection<String>> synchronizeTextChannels(List<TextChannel> textChannels) {
+    public Pair<Collection<TextChannel>, Collection<String>> synchronizeTextChannels(List<TextChannel> filteredChannels) {
 
         // Create collections for returning.
         Collection<TextChannel> channelsToRemove = new HashSet<>();
@@ -74,7 +75,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         Set<Course> missingCourses = new HashSet<>(enabledCourses);
 
         // Find the existing channels and delete invalid channels.
-        textChannels.forEach(channel -> {
+        filteredChannels.forEach(channel -> {
             try {
                 // Parse the channel as a Course.
                 Course course = new Course(channel.getName());
@@ -99,7 +100,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> voiceChannels) {
+    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> filteredChannels) {
 
         // Create collections for returning.
         Collection<VoiceChannel> channelsToRemove = new HashSet<>();
@@ -113,7 +114,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         Set<Course> missingCourses = new HashSet<>(enabledCourses);
 
         // Find the existing channels and delete invalid channels.
-        voiceChannels.forEach(channel -> {
+        filteredChannels.forEach(channel -> {
             try {
                 // Parse the channel as a Course.
                 Course course = new Course(channel.getName());
@@ -144,12 +145,12 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> textChannels) {
+    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> filteredChannels) {
 
         // Create Collection to be returned.
         Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
 
-        textChannels.forEach(textChannel -> {
+        filteredChannels.forEach(textChannel -> {
             try {
                 Course course = new Course(textChannel.getName());
 
@@ -175,12 +176,12 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> voiceChannels) {
+    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
 
         // Create Collection to be returned.
         Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
 
-        voiceChannels.forEach(voiceChannel -> {
+        filteredChannels.forEach(voiceChannel -> {
             try {
                 Course course = new Course(voiceChannel.getName());
 
@@ -214,14 +215,14 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> textChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
 
         // Create Collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
         Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
 
-        textChannels.forEach(textChannel -> {
+        filteredChannels.forEach(textChannel -> {
             try {
                 Course course = new Course(textChannel.getName());
 
@@ -242,14 +243,14 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> voiceChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
 
         // Create Collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
         Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
 
-        voiceChannels.forEach(voiceChannel -> {
+        filteredChannels.forEach(voiceChannel -> {
             try {
                 Course course = new Course(voiceChannel.getName());
 
@@ -311,7 +312,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                 try { // Class role
                     Course course = new Course(role.getName());
 
-                    CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
+                    CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
                     overrideDetectionMap.put(roleSuffix, true);
 
@@ -359,63 +360,19 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public List<TextChannel> updateTextChannelOrdering(List<TextChannel> textChannels) {
+    public List<TextChannel> updateTextChannelOrdering(List<TextChannel> filteredChannels) {
+        // Sort filtered channels by name.
+        filteredChannels.sort(Comparator.comparing(Channel::getName));
 
-        // Partition the channels into two, based on whether or not they are class channels.
-        Map<Boolean, List<TextChannel>> partitionedChannels = textChannels.stream().collect(Collectors.partitioningBy(textChannel -> {
-            // Attempt to parse the channel as a Course. If successful, return true.
-            try {
-                new Course(textChannel.getName());
-                return true;
-            } catch (Course.InvalidCourseNameException ignored) {
-                return false;
-            }
-        }));
-
-        // Combine the Channels back together with the Course Channels in order at the bottom.
-        // Do not re-order the other Channels; we do not care about their order.
-
-        // Add non class channels.
-        List<TextChannel> orderedTextChannels = new ArrayList<>(partitionedChannels.get(false));
-
-        // Sort class channels before adding
-        List<TextChannel> courseChannels = partitionedChannels.get(true);
-        courseChannels.sort(Comparator.comparing(Channel::getName));
-
-        // Add class channels
-        orderedTextChannels.addAll(courseChannels);
-
-        return orderedTextChannels;
+        return filteredChannels;
     }
 
     @Override
-    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> voiceChannels) {
+    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> filteredChannels) {
+        // Sort filtered channels by name.
+        filteredChannels.sort(Comparator.comparing(Channel::getName));
 
-        // Partition the channels into two, based on whether or not they are class channels.
-        Map<Boolean, List<VoiceChannel>> partitionedChannels = voiceChannels.stream().collect(Collectors.partitioningBy(voiceChannel -> {
-            // Attempt to parse the channel as a Course. If successful, return true.
-            try {
-                new Course(voiceChannel.getName());
-                return true;
-            } catch (Course.InvalidCourseNameException ignored) {
-                return false;
-            }
-        }));
-
-        // Combine the Channels back together with the Course Channels in order at the bottom.
-        // Do not re-order the other Channels; we do not care about their order.
-
-        // Add non class channels.
-        List<VoiceChannel> orderedVoiceChannels = new ArrayList<>(partitionedChannels.get(false));
-
-        // Sort class channels before adding
-        List<VoiceChannel> courseChannels = partitionedChannels.get(true);
-        courseChannels.sort(Comparator.comparing(Channel::getName));
-
-        // Add class channels
-        orderedVoiceChannels.addAll(courseChannels);
-
-        return orderedVoiceChannels;
+        return filteredChannels;
     }
 
 }

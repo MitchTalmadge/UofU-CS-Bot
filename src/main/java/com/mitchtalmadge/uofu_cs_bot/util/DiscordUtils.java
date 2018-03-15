@@ -24,15 +24,15 @@ public class DiscordUtils {
     public static <E, O extends OrderAction<? extends E, ? extends O>> void orderEntities(O orderAction, List<E> order) {
         // Order the channels.
         for (int i = 0; i < order.size(); i++) {
-            // Get the index of the current channel in the order list.
-            int currentOrderPosition = orderAction.getCurrentOrder().indexOf(order.get(i));
+            // Find and select the current item being sorted.
+            orderAction.selectPosition(orderAction.getCurrentOrder().indexOf(order.get(i)));
 
-            // Swap the current channel with the channel at the desired position.
-            orderAction.selectPosition(currentOrderPosition).swapPosition(i);
+            // Move the item to its new location.
+            orderAction.moveTo(i);
         }
 
         // Submit the changes to order.
-        orderAction.queue();
+        orderAction.complete();
     }
 
     /**

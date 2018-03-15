@@ -82,7 +82,7 @@ public class CSRoleAssignmentService {
         member.getRoles().forEach(role -> {
             try {
                 Course roleClass = new Course(role.getName());
-                CSSuffix roleSuffix = CSSuffix.fromClassName(role.getName());
+                CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
                 // Check that this class role is allowed.
                 if (!csNickname.getClasses().contains(roleClass)) {
