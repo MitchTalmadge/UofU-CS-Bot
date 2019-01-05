@@ -34,8 +34,8 @@ public class ClubService {
     private void init() {
         // Get the class number list from the environment variable.
         String clubNameList = System.getenv(CS_CLUBS_ENV_VAR);
-        if (clubNameList == null || clubNameList.isEmpty()) {
-            throw new IllegalArgumentException("The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing or empty!");
+        if (clubNameList == null) {
+            throw new IllegalArgumentException("The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing!");
         }
 
         // Split the list into individual class numbers.
@@ -43,6 +43,9 @@ public class ClubService {
 
         // Parse each class number.
         for (String clubName : clubNames) {
+            if(clubName.isEmpty())
+                continue;
+
             enabledClubs.add(new Club(clubName));
         }
     }
