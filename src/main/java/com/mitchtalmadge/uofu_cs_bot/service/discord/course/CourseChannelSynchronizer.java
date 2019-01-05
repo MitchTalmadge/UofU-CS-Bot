@@ -14,14 +14,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ChannelSynchronizer} for Courses.
  */
 public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
-    private static final String COURSE_CATEGORY_NAME = "Courses";
+    private static final String COURSE_TEXT_CATEGORY_NAME = "Courses (Text)";
+    private static final String COURSE_VOICE_CATEGORY_NAME = "Courses (Voice)";
 
     private CourseService courseService;
 
@@ -32,10 +32,23 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     /**
-     * @return The category that all Course Channels belong to. May be null if the Category does not yet exist.
+     * @return The category that all text-based Course Channels belong to.
+     * May be null if the Category does not yet exist.
      */
-    private Category getCoursesCategory(Guild guild) {
-        List<Category> categories = guild.getCategoriesByName(COURSE_CATEGORY_NAME, false);
+    private Category getCourseTextCategory(Guild guild) {
+        List<Category> categories = guild.getCategoriesByName(COURSE_TEXT_CATEGORY_NAME, false);
+        if (categories.size() > 0)
+            return categories.get(0);
+
+        return null;
+    }
+
+    /**
+     * @return The category that all voice-based Course Channels belong to.
+     * May be null if the Category does not yet exist.
+     */
+    private Category getCourseVoiceCategory(Guild guild) {
+        List<Category> categories = guild.getCategoriesByName(COURSE_VOICE_CATEGORY_NAME, false);
         if (categories.size() > 0)
             return categories.get(0);
 
@@ -44,16 +57,20 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public Pair<Collection<Category>, Collection<String>> synchronizeChannelCategories(List<Category> categories) {
-        // TODO: Create Courses Voice Category
-
         // Create Collections for returning.
         Collection<Category> categoriesToRemove = new HashSet<>();
         Collection<String> categoriesToCreate = new HashSet<>();
 
-        // Check if the Courses Category does not exist.
-        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_CATEGORY_NAME))) {
-            // Create the Courses Category.
-            categoriesToCreate.add(COURSE_CATEGORY_NAME);
+        // Check if the Text Courses Category does not exist.
+        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_TEXT_CATEGORY_NAME))) {
+            // Create the Category.
+            categoriesToCreate.add(COURSE_TEXT_CATEGORY_NAME);
+        }
+
+        // Check if the Voice Courses Category does not exist.
+        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_VOICE_CATEGORY_NAME))) {
+            // Create the Category.
+            categoriesToCreate.add(COURSE_VOICE_CATEGORY_NAME);
         }
 
         // Return Collections.
@@ -160,7 +177,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                 updater = updater.getNameField().setValue(CSNamingConventions.toChannelName(course));
 
                 // Category
-                updater = updater.getParentField().setValue(getCoursesCategory(textChannel.getGuild()));
+                updater = updater.getParentField().setValue(getCourseTextCategory(textChannel.getGuild()));
 
                 // NSFW Off
                 updater = updater.getNSFWField().setValue(false);
@@ -191,7 +208,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                 updater = updater.getNameField().setValue(CSNamingConventions.toChannelName(course));
 
                 // Category
-                updater = updater.getParentField().setValue(getCoursesCategory(voiceChannel.getGuild()));
+                updater = updater.getParentField().setValue(getCourseVoiceCategory(voiceChannel.getGuild()));
 
                 // Bitrate and User Limit
                 updater = updater

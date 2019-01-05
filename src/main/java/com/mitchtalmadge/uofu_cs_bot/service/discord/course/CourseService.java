@@ -42,8 +42,8 @@ public class CourseService {
     private void init() {
         // Get the course number list from the environment variable.
         String courseNumberList = System.getenv(CS_COURSES_ENV_VAR);
-        if (courseNumberList == null || courseNumberList.isEmpty()) {
-            throw new IllegalArgumentException("The course list environment variable (" + CS_COURSES_ENV_VAR + ") is missing or empty!");
+        if (courseNumberList == null) {
+            throw new IllegalArgumentException("The course list environment variable (" + CS_COURSES_ENV_VAR + ") is missing!");
         }
 
         // Split the list into individual class numbers.
@@ -51,6 +51,9 @@ public class CourseService {
 
         // Parse each class number.
         for (String courseNumber : courseNumbers) {
+            if(courseNumber.isEmpty())
+                continue;
+
             try {
                 enabledCourses.add(new Course(courseNumber));
             } catch (Course.InvalidCourseNameException e) {
