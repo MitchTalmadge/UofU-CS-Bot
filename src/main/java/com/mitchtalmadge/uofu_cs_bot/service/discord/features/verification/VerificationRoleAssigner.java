@@ -31,9 +31,7 @@ public class VerificationRoleAssigner extends RoleAssigner {
 
         // Update accordingly.
         Role verifiedRole = member.getGuild().getRolesByName(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME, false).get(0);
-        if(isVerified && !shouldBeVerified) {
-            rolesToRemove.add(verifiedRole);
-        } else if(!isVerified && shouldBeVerified) {
+        if (!isVerified && shouldBeVerified) {
             rolesToAdd.add(verifiedRole);
         }
     }
