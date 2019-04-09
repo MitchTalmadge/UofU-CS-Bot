@@ -58,7 +58,10 @@ public class NicknameService {
             // Submit change.
             if (!member.getNickname().equals(nickname)) {
                 logService.logInfo(getClass(), "Adjusted nickname from '" + member.getNickname() + "' to '" + nickname + "'.");
-                this.discordService.getGuild().getController().setNickname(member, nickname).complete();
+                this.discordService.getGuild().getController().setNickname(member, nickname).queue((success) -> {
+                }, (error) -> {
+                    logService.logException(getClass(), error, "Could not adjust nickname for member " + member.getUser().getName() + ".");
+                });
             }
         }
     }
@@ -89,8 +92,11 @@ public class NicknameService {
 
         // Submit change.
         if (!member.getNickname().equals(nickname)) {
-            logService.logInfo(getClass(), "Adjusted nickname from '" + member.getNickname() + "' to '" + nickname + "'.");
-            this.discordService.getGuild().getController().setNickname(member, nickname).complete();
+            logService.logInfo(getClass(), "Cleared nickname for member " + member.getUser().getName() + ".");
+            this.discordService.getGuild().getController().setNickname(member, nickname).queue((success) -> {
+            }, (error) -> {
+                logService.logException(getClass(), error, "Could not clear nickname for member " + member.getUser().getName() + ".");
+            });
         }
     }
 

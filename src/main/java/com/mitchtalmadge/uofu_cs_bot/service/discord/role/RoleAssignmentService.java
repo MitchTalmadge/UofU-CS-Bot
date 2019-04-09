@@ -68,7 +68,10 @@ public class RoleAssignmentService {
         }
 
         // Modify the roles.
-        discordService.getGuild().getController().modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
+        discordService.getGuild().getController().modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue((success) -> {
+        }, (error) -> {
+            logService.logException(getClass(), error, "Could not modify roles for member " + member.getUser().getName() + ".");
+        });
     }
 
 }
