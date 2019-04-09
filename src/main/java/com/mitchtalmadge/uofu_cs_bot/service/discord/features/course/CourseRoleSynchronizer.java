@@ -5,7 +5,7 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManager;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,41 +83,31 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles) {
+    public Collection<RoleManager> updateRoleSettings(List<Role> filteredRoles) {
 
         // Create collection to return.
-        Collection<RoleManagerUpdatable> updatables = new HashSet<>();
+        Collection<RoleManager> roleManagers = new HashSet<>();
 
         filteredRoles.forEach(role -> {
             try {
                 Course course = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
-                RoleManagerUpdatable updatable = role.getManagerUpdatable();
-
-                // Make sure name is correct.
-                updatable.getNameField().setValue(CSNamingConventions.toRoleName(course, roleSuffix));
-
-                // Make sure color is correct.
-                updatable.getColorField().setValue(roleSuffix.getRoleColor());
-
-                // Make sure hoist is correct.
-                updatable.getHoistedField().setValue(roleSuffix.isRoleHoisted());
-
-                // Make sure mentionable is correct.
-                updatable.getMentionableField().setValue(roleSuffix.isRoleMentionable());
-
-                // Make sure permissions are correct.
-                updatable.getPermissionField().setPermissions(roleSuffix.getPermissions());
+                RoleManager manager = role.getManager()
+                        .setName(CSNamingConventions.toRoleName(course, roleSuffix))
+                        .setColor(roleSuffix.getRoleColor())
+                        .setHoisted(roleSuffix.isRoleHoisted())
+                        .setMentionable(roleSuffix.isRoleMentionable())
+                        .setPermissions(roleSuffix.getPermissions());
 
                 // Add for queue later.
-                updatables.add(updatable);
+                roleManagers.add(manager);
             } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a Course Role.
             }
         });
 
-        return updatables;
+        return roleManagers;
     }
 
     @Override

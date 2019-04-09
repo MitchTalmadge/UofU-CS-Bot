@@ -20,8 +20,8 @@ public class MessageEventListener extends EventListenerAbstract<MessageReceivedE
     public void onEvent(MessageReceivedEvent event) {
 
         // Check for command prefix
-        if(event.getMessage().getContent().startsWith(COMMAND_PREFIX)) {
-            commandDistributor.onCommand(new Command(event, event.getMessage().getContent().substring(1).split("\\s")));
+        if(event.getMessage().getContentRaw().startsWith(COMMAND_PREFIX)) {
+            commandDistributor.onCommand(new Command(event, event.getMessage().getContentRaw().substring(1).split("\\s")));
         }
     }
 

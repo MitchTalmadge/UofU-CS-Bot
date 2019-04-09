@@ -4,8 +4,8 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
-import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,55 +90,49 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateChannelCategorySettings(List<Category> categories) {
+    public Collection<ChannelManager> updateChannelCategorySettings(List<Category> categories) {
         return null;
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> filteredChannels) {
+    public Collection<ChannelManager> updateTextChannelSettings(List<TextChannel> filteredChannels) {
 
         // Create Collection to be returned.
-        Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
+        Collection<ChannelManager> channelManagers = new HashSet<>();
 
         filteredChannels.forEach(textChannel -> {
 
             // Get club from channel.
             Club club = getClubFromChannel(textChannel);
 
-            ChannelManagerUpdatable updater = textChannel.getManagerUpdatable();
+            ChannelManager manager = textChannel.getManager()
+                    .setName(getChannelNameFromClub(club, textChannel.getName().endsWith("admin")))
+                    .setParent(getClubsCategory(textChannel.getGuild()))
+                    .setNSFW(false);
 
-            // Name
-            updater = updater.getNameField().setValue(getChannelNameFromClub(club, textChannel.getName().endsWith("admin")));
-
-            // Category
-            updater = updater.getParentField().setValue(getClubsCategory(textChannel.getGuild()));
-
-            // NSFW Off
-            updater = updater.getNSFWField().setValue(false);
-
-            channelManagerUpdatables.add(updater);
+            channelManagers.add(manager);
         });
 
-        // Return updatables to be queued.
-        return channelManagerUpdatables;
+        // Return managers to be queued.
+        return channelManagers;
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
+    public Collection<ChannelManager> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
         return null;
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateChannelCategoryPermissions(List<Category> categories) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateChannelCategoryPermissions(List<Category> categories) {
         return null;
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
         // Create Collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-        Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
+        Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
 
         filteredChannels.forEach(textChannel -> {
 
@@ -168,8 +162,8 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
                     permissionOverrideActions.add(overrideAction);
                 } else {
                     // Update existing Permissions
-                    permOverrideManagerUpdatables.add(
-                            override.getManagerUpdatable()
+                    permOverrideManagers.add(
+                            override.getManager()
                                     .clear(Permission.ALL_PERMISSIONS)
                                     .deny(Permission.VIEW_CHANNEL));
                 }
@@ -182,8 +176,8 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
                     permissionOverrideActions.add(overrideAction);
                 } else {
                     // Update existing Permissions
-                    permOverrideManagerUpdatables.add(
-                            override.getManagerUpdatable()
+                    permOverrideManagers.add(
+                            override.getManager()
                                     .clear(Permission.ALL_PERMISSIONS)
                                     .grant(Permission.VIEW_CHANNEL));
                 }
@@ -210,8 +204,8 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
                     permissionOverrideActions.add(overrideAction);
                 } else {
                     // Update existing Permissions
-                    permOverrideManagerUpdatables.add(
-                            override.getManagerUpdatable()
+                    permOverrideManagers.add(
+                            override.getManager()
                                     .clear(Permission.ALL_PERMISSIONS)
                                     .deny(Permission.VIEW_CHANNEL));
                 }
@@ -224,8 +218,8 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
                     permissionOverrideActions.add(overrideAction);
                 } else {
                     // Update existing Permissions
-                    permOverrideManagerUpdatables.add(
-                            override.getManagerUpdatable()
+                    permOverrideManagers.add(
+                            override.getManager()
                                     .clear(Permission.ALL_PERMISSIONS)
                                     .grant(Permission.VIEW_CHANNEL));
                 }
@@ -233,11 +227,11 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         });
 
         // Return Collections.
-        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagerUpdatables);
+        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagers);
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
         return null;
     }
 

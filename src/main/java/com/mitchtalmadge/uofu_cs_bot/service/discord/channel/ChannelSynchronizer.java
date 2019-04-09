@@ -6,8 +6,8 @@ import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
-import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,25 +94,25 @@ public abstract class ChannelSynchronizer {
      * Ensures that all Channel Categories have the correct settings.
      *
      * @param categories A List of all Channel Categories in the Guild.
-     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManager} instances with updated settings, which will be queued later.
      */
-    public abstract Collection<ChannelManagerUpdatable> updateChannelCategorySettings(List<Category> categories);
+    public abstract Collection<ChannelManager> updateChannelCategorySettings(List<Category> categories);
 
     /**
      * Ensures that all Text Channels have the correct settings.
      *
      * @param filteredChannels A list of channels whose names start with the channelPrefix provided in the constructor.
-     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManager} instances with updated settings, which will be queued later.
      */
-    public abstract Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> filteredChannels);
+    public abstract Collection<ChannelManager> updateTextChannelSettings(List<TextChannel> filteredChannels);
 
     /**
      * Ensures that all Voice Channels have the correct settings.
      *
      * @param filteredChannels A list of channels whose names start with the channelPrefix provided in the constructor.
-     * @return A Collection of {@link ChannelManagerUpdatable} instances with updated settings, which will be queued later.
+     * @return A Collection of {@link ChannelManager} instances with updated settings, which will be queued later.
      */
-    public abstract Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels);
+    public abstract Collection<ChannelManager> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels);
 
     /**
      * Ensures that all Channel Categories have the correct permissions.
@@ -126,10 +126,10 @@ public abstract class ChannelSynchronizer {
      * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
+     * <li>A Collection of {@link PermOverrideManager} to queue.</li>
      * </ol>
      */
-    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateChannelCategoryPermissions(List<Category> categories);
+    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateChannelCategoryPermissions(List<Category> categories);
 
     /**
      * Ensures that all Text Channels have the correct permissions.
@@ -143,10 +143,10 @@ public abstract class ChannelSynchronizer {
      * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
+     * <li>A Collection of {@link PermOverrideManager} to queue.</li>
      * </ol>
      */
-    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels);
+    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateTextChannelPermissions(List<TextChannel> filteredChannels);
 
     /**
      * Ensures that all Voice Channels have the correct permissions.
@@ -160,10 +160,10 @@ public abstract class ChannelSynchronizer {
      * <li>A Collection of {@link PermissionOverrideAction} to queue.</li>
      * </ol>
      * </li>
-     * <li>A Collection of {@link PermOverrideManagerUpdatable} to queue.</li>
+     * <li>A Collection of {@link PermOverrideManager} to queue.</li>
      * </ol>
      */
-    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels);
+    public abstract Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels);
 
     /**
      * Updates the order of Channel Categories in the Guild.

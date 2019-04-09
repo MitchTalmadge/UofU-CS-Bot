@@ -2,10 +2,10 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.features.course.CourseRoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManager;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,13 +106,11 @@ public class RoleSynchronizationService {
 
         roleSynchronizers.forEach(roleSynchronizer -> {
             // Perform Update
-            Collection<RoleManagerUpdatable> updateResult = roleSynchronizer.updateRoleSettings(getFilteredRolesForSynchronizer(roleSynchronizer));
+            Collection<RoleManager> updateResult = roleSynchronizer.updateRoleSettings(getFilteredRolesForSynchronizer(roleSynchronizer));
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
-                updateResult.forEach(roleManagerUpdatable -> {
-                    roleManagerUpdatable.update().complete();
-                });
+                updateResult.forEach(RestAction::complete);
             }
         });
     }

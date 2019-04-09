@@ -1,18 +1,18 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 
-import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
-import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.entities.Category;
+import net.dv8tion.jda.core.entities.PermissionOverride;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -167,13 +167,11 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateChannelCategorySettings(discordService.getGuild().getCategories());
+            Collection<ChannelManager> updateResult = channelSynchronizer.updateChannelCategorySettings(discordService.getGuild().getCategories());
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
-                updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().complete();
-                });
+                updateResult.forEach(RestAction::complete);
             }
         });
     }
@@ -186,13 +184,11 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateTextChannelSettings(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
+            Collection<ChannelManager> updateResult = channelSynchronizer.updateTextChannelSettings(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
-            // Queue any requested Updatable instances.
+            // Queue any requested managers.
             if (updateResult != null) {
-                updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().complete();
-                });
+                updateResult.forEach(RestAction::complete);
             }
         });
     }
@@ -205,13 +201,11 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Collection<ChannelManagerUpdatable> updateResult = channelSynchronizer.updateVoiceChannelSettings(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
+            Collection<ChannelManager> updateResult = channelSynchronizer.updateVoiceChannelSettings(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
-            // Queue any requested Updatable instances.
+            // Queue any requested managers.
             if (updateResult != null) {
-                updateResult.forEach(channelManagerUpdatable -> {
-                    channelManagerUpdatable.update().complete();
-                });
+                updateResult.forEach(RestAction::complete);
             }
         });
     }
@@ -224,7 +218,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateChannelCategoryPermissions(discordService.getGuild().getCategories());
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = channelSynchronizer.updateChannelCategoryPermissions(discordService.getGuild().getCategories());
 
             if (updateResult != null) {
 
@@ -244,9 +238,7 @@ public class ChannelSynchronizationService {
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().complete();
-                    });
+                    updateResult.getRight().forEach(RestAction::complete);
                 }
             }
         });
@@ -260,7 +252,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateTextChannelPermissions(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = channelSynchronizer.updateTextChannelPermissions(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -280,9 +272,7 @@ public class ChannelSynchronizationService {
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().complete();
-                    });
+                    updateResult.getRight().forEach(RestAction::complete);
                 }
             }
         });
@@ -296,7 +286,7 @@ public class ChannelSynchronizationService {
 
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
+            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             if (updateResult != null) {
 
@@ -316,9 +306,7 @@ public class ChannelSynchronizationService {
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(permOverrideManagerUpdatable -> {
-                        permOverrideManagerUpdatable.update().complete();
-                    });
+                    updateResult.getRight().forEach(RestAction::complete);
                 }
             }
         });

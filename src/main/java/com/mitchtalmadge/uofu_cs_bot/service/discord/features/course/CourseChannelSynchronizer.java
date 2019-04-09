@@ -7,8 +7,8 @@ import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
-import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,135 +156,122 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateChannelCategorySettings(List<Category> categories) {
+    public Collection<ChannelManager> updateChannelCategorySettings(List<Category> categories) {
         // TODO: Category Settings
         return null;
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateTextChannelSettings(List<TextChannel> filteredChannels) {
+    public Collection<ChannelManager> updateTextChannelSettings(List<TextChannel> filteredChannels) {
 
         // Create Collection to be returned.
-        Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
+        Collection<ChannelManager> channelManagers = new HashSet<>();
 
         filteredChannels.forEach(textChannel -> {
             try {
                 Course course = new Course(textChannel.getName());
 
-                ChannelManagerUpdatable updater = textChannel.getManagerUpdatable();
+                ChannelManager manager = textChannel.getManager()
+                        .setName(CSNamingConventions.toChannelName(course))
+                        .setParent(getCourseTextCategory(textChannel.getGuild()))
+                        .setNSFW(false);
 
-                // Name
-                updater = updater.getNameField().setValue(CSNamingConventions.toChannelName(course));
-
-                // Category
-                updater = updater.getParentField().setValue(getCourseTextCategory(textChannel.getGuild()));
-
-                // NSFW Off
-                updater = updater.getNSFWField().setValue(false);
-
-                channelManagerUpdatables.add(updater);
+                channelManagers.add(manager);
             } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a course channel.
             }
         });
 
-        // Return updatables to be queued.
-        return channelManagerUpdatables;
+        // Return managers to be queued.
+        return channelManagers;
     }
 
     @Override
-    public Collection<ChannelManagerUpdatable> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
+    public Collection<ChannelManager> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
 
         // Create Collection to be returned.
-        Collection<ChannelManagerUpdatable> channelManagerUpdatables = new HashSet<>();
+        Collection<ChannelManager> channelManagers = new HashSet<>();
 
         filteredChannels.forEach(voiceChannel -> {
             try {
                 Course course = new Course(voiceChannel.getName());
 
-                ChannelManagerUpdatable updater = voiceChannel.getManagerUpdatable();
+                ChannelManager manager = voiceChannel.getManager()
+                        .setName(CSNamingConventions.toChannelName(course))
+                        .setParent(getCourseVoiceCategory(voiceChannel.getGuild()))
+                        .setBitrate(CSConstants.CS_CHANNEL_VOICE_BITRATE)
+                        .setUserLimit(CSConstants.CS_CHANNEL_VOICE_USERLIMIT);
 
-                // Name
-                updater = updater.getNameField().setValue(CSNamingConventions.toChannelName(course));
-
-                // Category
-                updater = updater.getParentField().setValue(getCourseVoiceCategory(voiceChannel.getGuild()));
-
-                // Bitrate and User Limit
-                updater = updater
-                        .getBitrateField().setValue(CSConstants.CS_CHANNEL_VOICE_BITRATE)
-                        .getUserLimitField().setValue(CSConstants.CS_CHANNEL_VOICE_USERLIMIT);
-
-                channelManagerUpdatables.add(updater);
+                channelManagers.add(manager);
             } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a course channel.
             }
         });
 
-        // Return updatables to be queued.
-        return channelManagerUpdatables;
+        // Return managers to be queued.
+        return channelManagers;
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateChannelCategoryPermissions(List<Category> categories) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateChannelCategoryPermissions(List<Category> categories) {
         // TODO: Category Permissions
         return null;
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateTextChannelPermissions(List<TextChannel> filteredChannels) {
 
         // Create Collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-        Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
+        Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
 
         filteredChannels.forEach(textChannel -> {
             try {
                 Course course = new Course(textChannel.getName());
 
                 // Compute Permissions.
-                Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = updateChannelPermissions(textChannel, course);
+                Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = updateChannelPermissions(textChannel, course);
 
                 // Append to Collections.
                 permissionOverrides.addAll(updateResult.getLeft().getLeft());
                 permissionOverrideActions.addAll(updateResult.getLeft().getRight());
-                permOverrideManagerUpdatables.addAll(updateResult.getRight());
+                permOverrideManagers.addAll(updateResult.getRight());
             } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a course channel.
             }
         });
 
         // Return Collections.
-        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagerUpdatables);
+        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagers);
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
+    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
 
         // Create Collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-        Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
+        Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
 
         filteredChannels.forEach(voiceChannel -> {
             try {
                 Course course = new Course(voiceChannel.getName());
 
                 // Compute Permissions.
-                Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateResult = updateChannelPermissions(voiceChannel, course);
+                Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = updateChannelPermissions(voiceChannel, course);
 
                 // Append to Collections.
                 permissionOverrides.addAll(updateResult.getLeft().getLeft());
                 permissionOverrideActions.addAll(updateResult.getLeft().getRight());
-                permOverrideManagerUpdatables.addAll(updateResult.getRight());
+                permOverrideManagers.addAll(updateResult.getRight());
             } catch (Course.InvalidCourseNameException ignored) {
                 // This is not a course channel.
             }
         });
 
         // Return Collections.
-        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagerUpdatables);
+        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagers);
     }
 
     /**
@@ -293,12 +280,12 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
      * @param channel      The channel.
      * @param channelClass The channel's associated Course instance.
      */
-    private Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManagerUpdatable>> updateChannelPermissions(Channel channel, Course channelClass) {
+    private Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateChannelPermissions(Channel channel, Course channelClass) {
 
         // Create collections for returning.
         Collection<PermissionOverride> permissionOverrides = new HashSet<>();
         Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-        Collection<PermOverrideManagerUpdatable> permOverrideManagerUpdatables = new HashSet<>();
+        Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
 
         // Keeps track of whether the channel has a permission override for each suffix, and for @everyone (null key).
         Map<CSSuffix, Boolean> overrideDetectionMap = new HashMap<>();
@@ -316,7 +303,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
             if (role.isPublicRole()) { // @everyone role
                 overrideDetectionMap.put(null, true);
 
-                PermOverrideManagerUpdatable manager = override.getManagerUpdatable();
+                PermOverrideManager manager = override.getManager();
 
                 // Clear all permissions
                 manager = manager.clear(Permission.ALL_PERMISSIONS);
@@ -324,7 +311,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                 // Deny viewing
                 manager = manager.deny(Permission.VIEW_CHANNEL);
 
-                permOverrideManagerUpdatables.add(manager);
+                permOverrideManagers.add(manager);
             } else {
                 try { // Class role
                     Course course = new Course(role.getName());
@@ -333,7 +320,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
                     overrideDetectionMap.put(roleSuffix, true);
 
-                    PermOverrideManagerUpdatable manager = override.getManagerUpdatable();
+                    PermOverrideManager manager = override.getManager();
 
                     // Clear all permissions
                     manager = manager.clear(Permission.ALL_PERMISSIONS);
@@ -341,7 +328,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
                     // Allow viewing
                     manager = manager.grant(Permission.VIEW_CHANNEL);
 
-                    permOverrideManagerUpdatables.add(manager);
+                    permOverrideManagers.add(manager);
                 } catch (Course.InvalidCourseNameException ignored) {
                     // This is not a course role. Delete its override.
                     permissionOverrides.add(override);
@@ -368,7 +355,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         }
 
         // Return collections.
-        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagerUpdatables);
+        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagers);
     }
 
     @Override

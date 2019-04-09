@@ -4,14 +4,14 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManager;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * Implementation of {@link RoleSynchronizer} for Clubs.
@@ -117,7 +117,7 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles) {
+    public Collection<RoleManager> updateRoleSettings(List<Role> filteredRoles) {
         // TODO: Update club default and admin role settings.
         return null;
     }

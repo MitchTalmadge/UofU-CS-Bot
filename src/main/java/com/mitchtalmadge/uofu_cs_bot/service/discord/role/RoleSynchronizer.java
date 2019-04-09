@@ -3,7 +3,7 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManager;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +66,9 @@ public abstract class RoleSynchronizer {
      * Ensures that all Roles have the correct settings.
      *
      * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
-     * @return A Collection of {@link RoleManagerUpdatable} instances with updated settings, which will be queued later.
+     * @return A Collection of {@link RoleManager} instances with updated settings, which will be queued later.
      */
-    public abstract Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles);
+    public abstract Collection<RoleManager> updateRoleSettings(List<Role> filteredRoles);
 
     /**
      * Updates the order of Roles in the Guild.

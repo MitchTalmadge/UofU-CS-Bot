@@ -3,7 +3,7 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
+import net.dv8tion.jda.core.managers.RoleManager;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,40 +66,32 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
     }
 
     @Override
-    public Collection<RoleManagerUpdatable> updateRoleSettings(List<Role> filteredRoles) {
+    public Collection<RoleManager> updateRoleSettings(List<Role> filteredRoles) {
 
         // Create collection to return.
-        Collection<RoleManagerUpdatable> updatables = new HashSet<>();
+        Collection<RoleManager> roleManagers = new HashSet<>();
 
         filteredRoles.forEach(role -> {
-            RoleManagerUpdatable updatable = role.getManagerUpdatable();
-
-            // Make sure color is correct.
-            updatable.getColorField().setValue(Color.decode("0x3498DB"));
-
-            // Make sure hoist is correct.
-            updatable.getHoistedField().setValue(true);
-
-            // Make sure mentionable is correct.
-            updatable.getMentionableField().setValue(false);
-
-            // Make sure permissions are correct.
-            updatable.getPermissionField().setPermissions(
-                    Permission.NICKNAME_CHANGE,
-                    Permission.MESSAGE_WRITE,
-                    Permission.MESSAGE_EMBED_LINKS,
-                    Permission.MESSAGE_ATTACH_FILES,
-                    Permission.MESSAGE_HISTORY,
-                    Permission.MESSAGE_ADD_REACTION,
-                    Permission.VOICE_SPEAK,
-                    Permission.VOICE_USE_VAD
-            );
+            RoleManager updatable = role.getManager()
+                    .setColor(Color.decode("0x3498DB"))
+                    .setHoisted(true)
+                    .setMentionable(false)
+                    .setPermissions(
+                            Permission.NICKNAME_CHANGE,
+                            Permission.MESSAGE_WRITE,
+                            Permission.MESSAGE_EMBED_LINKS,
+                            Permission.MESSAGE_ATTACH_FILES,
+                            Permission.MESSAGE_HISTORY,
+                            Permission.MESSAGE_ADD_REACTION,
+                            Permission.VOICE_SPEAK,
+                            Permission.VOICE_USE_VAD
+                    );
 
             // Add for queue later.
-            updatables.add(updatable);
+            roleManagers.add(updatable);
         });
 
-        return updatables;
+        return roleManagers;
     }
 
     @Override
