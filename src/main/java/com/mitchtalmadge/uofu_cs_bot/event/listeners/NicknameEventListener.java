@@ -1,27 +1,27 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.role.CSRoleAssignmentService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class NicknameEventListener extends EventListenerAbstract<GuildMemberNickChangeEvent> {
 
     private final LogService logService;
-    private final CSRoleAssignmentService csRoleAssignmentService;
+    private RoleAssignmentService roleAssignmentService;
 
     @Autowired
     public NicknameEventListener(LogService logService,
-                                 CSRoleAssignmentService csRoleAssignmentService) {
+                                 RoleAssignmentService roleAssignmentService) {
         this.logService = logService;
-        this.csRoleAssignmentService = csRoleAssignmentService;
+        this.roleAssignmentService = roleAssignmentService;
     }
 
     @Override
     public void onEvent(GuildMemberNickChangeEvent event) {
         logService.logInfo(getClass(), "Nickname changed for " + event.getMember().getUser().getName() + ". Old: " + event.getPrevNick() + " - New: " + event.getNewNick());
 
-        csRoleAssignmentService.updateRoleAssignments(event.getMember());
+        roleAssignmentService.assignRoles(event.getMember());
     }
 
 

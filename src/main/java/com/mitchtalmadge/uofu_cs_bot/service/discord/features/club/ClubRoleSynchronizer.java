@@ -1,11 +1,8 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link RoleSynchronizer} for Clubs.

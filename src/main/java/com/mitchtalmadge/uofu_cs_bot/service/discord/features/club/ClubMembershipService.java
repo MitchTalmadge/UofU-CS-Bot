@@ -1,10 +1,8 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,8 +3,8 @@ package com.mitchtalmadge.uofu_cs_bot.command.listeners;
 import com.mitchtalmadge.uofu_cs_bot.command.Command;
 import com.mitchtalmadge.uofu_cs_bot.command.CommandPattern;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.club.ClubMembershipService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.club.ClubService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.features.club.ClubMembershipService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.features.club.ClubService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @CommandPattern(value = {"club"})
