@@ -2,16 +2,13 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseRoleAssignmentService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
 import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -23,17 +20,17 @@ public class RoleSynchronizationService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private CSRoleAssignmentService csRoleAssignmentService;
+    private CourseRoleAssignmentService courseRoleAssignmentService;
     private Set<RoleSynchronizer> roleSynchronizers;
 
     @Autowired
     public RoleSynchronizationService(LogService logService,
                                       DiscordService discordService,
-                                      CSRoleAssignmentService csRoleAssignmentService,
+                                      CourseRoleAssignmentService courseRoleAssignmentService,
                                       Set<RoleSynchronizer> roleSynchronizers) {
         this.logService = logService;
         this.discordService = discordService;
-        this.csRoleAssignmentService = csRoleAssignmentService;
+        this.courseRoleAssignmentService = courseRoleAssignmentService;
         this.roleSynchronizers = roleSynchronizers;
     }
 
@@ -56,7 +53,7 @@ public class RoleSynchronizationService {
 
         // Assignment
         // TODO: Optimize this class into listener pattern similar to synchronizers.
-        csRoleAssignmentService.updateAllMemberRoleAssignments();
+        courseRoleAssignmentService.updateAllMemberRoleAssignments();
     }
 
     /**

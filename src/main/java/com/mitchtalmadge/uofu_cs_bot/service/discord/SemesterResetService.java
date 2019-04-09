@@ -4,7 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.role.CSRoleAssignmentService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseRoleAssignmentService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,17 +47,17 @@ public class SemesterResetService {
     private final LogService logService;
     private final DiscordService discordService;
     private final DiscordSynchronizationService discordSynchronizationService;
-    private final CSRoleAssignmentService csRoleAssignmentService;
+    private final CourseRoleAssignmentService courseRoleAssignmentService;
 
     @Autowired
     public SemesterResetService(LogService logService,
                                 DiscordService discordService,
                                 DiscordSynchronizationService discordSynchronizationService,
-                                CSRoleAssignmentService csRoleAssignmentService) {
+                                CourseRoleAssignmentService courseRoleAssignmentService) {
         this.logService = logService;
         this.discordService = discordService;
         this.discordSynchronizationService = discordSynchronizationService;
-        this.csRoleAssignmentService = csRoleAssignmentService;
+        this.courseRoleAssignmentService = courseRoleAssignmentService;
     }
 
     /**
@@ -103,8 +103,8 @@ public class SemesterResetService {
         discordService.getGuild().getMembers().forEach(member -> {
             // Update the member's nickname if we have power over them.
             if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member)) {
-                csRoleAssignmentService.updateMemberNickname(member, CSNickname.EMPTY);
-                csRoleAssignmentService.updateRoleAssignments(member);
+                courseRoleAssignmentService.updateMemberNickname(member, CSNickname.EMPTY);
+                courseRoleAssignmentService.updateRoleAssignments(member);
             }
         });
     }

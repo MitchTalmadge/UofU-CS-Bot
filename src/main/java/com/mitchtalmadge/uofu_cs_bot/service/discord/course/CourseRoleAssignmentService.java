@@ -1,4 +1,4 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.course;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
@@ -23,23 +23,23 @@ import java.util.stream.Collectors;
  * Assigns roles to members where needed.
  */
 @Service
-public class CSRoleAssignmentService {
+public class CourseRoleAssignmentService {
 
     private final LogService logService;
     private final DiscordService discordService;
     private final CourseService courseService;
 
     @Autowired
-    public CSRoleAssignmentService(LogService logService,
-                                   DiscordService discordService,
-                                   CourseService courseService) {
+    public CourseRoleAssignmentService(LogService logService,
+                                       DiscordService discordService,
+                                       CourseService courseService) {
         this.logService = logService;
         this.discordService = discordService;
         this.courseService = courseService;
     }
 
     /**
-     * Computes the CS roles that each member in the guild belongs to.
+     * Computes the course roles that each member in the guild belongs to.
      */
     public void updateAllMemberRoleAssignments() {
         // Update each member of the guild.
@@ -48,12 +48,12 @@ public class CSRoleAssignmentService {
     }
 
     /**
-     * Computes the CS roles that the member belongs to.
+     * Computes the course roles that the member belongs to.
      *
      * @param member The member whose roles should be updated.
      */
     public void updateRoleAssignments(Member member) {
-        logService.logInfo(getClass(), "Updating CS roles for " + member.getUser().getName());
+        logService.logInfo(getClass(), "Updating course roles for " + member.getUser().getName());
 
         // Get nickname of member.
         CSNickname csNickname = new CSNickname(member.getNickname());
