@@ -1,4 +1,4 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.course;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;

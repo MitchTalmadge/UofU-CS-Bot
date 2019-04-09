@@ -1,6 +1,6 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.verification;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification;
 
-import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.features.course.CourseService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
@@ -19,14 +19,12 @@ import java.util.List;
  */
 public class VerificationRoleSynchronizer extends RoleSynchronizer {
 
-    private static final String VERIFIED_ROLE_NAME = "verified";
+    static final String VERIFIED_ROLE_NAME = "verified";
 
-    private CourseService courseService;
 
     @Autowired
-    public VerificationRoleSynchronizer(CourseService courseService) {
+    public VerificationRoleSynchronizer() {
         super(VERIFIED_ROLE_NAME, 0);
-        this.courseService = courseService;
     }
 
     @Override

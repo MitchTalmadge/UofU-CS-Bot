@@ -1,4 +1,4 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.verification;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification;
 
 import org.springframework.stereotype.Service;
 

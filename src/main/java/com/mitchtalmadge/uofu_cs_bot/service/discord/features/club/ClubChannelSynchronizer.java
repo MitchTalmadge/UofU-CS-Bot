@@ -1,9 +1,7 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
-import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.managers.ChannelManagerUpdatable;
@@ -13,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ChannelSynchronizer} for Clubs.

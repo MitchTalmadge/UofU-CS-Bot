@@ -1,7 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.features.course.CourseService;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 

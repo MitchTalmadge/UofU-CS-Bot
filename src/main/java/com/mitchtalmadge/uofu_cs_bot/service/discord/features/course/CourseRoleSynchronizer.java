@@ -1,4 +1,4 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.course;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
@@ -11,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link RoleSynchronizer} for Courses.

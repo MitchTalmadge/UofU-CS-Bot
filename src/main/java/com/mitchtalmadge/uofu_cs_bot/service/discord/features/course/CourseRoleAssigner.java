@@ -1,58 +1,43 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.course;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * Assigns roles to members where needed.
+ * Assigns course roles to members where needed.
  */
-@Service
-public class CourseRoleAssignmentService {
+public class CourseRoleAssigner extends RoleAssigner {
 
     private final LogService logService;
     private final DiscordService discordService;
     private final CourseService courseService;
 
     @Autowired
-    public CourseRoleAssignmentService(LogService logService,
-                                       DiscordService discordService,
-                                       CourseService courseService) {
+    public CourseRoleAssigner(LogService logService,
+                              DiscordService discordService,
+                              CourseService courseService) {
         this.logService = logService;
         this.discordService = discordService;
         this.courseService = courseService;
     }
 
-    /**
-     * Computes the course roles that each member in the guild belongs to.
-     */
-    public void updateAllMemberRoleAssignments() {
-        // Update each member of the guild.
-        for (Member member : discordService.getGuild().getMembers())
-            updateRoleAssignments(member);
-    }
-
-    /**
-     * Computes the course roles that the member belongs to.
-     *
-     * @param member The member whose roles should be updated.
-     */
-    public void updateRoleAssignments(Member member) {
+    @Override
+    public Pair<Set<Role>, Set<Role>> updateRoleAssignments(Member member) {
         logService.logInfo(getClass(), "Updating course roles for " + member.getUser().getName());
 
         // Get nickname of member.
@@ -113,36 +98,12 @@ public class CourseRoleAssignmentService {
             });
         });
 
-        // Modify the roles of the member.
-        modifyMemberRoles(member, rolesToAdd, rolesToRemove);
-
         // Update the member's nickname if we have power over them.
+        // TODO: After assignment
         if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
             updateMemberNickname(member, csNickname);
-    }
 
-    /**
-     * Modifies the roles of a guild member.
-     *
-     * @param member        The member whose roles to remove.
-     * @param rolesToAdd    The roles to add to the member.
-     * @param rolesToRemove The roles to remove from the member.
-     */
-    private void modifyMemberRoles(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove) {
-        // Log the removed roles.
-        if (rolesToRemove.size() > 0) {
-            Set<String> removeRoleNames = rolesToRemove.stream().map(Role::getName).collect(Collectors.toSet());
-            logService.logInfo(getClass(), "Removing roles " + removeRoleNames + " from member " + member.getUser().getName());
-        }
-
-        // Log the added roles.
-        if (rolesToAdd.size() > 0) {
-            Set<String> addRoleNames = rolesToAdd.stream().map(Role::getName).collect(Collectors.toSet());
-            logService.logInfo(getClass(), "Adding roles " + addRoleNames + " to member " + member.getUser().getName());
-        }
-
-        // Modify the roles.
-        discordService.getGuild().getController().modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
+        return Pair.of(rolesToRemove, rolesToAdd);
     }
 
     /**

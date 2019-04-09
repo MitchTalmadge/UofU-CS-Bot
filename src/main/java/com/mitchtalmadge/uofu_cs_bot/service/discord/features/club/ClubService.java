@@ -1,4 +1,4 @@
-package com.mitchtalmadge.uofu_cs_bot.service.discord.club;
+package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import org.springframework.stereotype.Service;

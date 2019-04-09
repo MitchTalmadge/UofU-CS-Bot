@@ -2,7 +2,7 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.course.CourseRoleAssignmentService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.features.course.CourseRoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
@@ -20,17 +20,17 @@ public class RoleSynchronizationService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private CourseRoleAssignmentService courseRoleAssignmentService;
+    private RoleAssignmentService roleAssignmentService;
     private Set<RoleSynchronizer> roleSynchronizers;
 
     @Autowired
     public RoleSynchronizationService(LogService logService,
                                       DiscordService discordService,
-                                      CourseRoleAssignmentService courseRoleAssignmentService,
+                                      RoleAssignmentService roleAssignmentService,
                                       Set<RoleSynchronizer> roleSynchronizers) {
         this.logService = logService;
         this.discordService = discordService;
-        this.courseRoleAssignmentService = courseRoleAssignmentService;
+        this.roleAssignmentService = roleAssignmentService;
         this.roleSynchronizers = roleSynchronizers;
     }
 
@@ -52,8 +52,7 @@ public class RoleSynchronizationService {
         updateRoleOrdering();
 
         // Assignment
-        // TODO: Optimize this class into listener pattern similar to synchronizers.
-        courseRoleAssignmentService.updateAllMemberRoleAssignments();
+        roleAssignmentService.assignRoles();
     }
 
     /**
