@@ -171,7 +171,7 @@ public class ChannelSynchronizationService {
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
-                updateResult.forEach(RestAction::complete);
+                updateResult.forEach(RestAction::queue);
             }
         });
     }
@@ -188,7 +188,7 @@ public class ChannelSynchronizationService {
 
             // Queue any requested managers.
             if (updateResult != null) {
-                updateResult.forEach(RestAction::complete);
+                updateResult.forEach(RestAction::queue);
             }
         });
     }
@@ -205,7 +205,7 @@ public class ChannelSynchronizationService {
 
             // Queue any requested managers.
             if (updateResult != null) {
-                updateResult.forEach(RestAction::complete);
+                updateResult.forEach(RestAction::queue);
             }
         });
     }
@@ -226,19 +226,19 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::complete);
+                        updateResult.getLeft().getRight().forEach(RestAction::queue);
                     }
 
                 }
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(RestAction::complete);
+                    updateResult.getRight().forEach(RestAction::queue);
                 }
             }
         });
@@ -260,19 +260,19 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::complete);
+                        updateResult.getLeft().getRight().forEach(RestAction::queue);
                     }
 
                 }
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(RestAction::complete);
+                    updateResult.getRight().forEach(RestAction::queue);
                 }
             }
         });
@@ -294,19 +294,19 @@ public class ChannelSynchronizationService {
 
                     // Delete any requested Overrides.
                     if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().complete());
+                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
                     }
 
                     // Create any requested Overrides.
                     if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::complete);
+                        updateResult.getLeft().getRight().forEach(RestAction::queue);
                     }
 
                 }
 
                 // Queue any requested Override Updates.
                 if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(RestAction::complete);
+                    updateResult.getRight().forEach(RestAction::queue);
                 }
             }
         });

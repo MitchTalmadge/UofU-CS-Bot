@@ -6,7 +6,7 @@
 
     <groupId>com.mitchtalmadge</groupId>
     <artifactId>uofu-cs-bot</artifactId>
-    <version>6.1.1</version>
+    <version>6.1.2</version>
     <packaging>jar</packaging>
 
     <properties>

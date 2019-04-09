@@ -36,7 +36,6 @@ public class RoleSynchronizationService {
      * This may involve creating, deleting, modifying, or moving Roles as needed.
      */
     public void synchronize() {
-
         // Creation and Deletion
         synchronizeRoles();
 
@@ -45,7 +44,6 @@ public class RoleSynchronizationService {
 
         // Ordering
         updateRoleOrdering();
-
     }
 
     /**
@@ -103,7 +101,7 @@ public class RoleSynchronizationService {
 
             // Queue any requested Updatable instances.
             if (updateResult != null) {
-                updateResult.forEach(RestAction::complete);
+                updateResult.forEach(RestAction::queue);
             }
         });
     }
