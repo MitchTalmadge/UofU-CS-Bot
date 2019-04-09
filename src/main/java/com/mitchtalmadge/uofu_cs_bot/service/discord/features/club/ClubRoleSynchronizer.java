@@ -52,7 +52,7 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
 
     @Autowired
     ClubRoleSynchronizer(ClubService clubService) {
-        super("club-", 2);
+        super("club-", 1);
         this.clubService = clubService;
     }
 

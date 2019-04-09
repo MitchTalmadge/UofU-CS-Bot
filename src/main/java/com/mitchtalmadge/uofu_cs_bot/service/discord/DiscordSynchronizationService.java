@@ -1,6 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.nickname.NicknameService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -13,6 +14,7 @@ public class DiscordSynchronizationService {
     private final RoleSynchronizationService roleSynchronizationService;
     private DiscordService discordService;
     private final ChannelSynchronizationService channelSynchronizationService;
+    private NicknameService nicknameService;
 
     /**
      * Whenever another class requests synchronization, this field will be set to true. <br/>
@@ -24,13 +26,15 @@ public class DiscordSynchronizationService {
     private boolean synchronizationRequested = true;
 
     @Autowired
-    public DiscordSynchronizationService(RoleSynchronizationService roleSynchronizationService,
-                                         DiscordService discordService,
-                                         ChannelSynchronizationService channelSynchronizationService) {
+    public DiscordSynchronizationService(DiscordService discordService,
+                                         RoleSynchronizationService roleSynchronizationService,
+                                         ChannelSynchronizationService channelSynchronizationService,
+                                         NicknameService nicknameService) {
 
         this.roleSynchronizationService = roleSynchronizationService;
         this.discordService = discordService;
         this.channelSynchronizationService = channelSynchronizationService;
+        this.nicknameService = nicknameService;
     }
 
     /**
@@ -60,12 +64,14 @@ public class DiscordSynchronizationService {
 
         synchronizationRequested = false;
 
-        // Roles first (important).
+        // Synchronize roles.
         roleSynchronizationService.synchronize();
 
-        // Channels second.
+        // Synchronize channels, after roles.
         channelSynchronizationService.synchronize();
 
+        // Validate nicknames.
+        nicknameService.validateNicknames();
     }
 
 }

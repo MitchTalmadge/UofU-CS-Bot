@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Provides the structure for assigning roles to users.
+ * This service provides the ability to trigger the functionality of assigning or un-assigning various roles of users.
  */
 @Service
 public class RoleAssignmentService {

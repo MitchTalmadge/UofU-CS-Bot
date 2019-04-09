@@ -22,7 +22,7 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
 
     @Autowired
     public VerificationRoleSynchronizer() {
-        super(VERIFIED_ROLE_NAME, 0);
+        super(VERIFIED_ROLE_NAME, 2);
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
-import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,22 +86,6 @@ public class CourseRoleAssigner extends RoleAssigner {
                 rolesToAdd.add(discordService.getGuild().getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false).get(0));
             });
         });
-
-        // Update the member's nickname if we have power over them.
-        // TODO: After assignment
-        if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
-            updateMemberNickname(member, csNickname);
-    }
-
-    /**
-     * Updates the member's nickname to match naming conventions.
-     *
-     * @param member     The member.
-     * @param csNickname The parsed CS nickname for the member.
-     */
-    public void updateMemberNickname(Member member, CSNickname csNickname) {
-        //FIXME: Move this somewhere better.
-        discordService.getGuild().getController().setNickname(member, csNickname.updateNicknameClassGroup(member.getNickname())).complete();
     }
 
 }

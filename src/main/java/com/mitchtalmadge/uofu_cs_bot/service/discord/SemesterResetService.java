@@ -2,9 +2,7 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
-import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.nickname.NicknameService;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -46,17 +44,17 @@ public class SemesterResetService {
     private final LogService logService;
     private final DiscordService discordService;
     private final DiscordSynchronizationService discordSynchronizationService;
-    private RoleAssignmentService roleAssignmentService;
+    private NicknameService nicknameService;
 
     @Autowired
     public SemesterResetService(LogService logService,
                                 DiscordService discordService,
                                 DiscordSynchronizationService discordSynchronizationService,
-                                RoleAssignmentService roleAssignmentService) {
+                                NicknameService nicknameService) {
         this.logService = logService;
         this.discordService = discordService;
         this.discordSynchronizationService = discordSynchronizationService;
-        this.roleAssignmentService = roleAssignmentService;
+        this.nicknameService = nicknameService;
     }
 
     /**
@@ -89,31 +87,18 @@ public class SemesterResetService {
         logService.logInfo(getClass(), "!!!!!!!!!!!!!! Initiating Semester Reset !!!!!!!!!!!!!!");
 
         // Today is a reset day, begin resetting.
-        resetRoles();
-        resetChannels();
+        nicknameService.clearNicknames();
+        deleteChannels();
+
+        discordSynchronizationService.requestSynchronization();
+
         announceReset();
     }
 
     /**
-     * Removes all CS roles from all users in the server.
+     * Deletes all CS channels, to be re-added later.
      */
-    private void resetRoles() {
-        // Clear all CS roles from all members.
-        discordService.getGuild().getMembers().forEach(member -> {
-            // Update the member's nickname if we have power over them.
-            if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member)) {
-                //FIXME: courseRoleAssigner.updateMemberNickname(member, CSNickname.EMPTY);
-                roleAssignmentService.assignRoles(member);
-            }
-        });
-    }
-
-    /**
-     * Removes all CS channels, which will automatically be re-added by the
-     * {@link ChannelSynchronizationService}
-     */
-    private void resetChannels() {
-        // Delete all CS channels
+    private void deleteChannels() {
         discordService.getGuild().getTextChannels().forEach(channel -> {
             try {
                 // Parse the channel as a course to ensure it is actually a course channel.
@@ -126,9 +111,6 @@ public class SemesterResetService {
                 // This channel is not a course channel.
             }
         });
-
-        // Request synchronization, which will re-add CS channels.
-        discordSynchronizationService.requestSynchronization();
     }
 
     /**

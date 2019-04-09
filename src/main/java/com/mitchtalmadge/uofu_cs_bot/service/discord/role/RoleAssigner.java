@@ -6,6 +6,9 @@ import net.dv8tion.jda.core.entities.Role;
 
 import java.util.Set;
 
+/**
+ * Provides the structure for assigning roles to users.
+ */
 @InheritedComponent
 public abstract class RoleAssigner {
 

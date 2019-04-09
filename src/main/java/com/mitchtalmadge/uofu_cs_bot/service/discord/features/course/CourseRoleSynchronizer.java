@@ -21,7 +21,7 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
 
     @Autowired
     public CourseRoleSynchronizer(CourseService courseService) {
-        super("cs-", 1);
+        super("cs-", 0);
         this.courseService = courseService;
     }
 
