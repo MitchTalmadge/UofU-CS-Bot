@@ -46,7 +46,7 @@ public class RoleAssignmentService {
      * @param member The member to update.
      */
     public void assignRoles(Member member) {
-        logService.logInfo(getClass(), "Assigning roles for member " + member.getUser().getName());
+        logService.logDebug(getClass(), "Assigning roles for member " + member.getUser().getName());
 
         Set<Role> rolesToAdd = new HashSet<>();
         Set<Role> rolesToRemove = new HashSet<>();

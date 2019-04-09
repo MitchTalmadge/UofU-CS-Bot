@@ -20,17 +20,14 @@ public class RoleSynchronizationService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private RoleAssignmentService roleAssignmentService;
     private Set<RoleSynchronizer> roleSynchronizers;
 
     @Autowired
     public RoleSynchronizationService(LogService logService,
                                       DiscordService discordService,
-                                      RoleAssignmentService roleAssignmentService,
                                       Set<RoleSynchronizer> roleSynchronizers) {
         this.logService = logService;
         this.discordService = discordService;
-        this.roleAssignmentService = roleAssignmentService;
         this.roleSynchronizers = roleSynchronizers;
     }
 
@@ -39,8 +36,6 @@ public class RoleSynchronizationService {
      * This may involve creating, deleting, modifying, or moving Roles as needed.
      */
     public void synchronize() {
-
-        logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
 
         // Creation and Deletion
         synchronizeRoles();
@@ -51,15 +46,13 @@ public class RoleSynchronizationService {
         // Ordering
         updateRoleOrdering();
 
-        // Assignment
-        roleAssignmentService.assignRoles();
     }
 
     /**
      * Creates and/or deletes Roles as necessary.
      */
     private void synchronizeRoles() {
-        logService.logInfo(getClass(), "Synchronizing Roles...");
+        logService.logInfo(getClass(), "Creating and Deleting Roles...");
 
         roleSynchronizers.forEach(roleSynchronizer -> {
             // Perform synchronization

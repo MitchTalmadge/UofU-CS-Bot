@@ -1,7 +1,9 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
+import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizationService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.nickname.NicknameService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -11,8 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class DiscordSynchronizationService {
 
+    private LogService logService;
     private final RoleSynchronizationService roleSynchronizationService;
     private DiscordService discordService;
+    private RoleAssignmentService roleAssignmentService;
     private final ChannelSynchronizationService channelSynchronizationService;
     private NicknameService nicknameService;
 
@@ -26,13 +30,17 @@ public class DiscordSynchronizationService {
     private boolean synchronizationRequested = true;
 
     @Autowired
-    public DiscordSynchronizationService(DiscordService discordService,
-                                         RoleSynchronizationService roleSynchronizationService,
-                                         ChannelSynchronizationService channelSynchronizationService,
-                                         NicknameService nicknameService) {
-
-        this.roleSynchronizationService = roleSynchronizationService;
+    public DiscordSynchronizationService(
+            LogService logService,
+            DiscordService discordService,
+            RoleSynchronizationService roleSynchronizationService,
+            RoleAssignmentService roleAssignmentService,
+            ChannelSynchronizationService channelSynchronizationService,
+            NicknameService nicknameService) {
+        this.logService = logService;
         this.discordService = discordService;
+        this.roleSynchronizationService = roleSynchronizationService;
+        this.roleAssignmentService = roleAssignmentService;
         this.channelSynchronizationService = channelSynchronizationService;
         this.nicknameService = nicknameService;
     }
@@ -57,21 +65,31 @@ public class DiscordSynchronizationService {
     @Scheduled(fixedDelay = 15_000, initialDelay = 15_000)
     @Async
     protected void synchronize() {
-
         // Make sure we have a requested synchronization.
-        if(!synchronizationRequested)
+        if (!synchronizationRequested)
             return;
 
         synchronizationRequested = false;
 
+        logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
+
         // Synchronize roles.
+        logService.logInfo(getClass(), "Synchronizing Roles...");
         roleSynchronizationService.synchronize();
 
         // Synchronize channels, after roles.
+        logService.logInfo(getClass(), "Synchronizing Channels...");
         channelSynchronizationService.synchronize();
 
         // Validate nicknames.
+        logService.logInfo(getClass(), "Validating Nicknames...");
         nicknameService.validateNicknames();
+
+        // Assign Roles.
+        logService.logInfo(getClass(), "Assigning Roles...");
+        roleAssignmentService.assignRoles();
+
+        logService.logInfo(getClass(), "Synchronization Finished.");
     }
 
 }

@@ -47,7 +47,7 @@ public class NicknameService {
         if (DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
             return;
 
-        logService.logInfo(getClass(), "Validating nickname for member '" + member.getUser().getName() + "'.");
+        logService.logDebug(getClass(), "Validating nickname for member " + member.getUser().getName() + ".");
 
         if (member.getNickname() == null)
             return;
@@ -57,7 +57,7 @@ public class NicknameService {
 
             // Submit change.
             if (!member.getNickname().equals(nickname)) {
-                logService.logInfo(getClass(), "Adjusted nickname from '" + member.getNickname() + "' to '" + nickname + "'.");
+                logService.logInfo(getClass(), "Adjusted nickname for member " + member.getUser().getName() + " from '" + member.getNickname() + "' to '" + nickname + "'.");
                 this.discordService.getGuild().getController().setNickname(member, nickname).queue((success) -> {
                 }, (error) -> {
                     logService.logException(getClass(), error, "Could not adjust nickname for member " + member.getUser().getName() + ".");
