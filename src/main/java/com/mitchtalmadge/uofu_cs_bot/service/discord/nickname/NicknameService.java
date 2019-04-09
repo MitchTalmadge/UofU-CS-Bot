@@ -49,6 +49,9 @@ public class NicknameService {
 
         logService.logInfo(getClass(), "Validating nickname for member '" + member.getUser().getName() + "'.");
 
+        if (member.getNickname() == null)
+            return;
+
         for (NicknameValidator nicknameValidator : nicknameValidators) {
             String nickname = nicknameValidator.assignNickname(member);
 
@@ -77,6 +80,9 @@ public class NicknameService {
             return;
 
         logService.logInfo(getClass(), "Clearing nickname for member '" + member.getUser().getName() + "'.");
+
+        if (member.getNickname() == null)
+            return;
 
         // Format nickname with an empty class group, i.e. "John Doe []".
         String nickname = CSNickname.EMPTY.updateNicknameClassGroup(member.getNickname());
