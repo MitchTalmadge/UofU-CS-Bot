@@ -1,16 +1,14 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
+import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -23,23 +21,19 @@ import java.util.Set;
  */
 public class CourseRoleAssigner extends RoleAssigner {
 
-    private final LogService logService;
     private final DiscordService discordService;
     private final CourseService courseService;
 
     @Autowired
-    public CourseRoleAssigner(LogService logService,
-                              DiscordService discordService,
-                              CourseService courseService) {
-        this.logService = logService;
+    public CourseRoleAssigner(
+            DiscordService discordService,
+            CourseService courseService) {
         this.discordService = discordService;
         this.courseService = courseService;
     }
 
     @Override
-    public Pair<Set<Role>, Set<Role>> updateRoleAssignments(Member member) {
-        logService.logInfo(getClass(), "Updating course roles for " + member.getUser().getName());
-
+    public void updateRoleAssignments(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove) {
         // Get nickname of member.
         CSNickname csNickname = new CSNickname(member.getNickname());
 
@@ -59,9 +53,6 @@ public class CourseRoleAssigner extends RoleAssigner {
             allowedSuffixes.add(csNickname.getSuffixForClass(csClass));
             missingRolesMap.put(csClass, allowedSuffixes);
         });
-
-        // The roles that should be removed from the member.
-        Set<Role> rolesToRemove = new HashSet<>();
 
         // Check each role of the member.
         member.getRoles().forEach(role -> {
@@ -91,7 +82,6 @@ public class CourseRoleAssigner extends RoleAssigner {
         });
 
         // Determine the roles to be added to the member.
-        Set<Role> rolesToAdd = new HashSet<>();
         missingRolesMap.forEach((csClass, suffixes) -> {
             suffixes.forEach(suffix -> {
                 rolesToAdd.add(discordService.getGuild().getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false).get(0));
@@ -102,8 +92,6 @@ public class CourseRoleAssigner extends RoleAssigner {
         // TODO: After assignment
         if (!DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
             updateMemberNickname(member, csNickname);
-
-        return Pair.of(rolesToRemove, rolesToAdd);
     }
 
     /**
@@ -113,6 +101,7 @@ public class CourseRoleAssigner extends RoleAssigner {
      * @param csNickname The parsed CS nickname for the member.
      */
     public void updateMemberNickname(Member member, CSNickname csNickname) {
+        //FIXME: Move this somewhere better.
         discordService.getGuild().getController().setNickname(member, csNickname.updateNicknameClassGroup(member.getNickname())).complete();
     }
 

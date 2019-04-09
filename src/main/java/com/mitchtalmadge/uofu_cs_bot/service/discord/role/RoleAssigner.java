@@ -1,24 +1,23 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
+import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@InheritedComponent
 public abstract class RoleAssigner {
 
     /**
      * Assigns and/or un-assigns roles as necessary for a member.
      *
-     * @param member The Member.
-     * @return A Pair containing
-     * <ol>
-     * <li>A Collection of Roles to remove.</li>
-     * <li>A Collection of Roles to add.</li>
-     * </ol>
+     * @param member        The Member.
+     * @param rolesToAdd    The roles to add to the member. May already be populated from other filters.
+     *                      Modify as necessary.
+     * @param rolesToRemove The roles to remove from the member. May already be populated from other filters.
+     *                      Modify as necessary.
      */
-    public abstract Pair<Set<Role>, Set<Role>> updateRoleAssignments(Member member);
+    public abstract void updateRoleAssignments(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove);
 
 }
