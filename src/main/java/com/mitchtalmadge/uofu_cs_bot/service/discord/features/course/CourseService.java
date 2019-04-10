@@ -4,7 +4,7 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationRequestSurrogate;
 import net.dv8tion.jda.core.entities.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,25 +34,25 @@ public class CourseService {
 
     private final LogService logService;
     private DiscordService discordService;
-    private DiscordSynchronizationService discordSynchronizationService;
+    private DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate;
 
     /**
      * The enabled CS courses for the server.
      */
-    private Set<Course> enabledCourses;
+    private Set<Course> enabledCourses = new HashSet<>();
 
     /**
      * The blacklisted CS courses for the server.
      */
-    private Set<Course> blacklistedCourses;
+    private Set<Course> blacklistedCourses = new HashSet<>();
 
     @Autowired
     public CourseService(LogService logService,
                          DiscordService discordService,
-                         DiscordSynchronizationService discordSynchronizationService) {
+                         DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
         this.logService = logService;
         this.discordService = discordService;
-        this.discordSynchronizationService = discordSynchronizationService;
+        this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
     }
 
     @PostConstruct
@@ -106,8 +106,8 @@ public class CourseService {
         enabledCourses.removeAll(this.blacklistedCourses);
 
         // Request synchronization if the enabled courses have changed.
-        if(!this.enabledCourses.equals(enabledCourses)) {
-            this.discordSynchronizationService.requestSynchronization();
+        if (!this.enabledCourses.equals(enabledCourses)) {
+            this.discordSynchronizationRequestSurrogate.requestSynchronization();
         }
 
         this.enabledCourses = enabledCourses;
