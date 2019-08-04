@@ -1,5 +1,6 @@
 language: java
 jdk: openjdk12
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
 cache:
   directories:
   - "$HOME/.m2"
