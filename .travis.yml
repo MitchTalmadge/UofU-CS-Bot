@@ -4,9 +4,8 @@ sudo: required
 before_script:
   - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
   - heroku plugins:install heroku-cli-deploy
-script: skip
+script: mvn test -Drevision=${TRAVIS_COMMIT} -B
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
-test: mvn test -Drevision=${TRAVIS_COMMIT} -B
 cache:
   directories:
   - "$HOME/.m2"
