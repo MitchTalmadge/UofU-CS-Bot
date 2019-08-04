@@ -1,6 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.command;
 
 import com.mitchtalmadge.uofu_cs_bot.command.listeners.CommandListener;
+import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PrivateChannel;
@@ -37,10 +38,12 @@ public class CommandDistributor {
      * All Command Distribution Listeners.
      */
     private final Set<CommandListener> commandListeners;
+    private LogService logService;
 
     @Autowired
-    public CommandDistributor(Set<CommandListener> commandListeners) {
+    public CommandDistributor(Set<CommandListener> commandListeners, LogService logService) {
         this.commandListeners = commandListeners;
+        this.logService = logService;
     }
 
     /**
@@ -58,7 +61,10 @@ public class CommandDistributor {
             // Extract CommandPattern annotation from listener class.
             CommandPattern commandPattern = listener.getClass().getAnnotation(CommandPattern.class);
             if (commandPattern == null) {
-                System.err.println("Command Distribution Listener '" + listener.getClass().getSimpleName() + "' is missing a Command Pattern.");
+                this.logService.logError(
+                        getClass(),
+                        "Command Distribution Listener '" + listener.getClass().getSimpleName() + "' is missing a Command Pattern."
+                );
                 return;
             }
 
