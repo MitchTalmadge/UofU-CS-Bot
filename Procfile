@@ -1,1 +1,1 @@
-worker: java -jar target/UofU-CS-Bot.jar
+worker: java -jar UofU-CS-Bot.jar
