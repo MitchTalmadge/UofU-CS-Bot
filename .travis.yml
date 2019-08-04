@@ -6,13 +6,11 @@ cache:
     - "$HOME/.m2"
 
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
-
-before_script:
-  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
-  - heroku plugins:install heroku-cli-deploy
 script: mvn test -Drevision=${TRAVIS_COMMIT} -B
 
 before_deploy:
+  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  - heroku plugins:install heroku-cli-deploy
   - mv target/UofU-CS-Bot.jar .
 deploy:
   provider: script
