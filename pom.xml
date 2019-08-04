@@ -6,13 +6,14 @@
 
     <groupId>com.mitchtalmadge</groupId>
     <artifactId>uofu-cs-bot</artifactId>
-    <version>${sha1}</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>12</maven.compiler.source>
         <maven.compiler.target>12</maven.compiler.target>
         <xchange.version>4.2.1</xchange.version>
+        <revision>develop</revision>
     </properties>
 
     <build>
