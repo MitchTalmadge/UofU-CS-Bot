@@ -2,10 +2,10 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Keeps track of the enabled CS Courses from the environment variables.
  */
 @Service
-public class CourseService {
+public class CourseService implements InitializingBean {
 
     /**
      * The environment variable that contains the list of enabled courses.
@@ -38,8 +38,8 @@ public class CourseService {
         this.logService = logService;
     }
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         // Get the course number list from the environment variable.
         String courseNumberList = System.getenv(CS_COURSES_ENV_VAR);
         if (courseNumberList == null) {
