@@ -1,14 +1,20 @@
 language: java
 jdk: openjdk12
+sudo: required
+before_script:
+  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  - heroku plugins:install heroku-cli-deploy
+script: skip
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
 test: mvn test -Drevision=${TRAVIS_COMMIT} -B
 cache:
   directories:
   - "$HOME/.m2"
+before_deploy:
+  - mv target/UofU-CS-Bot.jar .
 deploy:
-  provider: heroku
-  api_key:
-    secure: Vrv0Io1Oy/Htv7E06jVYin5H9kD8p2B7VKctpaWOrWrlOpnuF7x2AGUcDgBdY3QB/eFOikPCu6HF6OTpFpbku7/iJdgM95SSMBZZAnIUN2+K0FIS1jlLTj5/2h+PIBYeJrQ3zI+icA3B7LebjtTFq9A+yBdLL6eNFGat/nQBxFahjUd68fxkRHPeA3wlHqffB2kuqxR3Xm2eZLgvmquJeGjE/J/MI7MAn65CLce06der/tZNdt4a9W2ywPyvGMPUMKXXde9O+GGRasVh4sjP+cHmzPpIQYKlc4VD7ngp89buTrqViNbE+XEHj3vE3NKYRKkNGRc7P5lpqhWnxGD46SnN2h+368bYtiEeUlg4efcrtS5ZfLhQu19kb1pPCROIF5DXSaAKFEoRr40pahIbPKx3XpMVUVW8e9pwpy16W2+886OfW7GpV8ZhDnwckMN4WTvabaXBkvHJVGkbtFgLJzweDZ4euh1r7pgdhJW2BDLrqblAIfk/UqUnG3TTzU08YeqhGRTTbnfIwfYDv4kHtQ+Udo6oaoYe4XI/2Q9KINQau3gMi1QKZPpiUUjWMtaub2lbOWHfhwXkfYLxi0KilqQMkEg+cKFDRpmgOZawTZO5LhPsfj/27B9chzfnSacZ4M1ZvWryQl7bQwhizfKugU6dCnumotv0vhLvMNX11+s=
-  app: mitchtalmadge-uofu-cs-bot
+  provider: script
+  script:
+    - heroku deploy:jar portfolio.jar --app mitchtalmadge-uofu-cs-bot
   on:
     branch: master
