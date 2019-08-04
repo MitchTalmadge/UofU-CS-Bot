@@ -15,6 +15,6 @@ before_deploy:
 deploy:
   provider: script
   script:
-    - heroku deploy:jar portfolio.jar --app mitchtalmadge-uofu-cs-bot
+    - heroku deploy:jar UofU-CS-Bot.jar --app mitchtalmadge-uofu-cs-bot
   on:
     branch: master
