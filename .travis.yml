@@ -13,6 +13,7 @@ before_deploy:
   - heroku plugins:install heroku-cli-deploy
   - mv target/UofU-CS-Bot.jar .
 deploy:
+  skip_cleanup: true
   provider: script
   script:
     - heroku deploy:jar UofU-CS-Bot.jar --app mitchtalmadge-uofu-cs-bot
