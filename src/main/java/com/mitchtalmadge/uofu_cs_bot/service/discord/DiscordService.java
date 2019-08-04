@@ -5,16 +5,16 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.security.auth.login.LoginException;
 
 @Service
-public class DiscordService {
+public class DiscordService implements InitializingBean, DisposableBean {
 
     @Value("${DISCORD_TOKEN}")
     private String discordToken;
@@ -37,8 +37,8 @@ public class DiscordService {
         this.logService = logService;
     }
 
-    @PostConstruct
-    private void init() throws LoginException {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(discordToken)
@@ -54,8 +54,8 @@ public class DiscordService {
         }
     }
 
-    @PreDestroy
-    private void destroy() {
+    @Override
+    public void destroy() throws Exception {
         if (jda != null)
             jda.shutdown();
     }
