@@ -3,13 +3,13 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import org.springframework.beans.factory.InitializingBean;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationRequestSurrogate;
 import net.dv8tion.jda.core.entities.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Keeps track of the enabled CS Courses from the environment variables.
  */
 @Service
-public class CourseService {
+public class CourseService implements InitializingBean {
 
     /**
      * The environment variable that contains the list of blacklisted courses.
@@ -55,8 +55,8 @@ public class CourseService {
         this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
     }
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         // Blacklisted courses.
         this.loadBlacklistedCourses();
 

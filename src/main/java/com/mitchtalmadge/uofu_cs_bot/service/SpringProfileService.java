@@ -6,18 +6,18 @@
 
 package com.mitchtalmadge.uofu_cs_bot.service;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class SpringProfileService {
+public class SpringProfileService implements InitializingBean {
 
     @Value("${spring.profiles.active:production}")
     private String activeProfilesString;
@@ -47,8 +47,8 @@ public class SpringProfileService {
         }
     }
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         String[] springProfilesSplit = activeProfilesString.split(" ");
         activeProfiles = new ArrayList<>();
 

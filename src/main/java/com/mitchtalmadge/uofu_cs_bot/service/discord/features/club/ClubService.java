@@ -1,9 +1,9 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Keeps track of the enabled CS Clubs from the environment variables.
  */
 @Service
-public class ClubService {
+public class ClubService implements InitializingBean {
 
     /**
      * The environment variable that contains the list of enabled clubs.
@@ -30,8 +30,8 @@ public class ClubService {
      */
     private Set<Club> enabledClubs = new HashSet<>();
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         // Get the class number list from the environment variable.
         String clubNameList = System.getenv(CS_CLUBS_ENV_VAR);
         if (clubNameList == null) {

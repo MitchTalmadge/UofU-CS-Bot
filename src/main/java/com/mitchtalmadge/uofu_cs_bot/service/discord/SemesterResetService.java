@@ -27,7 +27,7 @@ public class SemesterResetService {
      * Contains days on which the semester reset should be triggered.
      */
     private static final MonthDay[] SEMESTER_RESET_DAYS = {
-            MonthDay.of(Month.AUGUST, 10),
+            MonthDay.of(Month.AUGUST, 15),
             MonthDay.of(Month.JANUARY, 5)
     };
 
@@ -36,7 +36,10 @@ public class SemesterResetService {
      */
     private static final String SEMESTER_RESET_ANNOUNCEMENT = "@everyone\n" +
             "\n" +
-            "Welcome to a new semester! **All class-specific channels and roles have been reset.** Please update your nickname with any CS courses you are enrolled in this semester, and remember to invite your friends!\n" +
+            "Welcome to a new semester! **All class-specific channels have been reset.** " +
+            "If you haven't updated your nickname within the last month, it has been cleared. " +
+            "Please update your nickname with any CS courses you are enrolled in this semester, and " +
+            "remember to invite your friends!\n" +
             "\n" +
             "*Note: If you are a TA for any courses, just let a moderator know.*\n" +
             "*Invite Link:* **bit.ly/csattheu**";
@@ -79,19 +82,16 @@ public class SemesterResetService {
                 break;
             }
         }
-
-        // Don't reset if today is not a reset day.
-        if (!reset)
+        if (!reset) {
             return;
+        }
 
         logService.logInfo(getClass(), "!!!!!!!!!!!!!! Initiating Semester Reset !!!!!!!!!!!!!!");
 
         // Today is a reset day, begin resetting.
-        nicknameService.clearNicknames();
+        nicknameService.clearNicknamesOlderThanDays(30);
         deleteChannels();
-
         discordSynchronizationRequestSurrogate.requestSynchronization();
-
         announceReset();
     }
 

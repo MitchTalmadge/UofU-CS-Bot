@@ -4,10 +4,14 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
+import net.dv8tion.jda.core.audit.ActionType;
+import net.dv8tion.jda.core.audit.AuditLogKey;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.requests.restaction.pagination.AuditLogPaginationAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 /**
@@ -74,13 +78,62 @@ public class NicknameService {
     }
 
     /**
+     * Clears the nicknames (leaves the name but removes course numbers) of all members who have not updated
+     * their nickname within the last N days.
+     *
+     * @param days The number of days in which the user must have updated their nickname for it to not be cleared.
+     */
+    public void clearNicknamesOlderThanDays(int days) {
+        this.logService.logInfo(getClass(), "Clearing nicknames older than " + days + " days.");
+
+        AuditLogPaginationAction updateLogs = this.discordService
+                .getGuild()
+                .getAuditLogs()
+                .type(ActionType.MEMBER_UPDATE);
+
+        this.discordService.getGuild().getMembers().forEach((member) -> {
+            this.logService.logDebug(getClass(), "Checking nickname age for " + member.getEffectiveName());
+
+            boolean recentlyUpdated = updateLogs.stream().anyMatch((log) -> {
+                // Make sure the change was targeted on this user.
+                if(!log.getTargetId().equals(member.getUser().getId())) {
+                    return false;
+                }
+
+                // Make sure the change was a nickname change.
+                if (!log.getChanges().containsKey(AuditLogKey.MEMBER_NICK.getKey())) {
+                    return false;
+                }
+
+                // Check age.
+                return log.getCreationTime().isAfter(OffsetDateTime.now().minusDays(days));
+            });
+
+            if (!recentlyUpdated) {
+                this.logService.logDebug(
+                        getClass(),
+                        "Member " + member.getEffectiveName() + " has an old nick and will be cleared."
+                );
+                this.clearNickname(member);
+            } else {
+                this.logService.logDebug(
+                        getClass(),
+                        "Member " + member.getEffectiveName() + " updated their nick within last " + days + " days."
+                );
+            }
+        });
+    }
+
+    /**
      * Clears the nickname (leaves the name but removes course numbers) of one member.
      *
      * @param member The member.
      */
     public void clearNickname(Member member) {
-        if (DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member))
+        if (DiscordUtils.hasEqualOrHigherRole(discordService.getGuild().getSelfMember(), member)) {
+            this.logService.logDebug(getClass(), "Not clearing nickname of high-role member " + member.getEffectiveName());
             return;
+        }
 
         logService.logInfo(getClass(), "Clearing nickname for member '" + member.getUser().getName() + "'.");
 

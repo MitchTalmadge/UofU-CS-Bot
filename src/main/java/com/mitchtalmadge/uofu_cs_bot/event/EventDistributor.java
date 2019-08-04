@@ -4,17 +4,17 @@ import com.mitchtalmadge.uofu_cs_bot.event.listeners.EventListenerAbstract;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.hooks.EventListener;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 @Component
-public class EventDistributor {
+public class EventDistributor implements InitializingBean {
 
     private final DiscordService discordService;
 
@@ -38,8 +38,8 @@ public class EventDistributor {
         });
     }
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         discordService.getJDA().addEventListener((EventListener) this::onEvent);
     }
 
