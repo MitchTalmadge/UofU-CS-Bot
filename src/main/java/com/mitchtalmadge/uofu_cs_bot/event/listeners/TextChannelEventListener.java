@@ -4,21 +4,19 @@ import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationReque
 import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Receives all text-channel-based events.
- */
+/** Receives all text-channel-based events. */
 public class TextChannelEventListener extends EventListenerAbstract<GenericTextChannelEvent> {
 
-    private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
+  private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
 
-    @Autowired
-    public TextChannelEventListener(DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
-        this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
-    }
+  @Autowired
+  public TextChannelEventListener(
+      DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+    this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
+  }
 
-    @Override
-    public void onEvent(GenericTextChannelEvent event) {
-        discordSynchronizationService.requestSynchronization();
-    }
-
+  @Override
+  public void onEvent(GenericTextChannelEvent event) {
+    discordSynchronizationService.requestSynchronization();
+  }
 }

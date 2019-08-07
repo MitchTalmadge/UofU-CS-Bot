@@ -16,62 +16,51 @@ import javax.security.auth.login.LoginException;
 @Service
 public class DiscordService implements InitializingBean, DisposableBean {
 
-    @Value("${DISCORD_TOKEN}")
-    private String discordToken;
+  @Value("${DISCORD_TOKEN}")
+  private String discordToken;
 
-    private final LogService logService;
+  private final LogService logService;
 
-    /**
-     * The JDA (Discord API) instance.
-     */
-    private JDA jda;
+  /** The JDA (Discord API) instance. */
+  private JDA jda;
 
-    /**
-     * The first guild connected to, which should be the only guild used throughout the application.
-     * (This bot is designed to work with only one guild.)
-     */
-    private Guild guild;
+  /**
+   * The first guild connected to, which should be the only guild used throughout the application.
+   * (This bot is designed to work with only one guild.)
+   */
+  private Guild guild;
 
-    @Autowired
-    public DiscordService(LogService logService) {
-        this.logService = logService;
+  @Autowired
+  public DiscordService(LogService logService) {
+    this.logService = logService;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    try {
+      jda = new JDABuilder(AccountType.BOT).setToken(discordToken).build().awaitReady();
+
+      this.guild = jda.getGuilds().get(0);
+    } catch (LoginException e) {
+      logService.logException(getClass(), e, "Could not sign in to Discord");
+      throw e;
+    } catch (InterruptedException e) {
+      logService.logException(getClass(), e, "JDA was interrupted while logging in");
     }
+  }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        try {
-            jda = new JDABuilder(AccountType.BOT)
-                    .setToken(discordToken)
-                    .build()
-                    .awaitReady();
+  @Override
+  public void destroy() {
+    if (jda != null) jda.shutdown();
+  }
 
-            this.guild = jda.getGuilds().get(0);
-        } catch (LoginException e) {
-            logService.logException(getClass(), e, "Could not sign in to Discord");
-            throw e;
-        } catch (InterruptedException e) {
-            logService.logException(getClass(), e, "JDA was interrupted while logging in");
-        }
-    }
+  /** @return The JDA instance for this bot. */
+  public JDA getJDA() {
+    return jda;
+  }
 
-    @Override
-    public void destroy() throws Exception {
-        if (jda != null)
-            jda.shutdown();
-    }
-
-    /**
-     * @return The JDA instance for this bot.
-     */
-    public JDA getJDA() {
-        return jda;
-    }
-
-    /**
-     * @return The Guild that this bot is assigned to.
-     */
-    public Guild getGuild() {
-        return guild;
-    }
-
+  /** @return The Guild that this bot is assigned to. */
+  public Guild getGuild() {
+    return guild;
+  }
 }
