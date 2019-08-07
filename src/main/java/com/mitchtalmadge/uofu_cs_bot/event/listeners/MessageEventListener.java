@@ -7,22 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class MessageEventListener extends EventListenerAbstract<MessageReceivedEvent> {
 
-    private static final String COMMAND_PREFIX = "!";
+  private static final String COMMAND_PREFIX = "!";
 
-    private final CommandDistributor commandDistributor;
+  private final CommandDistributor commandDistributor;
 
-    @Autowired
-    public MessageEventListener(CommandDistributor commandDistributor) {
-        this.commandDistributor = commandDistributor;
+  @Autowired
+  public MessageEventListener(CommandDistributor commandDistributor) {
+    this.commandDistributor = commandDistributor;
+  }
+
+  @Override
+  public void onEvent(MessageReceivedEvent event) {
+
+    // Check for command prefix
+    if (event.getMessage().getContentRaw().startsWith(COMMAND_PREFIX)) {
+      commandDistributor.onCommand(
+          new Command(event, event.getMessage().getContentRaw().substring(1).split("\\s")));
     }
-
-    @Override
-    public void onEvent(MessageReceivedEvent event) {
-
-        // Check for command prefix
-        if (event.getMessage().getContentRaw().startsWith(COMMAND_PREFIX)) {
-            commandDistributor.onCommand(
-                    new Command(event, event.getMessage().getContentRaw().substring(1).split("\\s")));
-        }
-    }
+  }
 }

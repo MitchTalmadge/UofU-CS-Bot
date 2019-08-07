@@ -4,21 +4,19 @@ import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordSynchronizationReque
 import net.dv8tion.jda.core.events.channel.category.GenericCategoryEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Receives all Channel-Category-based events.
- */
+/** Receives all Channel-Category-based events. */
 public class ChannelCategoryEventListener extends EventListenerAbstract<GenericCategoryEvent> {
 
-    private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
+  private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
 
-    @Autowired
-    public ChannelCategoryEventListener(
-            DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
-        this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
-    }
+  @Autowired
+  public ChannelCategoryEventListener(
+      DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+    this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
+  }
 
-    @Override
-    public void onEvent(GenericCategoryEvent event) {
-        discordSynchronizationService.requestSynchronization();
-    }
+  @Override
+  public void onEvent(GenericCategoryEvent event) {
+    discordSynchronizationService.requestSynchronization();
+  }
 }

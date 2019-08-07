@@ -6,5 +6,5 @@ import net.dv8tion.jda.core.events.Event;
 @InheritedComponent
 public abstract class EventListenerAbstract<E extends Event> {
 
-    public abstract void onEvent(E event);
+  public abstract void onEvent(E event);
 }

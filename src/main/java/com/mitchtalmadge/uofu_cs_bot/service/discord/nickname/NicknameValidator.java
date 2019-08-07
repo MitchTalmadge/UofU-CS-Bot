@@ -6,5 +6,5 @@ import net.dv8tion.jda.core.entities.Member;
 @InheritedComponent
 public abstract class NicknameValidator {
 
-    public abstract String assignNickname(Member member);
+  public abstract String assignNickname(Member member);
 }

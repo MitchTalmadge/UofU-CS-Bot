@@ -14,13 +14,12 @@ import java.util.TreeMap;
  */
 public class CSNamingConventions {
 
-  private CSNamingConventions() {
-  }
+  private CSNamingConventions() {}
 
   /**
    * Combines a Course and CSSuffix into a properly formatted role name.
    *
-   * @param course   The class.
+   * @param course The class.
    * @param csSuffix The suffix.
    * @return The role name.
    */
@@ -29,9 +28,9 @@ public class CSNamingConventions {
 
     // Append prefix and class number.
     output
-            .append(CSConstants.CS_PREFIX)
-            .append(CSConstants.COURSE_NUMBER_DELIMITER)
-            .append(course.getNumber());
+        .append(CSConstants.CS_PREFIX)
+        .append(CSConstants.COURSE_NUMBER_DELIMITER)
+        .append(course.getNumber());
 
     // Append suffix if necessary.
     if (csSuffix != CSSuffix.NONE)
@@ -48,7 +47,7 @@ public class CSNamingConventions {
    */
   public static String toChannelName(Course course) {
     return (CSConstants.CS_PREFIX + CSConstants.COURSE_NUMBER_DELIMITER + course.getNumber())
-            .toLowerCase();
+        .toLowerCase();
   }
 
   /**
@@ -79,7 +78,7 @@ public class CSNamingConventions {
    * Combines a Course and CSSuffix into a properly formatted class name for a guild member's
    * nickname.
    *
-   * @param course   The class.
+   * @param course The class.
    * @param csSuffix The suffix.
    * @return The class name.
    */

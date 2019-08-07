@@ -9,25 +9,17 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Keeps track of the enabled CS Clubs from the environment variables.
- */
+/** Keeps track of the enabled CS Clubs from the environment variables. */
 @Service
 public class ClubService implements InitializingBean {
 
-  /**
-   * The environment variable that contains the list of enabled clubs.
-   */
+  /** The environment variable that contains the list of enabled clubs. */
   private static final String CS_CLUBS_ENV_VAR = "CLUBS";
 
-  /**
-   * Pattern used for splitting the enabled clubs list into individual club names.
-   */
+  /** Pattern used for splitting the enabled clubs list into individual club names. */
   private static final Pattern CLUB_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
-  /**
-   * The enabled CS courses for the server.
-   */
+  /** The enabled CS courses for the server. */
   private Set<Club> enabledClubs = new HashSet<>();
 
   @Override
@@ -36,7 +28,7 @@ public class ClubService implements InitializingBean {
     String clubNameList = System.getenv(CS_CLUBS_ENV_VAR);
     if (clubNameList == null) {
       throw new IllegalArgumentException(
-              "The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing!");
+          "The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing!");
     }
 
     // Split the list into individual class numbers.
@@ -50,9 +42,7 @@ public class ClubService implements InitializingBean {
     }
   }
 
-  /**
-   * @return An unmodifiable set of enabled clubs.
-   */
+  /** @return An unmodifiable set of enabled clubs. */
   public Set<Club> getEnabledClubs() {
     return Collections.unmodifiableSet(enabledClubs);
   }

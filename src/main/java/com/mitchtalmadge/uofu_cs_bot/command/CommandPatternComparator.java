@@ -32,7 +32,7 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
    * @param strict1 The first pattern.
    * @param strict2 The second pattern.
    * @return -1 if strict1 matches but not strict2, 0 if both or neither match equally, and 1 if
-   * strict2 matches but not strict1.
+   *     strict2 matches but not strict1.
    */
   private int compareBothStrict(CommandPattern strict1, CommandPattern strict2) {
     if (Arrays.equals(strict1.value(), command.getArgs())) {
@@ -48,9 +48,9 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
    * Compare two patterns in which one is strict and the other is loose.
    *
    * @param strict The strict pattern.
-   * @param loose  The loose pattern.
+   * @param loose The loose pattern.
    * @return -1 if strict matches more than loose, 0 if both or neither match equally, and 1 if
-   * loose matches more than strict.
+   *     loose matches more than strict.
    */
   private int compareOneStrict(CommandPattern strict, CommandPattern loose) {
     if (Arrays.equals(strict.value(), command.getArgs())) {
@@ -58,7 +58,7 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
 
       int currentArg = 0;
       while (currentArg < loose.value().length
-              && loose.value()[currentArg].equals(command.getArgs()[currentArg])) {
+          && loose.value()[currentArg].equals(command.getArgs()[currentArg])) {
         currentArg++;
       }
 
@@ -66,7 +66,7 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
     } else {
       int currentArg = 0;
       while (currentArg < loose.value().length
-              && loose.value()[currentArg].equals(command.getArgs()[currentArg])) {
+          && loose.value()[currentArg].equals(command.getArgs()[currentArg])) {
         currentArg++;
       }
 
@@ -80,7 +80,7 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
    * @param loose1 The first pattern.
    * @param loose2 The second pattern.
    * @return -1 if loose1 matches but not loose2, 0 if both or neither match equally, and 1 if
-   * loose2 matches but not loose1.
+   *     loose2 matches but not loose1.
    */
   private int compareBothLoose(CommandPattern loose1, CommandPattern loose2) {
     int pattern1Score = 0, pattern2Score = 0;
@@ -98,7 +98,7 @@ public class CommandPatternComparator implements Comparator<CommandPattern> {
   /**
    * Determines if the loose pattern wins a comparison point.
    *
-   * @param pattern  The loose pattern.
+   * @param pattern The loose pattern.
    * @param argIndex The index of the argument to check.
    * @return True if the pattern wins a point, false otherwise.
    */

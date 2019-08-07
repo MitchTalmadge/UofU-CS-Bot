@@ -21,9 +21,7 @@ public class DiscordService implements InitializingBean, DisposableBean {
 
   private final LogService logService;
 
-  /**
-   * The JDA (Discord API) instance.
-   */
+  /** The JDA (Discord API) instance. */
   private JDA jda;
 
   /**
@@ -56,16 +54,12 @@ public class DiscordService implements InitializingBean, DisposableBean {
     if (jda != null) jda.shutdown();
   }
 
-  /**
-   * @return The JDA instance for this bot.
-   */
+  /** @return The JDA instance for this bot. */
   public JDA getJDA() {
     return jda;
   }
 
-  /**
-   * @return The Guild that this bot is assigned to.
-   */
+  /** @return The Guild that this bot is assigned to. */
   public Guild getGuild() {
     return guild;
   }

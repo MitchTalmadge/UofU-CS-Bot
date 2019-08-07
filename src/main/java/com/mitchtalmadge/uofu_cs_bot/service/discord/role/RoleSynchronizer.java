@@ -31,18 +31,17 @@ public abstract class RoleSynchronizer {
    */
   private final int orderingPriority;
 
-  @Autowired
-  protected DiscordService discordService;
+  @Autowired protected DiscordService discordService;
 
   /**
    * Constructs the Role Synchronizer.
    *
-   * @param rolePrefix       The prefix to filter out roles for each method in the synchronizer. Only
-   *                         roles that begin with this prefix will be given as parameters to the methods. Case
-   *                         Insensitive.
+   * @param rolePrefix The prefix to filter out roles for each method in the synchronizer. Only
+   *     roles that begin with this prefix will be given as parameters to the methods. Case
+   *     Insensitive.
    * @param orderingPriority Determines the order in which different synchronizers will order their
-   *                         roles relative to each other. 0 means the roles for this synchronizer will be placed at the
-   *                         top.
+   *     roles relative to each other. 0 means the roles for this synchronizer will be placed at the
+   *     top.
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   public RoleSynchronizer(String rolePrefix, int orderingPriority) {
@@ -55,20 +54,20 @@ public abstract class RoleSynchronizer {
    *
    * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
    * @return A Pair containing
-   * <ol>
-   *   <li>A Collection of Roles to delete.
-   *   <li>A Collection of RoleActions which will be queued later. Used to create Roles.
-   * </ol>
+   *     <ol>
+   *       <li>A Collection of Roles to delete.
+   *       <li>A Collection of RoleActions which will be queued later. Used to create Roles.
+   *     </ol>
    */
   public abstract Pair<Collection<Role>, Collection<RoleAction>> synchronizeRoles(
-          List<Role> filteredRoles);
+      List<Role> filteredRoles);
 
   /**
    * Ensures that all Roles have the correct settings.
    *
    * @param filteredRoles A list of roles beginning with the rolePrefix given in the constructor.
    * @return A Collection of {@link RoleManager} instances with updated settings, which will be
-   * queued later.
+   *     queued later.
    */
   public abstract Collection<RoleManager> updateRoleSettings(List<Role> filteredRoles);
 

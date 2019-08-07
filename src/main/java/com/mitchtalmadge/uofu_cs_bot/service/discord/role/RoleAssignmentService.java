@@ -24,15 +24,13 @@ public class RoleAssignmentService {
 
   @Autowired
   public RoleAssignmentService(
-          LogService logService, DiscordService discordService, Set<RoleAssigner> roleAssigners) {
+      LogService logService, DiscordService discordService, Set<RoleAssigner> roleAssigners) {
     this.logService = logService;
     this.discordService = discordService;
     this.roleAssigners = roleAssigners;
   }
 
-  /**
-   * Updates the role assignments for all members.
-   */
+  /** Updates the role assignments for all members. */
   public void assignRoles() {
     for (Member member : discordService.getGuild().getMembers()) {
       assignRoles(member);
@@ -58,30 +56,29 @@ public class RoleAssignmentService {
     if (!rolesToAdd.isEmpty()) {
       Set<String> addRoleNames = rolesToAdd.stream().map(Role::getName).collect(Collectors.toSet());
       logService.logInfo(
-              getClass(), "Adding roles " + addRoleNames + " to member " + member.getUser().getName());
+          getClass(), "Adding roles " + addRoleNames + " to member " + member.getUser().getName());
     }
 
     // Log the removed roles.
     if (!rolesToRemove.isEmpty()) {
       Set<String> removeRoleNames =
-              rolesToRemove.stream().map(Role::getName).collect(Collectors.toSet());
+          rolesToRemove.stream().map(Role::getName).collect(Collectors.toSet());
       logService.logInfo(
-              getClass(),
-              "Removing roles " + removeRoleNames + " from member " + member.getUser().getName());
+          getClass(),
+          "Removing roles " + removeRoleNames + " from member " + member.getUser().getName());
     }
 
     // Modify the roles.
     discordService
-            .getGuild()
-            .getController()
-            .modifyMemberRoles(member, rolesToAdd, rolesToRemove)
-            .queue(
-                    (success) -> {
-                    },
-                    (error) ->
-                            logService.logException(
-                                    getClass(),
-                                    error,
-                                    "Could not modify roles for member " + member.getUser().getName() + "."));
+        .getGuild()
+        .getController()
+        .modifyMemberRoles(member, rolesToAdd, rolesToRemove)
+        .queue(
+            (success) -> {},
+            (error) ->
+                logService.logException(
+                    getClass(),
+                    error,
+                    "Could not modify roles for member " + member.getUser().getName() + "."));
   }
 }

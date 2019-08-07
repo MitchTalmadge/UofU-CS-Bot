@@ -16,41 +16,31 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Keeps track of the enabled CS Courses from the environment variables.
- */
+/** Keeps track of the enabled CS Courses from the environment variables. */
 @Service
 public class CourseService implements InitializingBean {
 
-  /**
-   * The environment variable that contains the list of blacklisted courses.
-   */
+  /** The environment variable that contains the list of blacklisted courses. */
   private static final String COURSE_BLACKLIST_ENV_VAR = "COURSE_BLACKLIST";
 
-  /**
-   * Pattern used for splitting the courses env var into individual course numbers.
-   */
+  /** Pattern used for splitting the courses env var into individual course numbers. */
   private static final Pattern COURSE_LIST_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
   private final LogService logService;
   private DiscordService discordService;
   private DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate;
 
-  /**
-   * The enabled CS courses for the server.
-   */
+  /** The enabled CS courses for the server. */
   private Set<Course> enabledCourses = new HashSet<>();
 
-  /**
-   * The blacklisted CS courses for the server.
-   */
+  /** The blacklisted CS courses for the server. */
   private Set<Course> blacklistedCourses = new HashSet<>();
 
   @Autowired
   public CourseService(
-          LogService logService,
-          DiscordService discordService,
-          DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+      LogService logService,
+      DiscordService discordService,
+      DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
     this.logService = logService;
     this.discordService = discordService;
     this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
@@ -88,19 +78,17 @@ public class CourseService implements InitializingBean {
     }
   }
 
-  /**
-   * From the nicknames of each member in the server, determines the enabled courses.
-   */
+  /** From the nicknames of each member in the server, determines the enabled courses. */
   public void computeEnabledCourses() {
     List<Member> members = this.discordService.getGuild().getMembers();
     Set<Course> enabledCourses = new HashSet<>();
 
     // Add courses found in nicknames.
     members.forEach(
-            member -> {
-              CSNickname nickname = new CSNickname(member.getNickname());
-              enabledCourses.addAll(nickname.getClasses());
-            });
+        member -> {
+          CSNickname nickname = new CSNickname(member.getNickname());
+          enabledCourses.addAll(nickname.getClasses());
+        });
 
     // Exclude blacklisted courses.
     enabledCourses.removeAll(this.blacklistedCourses);

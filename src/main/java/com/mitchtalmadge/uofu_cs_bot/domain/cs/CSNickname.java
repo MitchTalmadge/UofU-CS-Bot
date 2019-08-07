@@ -9,9 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Represents the CS courses within a single guild member's nickname.
- */
+/** Represents the CS courses within a single guild member's nickname. */
 public class CSNickname {
 
   /**
@@ -19,30 +17,21 @@ public class CSNickname {
    * "[3500, CS-2420-TA]".
    */
   private static final Pattern CLASS_GROUP_PARSE_PATTERN =
-          Pattern.compile(
-                  "[\\[\\(]\\s*(((cs-?\\s*)?\\d+\\s*(-?[a-z]+)?(,\\s*)*)+)\\s*[\\]\\)]",
-                  Pattern.CASE_INSENSITIVE);
+      Pattern.compile(
+          "[\\[\\(]\\s*(((cs-?\\s*)?\\d+\\s*(-?[a-z]+)?(,\\s*)*)+)\\s*[\\]\\)]",
+          Pattern.CASE_INSENSITIVE);
 
-  /**
-   * Pattern used for splitting the group of courses into individual class strings.
-   */
+  /** Pattern used for splitting the group of courses into individual class strings. */
   private static final Pattern CLASS_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
-  /**
-   * An immutable, empty CS Nickname.
-   */
+  /** An immutable, empty CS Nickname. */
   public static final CSNickname EMPTY = new CSNickname();
 
-  /**
-   * Maps the member's discovered courses to the suffixes associated with those courses.
-   */
+  /** Maps the member's discovered courses to the suffixes associated with those courses. */
   private Map<Course, CSSuffix> classMap = new TreeMap<>();
 
-  /**
-   * Creates an empty CS Nickname instance.
-   */
-  private CSNickname() {
-  }
+  /** Creates an empty CS Nickname instance. */
+  private CSNickname() {}
 
   /**
    * Constructs an instance from the specified nickname.
@@ -80,9 +69,7 @@ public class CSNickname {
     }
   }
 
-  /**
-   * @return An unmodifiable set of courses parsed from this nickname.
-   */
+  /** @return An unmodifiable set of courses parsed from this nickname. */
   public Set<Course> getClasses() {
     return Collections.unmodifiableSet(classMap.keySet());
   }
@@ -92,7 +79,7 @@ public class CSNickname {
    *
    * @param course The class.
    * @return The suffix of the given class, or null if the nickname does not include the given
-   * class.
+   *     class.
    */
   public CSSuffix getSuffixForClass(Course course) {
     return classMap.getOrDefault(course, null);
@@ -110,7 +97,7 @@ public class CSNickname {
     if (nickname == null) return null;
 
     return CLASS_GROUP_PARSE_PATTERN
-            .matcher(nickname)
-            .replaceAll(CSNamingConventions.toNicknameClassGroup(classMap));
+        .matcher(nickname)
+        .replaceAll(CSNamingConventions.toNicknameClassGroup(classMap));
   }
 }

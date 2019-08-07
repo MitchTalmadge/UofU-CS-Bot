@@ -6,9 +6,7 @@ import net.dv8tion.jda.core.requests.restaction.order.OrderAction;
 
 import java.util.List;
 
-/**
- * Utility methods for working with the Discord API.
- */
+/** Utility methods for working with the Discord API. */
 public class DiscordUtils {
 
   /**
@@ -16,12 +14,12 @@ public class DiscordUtils {
    * Submits the order to Discord.
    *
    * @param orderAction The order action to use.
-   * @param order       The desired order of the entities.
-   * @param <E>         The entity type.
-   * @param <O>         The OrderAction type.
+   * @param order The desired order of the entities.
+   * @param <E> The entity type.
+   * @param <O> The OrderAction type.
    */
   public static <E, O extends OrderAction<? extends E, ? extends O>> void orderEntities(
-          O orderAction, List<E> order) {
+      O orderAction, List<E> order) {
     // Order the channels.
     for (int i = 0; i < order.size(); i++) {
       // Find and select the current item being sorted.
@@ -38,7 +36,7 @@ public class DiscordUtils {
   /**
    * Determines if the right member has equal or higher roles to the left member.
    *
-   * @param left  The left member.
+   * @param left The left member.
    * @param right The right member.
    * @return True if the right member has equal or higher roles to the left member.
    */

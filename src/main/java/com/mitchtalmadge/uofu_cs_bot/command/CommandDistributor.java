@@ -16,7 +16,7 @@ public class CommandDistributor {
    * listener can be found.
    */
   private static final CommandPattern EMPTY_COMMAND_PATTERN =
-          new CommandPattern() {
+      new CommandPattern() {
         @Override
         public Class<? extends Annotation> annotationType() {
           return CommandPattern.class;
@@ -31,11 +31,9 @@ public class CommandDistributor {
         public boolean strict() {
           return true;
         }
-          };
+      };
 
-  /**
-   * All Command Distribution Listeners.
-   */
+  /** All Command Distribution Listeners. */
   private final Set<CommandListener> commandListeners;
 
   @Autowired
@@ -59,9 +57,9 @@ public class CommandDistributor {
       CommandPattern commandPattern = listener.getClass().getAnnotation(CommandPattern.class);
       if (commandPattern == null) {
         System.err.println(
-                "Command Distribution Listener '"
-                        + listener.getClass().getSimpleName()
-                        + "' is missing a Command Pattern.");
+            "Command Distribution Listener '"
+                + listener.getClass().getSimpleName()
+                + "' is missing a Command Pattern.");
         return;
       }
 
@@ -71,7 +69,7 @@ public class CommandDistributor {
         // Check if this listener is more specific than the already "most specific" listener.
         if (commandPatternComparator.compare(
                 mostSpecificListener.getClass().getAnnotation(CommandPattern.class), commandPattern)
-                > 0) mostSpecificListener = listener;
+            > 0) mostSpecificListener = listener;
       } else {
         // Check if this listener is more specific than an empty pattern.
         if (commandPatternComparator.compare(EMPTY_COMMAND_PATTERN, commandPattern) > 0)
@@ -83,7 +81,7 @@ public class CommandDistributor {
     // command.
     if (mostSpecificListener == null) {
       sendPrivateMessage(command, "I didn't understand your command.");
-      onCommand(new Command(command.getMessageReceivedEvent(), new String[]{"help"}));
+      onCommand(new Command(command.getMessageReceivedEvent(), new String[] {"help"}));
     } else {
       String response = mostSpecificListener.onCommand(command);
       if (response != null) {
@@ -104,11 +102,11 @@ public class CommandDistributor {
     PrivateChannel privateChannel = command.getMessageReceivedEvent().getPrivateChannel();
     if (privateChannel != null) privateChannel.sendMessage(message).queue();
     else // Otherwise, open a new private channel.
-      command
-              .getMessageReceivedEvent()
-              .getMember()
-              .getUser()
-              .openPrivateChannel()
-              .queue(channel -> channel.sendMessage(message).queue());
+    command
+          .getMessageReceivedEvent()
+          .getMember()
+          .getUser()
+          .openPrivateChannel()
+          .queue(channel -> channel.sendMessage(message).queue());
   }
 }

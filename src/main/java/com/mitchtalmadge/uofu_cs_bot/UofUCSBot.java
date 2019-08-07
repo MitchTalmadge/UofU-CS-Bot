@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class UofUCSBot {
 
-    public static void main(String... args) {
-        SpringApplication.run(UofUCSBot.class, args);
-    }
+  public static void main(String... args) {
+    SpringApplication.run(UofUCSBot.class, args);
+  }
 }

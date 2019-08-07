@@ -18,27 +18,25 @@ public class EventDistributor implements InitializingBean {
 
   private final DiscordService discordService;
 
-  /**
-   * Maps Event Listeners to their parametrized Event types.
-   */
+  /** Maps Event Listeners to their parametrized Event types. */
   private final Map<Class<? extends Event>, EventListenerAbstract> eventListenerMap =
-          new HashMap<>();
+      new HashMap<>();
 
   @Autowired
   public EventDistributor(
-          DiscordService discordService, Set<EventListenerAbstract> eventListeners) {
+      DiscordService discordService, Set<EventListenerAbstract> eventListeners) {
     this.discordService = discordService;
 
     // Get the generic types and map them to the listeners.
     eventListeners.forEach(
-            eventListener -> {
-              //noinspection unchecked
-              eventListenerMap.put(
-                      (Class<? extends Event>)
-                              GenericTypeResolver.resolveTypeArgument(
-                                      eventListener.getClass(), EventListenerAbstract.class),
-                      eventListener);
-            });
+        eventListener -> {
+          //noinspection unchecked
+          eventListenerMap.put(
+              (Class<? extends Event>)
+                  GenericTypeResolver.resolveTypeArgument(
+                      eventListener.getClass(), EventListenerAbstract.class),
+              eventListener);
+        });
   }
 
   @Override
@@ -54,10 +52,10 @@ public class EventDistributor implements InitializingBean {
   public void onEvent(Event event) {
     // Check for a specific listener for the event.
     eventListenerMap.forEach(
-            (aClass, listener) -> {
-              if (aClass.isAssignableFrom(event.getClass()))
-                //noinspection unchecked
-                listener.onEvent(event);
-            });
+        (aClass, listener) -> {
+          if (aClass.isAssignableFrom(event.getClass()))
+            //noinspection unchecked
+            listener.onEvent(event);
+        });
   }
 }
