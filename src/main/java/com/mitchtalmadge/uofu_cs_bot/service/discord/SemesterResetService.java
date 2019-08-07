@@ -27,22 +27,22 @@ public class SemesterResetService {
      * Contains days on which the semester reset should be triggered.
      */
     private static final MonthDay[] SEMESTER_RESET_DAYS = {
-            MonthDay.of(Month.AUGUST, 15),
-            MonthDay.of(Month.JANUARY, 5)
+            MonthDay.of(Month.AUGUST, 15), MonthDay.of(Month.JANUARY, 5)
     };
 
     /**
      * The announcement to send when the semester resets.
      */
-    private static final String SEMESTER_RESET_ANNOUNCEMENT = "@everyone\n" +
-            "\n" +
-            "Welcome to a new semester! **All class-specific channels have been reset.** " +
-            "If you haven't updated your nickname within the last month, it has been cleared. " +
-            "Please update your nickname with any CS courses you are enrolled in this semester, and " +
-            "remember to invite your friends!\n" +
-            "\n" +
-            "*Note: If you are a TA for any courses, just let a moderator know.*\n" +
-            "*Invite Link:* **bit.ly/csattheu**";
+    private static final String SEMESTER_RESET_ANNOUNCEMENT =
+            "@everyone\n"
+                    + "\n"
+                    + "Welcome to a new semester! **All class-specific channels have been reset.** "
+                    + "If you haven't updated your nickname within the last month, it has been cleared. "
+                    + "Please update your nickname with any CS courses you are enrolled in this semester, and "
+                    + "remember to invite your friends!\n"
+                    + "\n"
+                    + "*Note: If you are a TA for any courses, just let a moderator know.*\n"
+                    + "*Invite Link:* **bit.ly/csattheu**";
 
     private final LogService logService;
     private final DiscordService discordService;
@@ -50,10 +50,11 @@ public class SemesterResetService {
     private NicknameService nicknameService;
 
     @Autowired
-    public SemesterResetService(LogService logService,
-                                DiscordService discordService,
-                                DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate,
-                                NicknameService nicknameService) {
+    public SemesterResetService(
+            LogService logService,
+            DiscordService discordService,
+            DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate,
+            NicknameService nicknameService) {
         this.logService = logService;
         this.discordService = discordService;
         this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
@@ -62,11 +63,11 @@ public class SemesterResetService {
 
     /**
      * Checks if it is the end of the semester each day at 12pm MST.
-     * <p>
-     * If it is the end of the semester, deletes all CS class channels
-     * and removes all CS roles from users.
-     * <p>
-     * Finally, puts out an announcement that it is the end of the semester.
+     *
+     * <p>If it is the end of the semester, deletes all CS class channels and removes all CS roles
+     * from users.
+     *
+     * <p>Finally, puts out an announcement that it is the end of the semester.
      */
     @Scheduled(cron = "0 0 12 * * *", zone = "America/Denver")
     @Async
@@ -99,18 +100,22 @@ public class SemesterResetService {
      * Deletes all CS channels, to be re-added later.
      */
     private void deleteChannels() {
-        discordService.getGuild().getTextChannels().forEach(channel -> {
-            try {
+        discordService
+                .getGuild()
+                .getTextChannels()
+                .forEach(
+                        channel -> {
+                            try {
                 // Parse the channel as a course to ensure it is actually a course channel.
                 new Course(channel.getName());
 
                 logService.logInfo(getClass(), "Deleting Text Channel: " + channel.getName());
-                channel.delete().complete();
+                                channel.delete().complete();
 
-            } catch (Course.InvalidCourseNameException ignored) {
-                // This channel is not a course channel.
-            }
-        });
+                            } catch (Course.InvalidCourseNameException ignored) {
+                                // This channel is not a course channel.
+                            }
+                        });
     }
 
     /**
@@ -119,7 +124,8 @@ public class SemesterResetService {
     private void announceReset() {
 
         // Find announcement channel
-        List<TextChannel> channels = discordService.getGuild().getTextChannelsByName("announcements", true);
+        List<TextChannel> channels =
+                discordService.getGuild().getTextChannelsByName("announcements", true);
 
         if (channels.isEmpty()) {
             logService.logError(getClass(), "No #announcements text channel found!");
@@ -138,5 +144,4 @@ public class SemesterResetService {
         announcementChannel.sendMessage(SEMESTER_RESET_ANNOUNCEMENT).queueAfter(1, TimeUnit.MINUTES);
         logService.logInfo(getClass(), "Announcement scheduled to post in 1 minute.");
     }
-
 }

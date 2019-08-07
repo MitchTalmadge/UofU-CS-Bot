@@ -41,23 +41,25 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
 
         // Create "verified" role if it is missing.
         if (rolesToRemove.size() == filteredRoles.size()) {
-            RoleAction roleAction = discordService.getGuild().getController().createRole()
-                    .setName(VERIFIED_ROLE_NAME)
-                    .setColor(Color.decode("0x3498DB"))
-                    .setHoisted(true)
-                    .setMentionable(false)
-                    .setPermissions(
-                            Permission.NICKNAME_CHANGE,
-                            Permission.MESSAGE_WRITE,
-                            Permission.MESSAGE_EMBED_LINKS,
-                            Permission.MESSAGE_ATTACH_FILES,
-                            Permission.MESSAGE_HISTORY,
-                            Permission.MESSAGE_ADD_REACTION
-                    );
+            RoleAction roleAction =
+                    discordService
+                            .getGuild()
+                            .getController()
+                            .createRole()
+                            .setName(VERIFIED_ROLE_NAME)
+                            .setColor(Color.decode("0x3498DB"))
+                            .setHoisted(true)
+                            .setMentionable(false)
+                            .setPermissions(
+                                    Permission.NICKNAME_CHANGE,
+                                    Permission.MESSAGE_WRITE,
+                                    Permission.MESSAGE_EMBED_LINKS,
+                                    Permission.MESSAGE_ATTACH_FILES,
+                                    Permission.MESSAGE_HISTORY,
+                                    Permission.MESSAGE_ADD_REACTION);
 
             rolesToCreate.add(roleAction);
         }
-
 
         // Return collections.
         return Pair.of(rolesToRemove, rolesToCreate);
@@ -69,22 +71,23 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
         // Create collection to return.
         Collection<RoleManager> roleManagers = new HashSet<>();
 
-        filteredRoles.forEach(role -> {
-            RoleManager updatable = role.getManager()
-                    .setColor(Color.decode("0x3498DB"))
-                    .setHoisted(true)
-                    .setMentionable(false)
-                    .setPermissions(
-                            Permission.NICKNAME_CHANGE,
-                            Permission.MESSAGE_WRITE,
-                            Permission.MESSAGE_EMBED_LINKS,
-                            Permission.MESSAGE_ATTACH_FILES,
-                            Permission.MESSAGE_HISTORY,
-                            Permission.MESSAGE_ADD_REACTION
-                    );
+        filteredRoles.forEach(
+                role -> {
+                    RoleManager updatable =
+                            role.getManager()
+                                    .setColor(Color.decode("0x3498DB"))
+                                    .setHoisted(true)
+                                    .setMentionable(false)
+                                    .setPermissions(
+                                            Permission.NICKNAME_CHANGE,
+                                            Permission.MESSAGE_WRITE,
+                                            Permission.MESSAGE_EMBED_LINKS,
+                                            Permission.MESSAGE_ATTACH_FILES,
+                                            Permission.MESSAGE_HISTORY,
+                                            Permission.MESSAGE_ADD_REACTION);
 
-            // Add for queue later.
-            roleManagers.add(updatable);
+                    // Add for queue later.
+                    roleManagers.add(updatable);
         });
 
         return roleManagers;
@@ -95,5 +98,4 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
         // There's only one role. No sorting needed.
         return filteredRoles;
     }
-
 }

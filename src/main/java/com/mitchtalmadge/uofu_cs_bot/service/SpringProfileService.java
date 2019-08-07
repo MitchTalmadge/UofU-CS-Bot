@@ -19,48 +19,45 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 public class SpringProfileService implements InitializingBean {
 
-    @Value("${spring.profiles.active:production}")
-    private String activeProfilesString;
+  @Value("${spring.profiles.active:production}")
+  private String activeProfilesString;
 
-    private List<Profile> activeProfiles;
+  private List<Profile> activeProfiles;
 
-    public enum Profile {
-        PRODUCTION("production"),
-        DEV("development");
+  public enum Profile {
+    PRODUCTION("production"),
+    DEV("development");
 
-        private String profileName;
+    private String profileName;
 
-        Profile(String profileName) {
-            this.profileName = profileName;
-        }
-
-        public String getProfileName() {
-            return this.profileName;
-        }
-
-        public static Profile getProfileByName(String name) {
-            for (Profile profile : values()) {
-                if (profile.profileName.equals(name))
-                    return profile;
-            }
-            return null;
-        }
+    Profile(String profileName) {
+      this.profileName = profileName;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        String[] springProfilesSplit = activeProfilesString.split(" ");
-        activeProfiles = new ArrayList<>();
-
-        for (String profileName : springProfilesSplit) {
-            Profile profile = Profile.getProfileByName(profileName);
-            if (profile != null)
-                activeProfiles.add(profile);
-        }
+    public String getProfileName() {
+      return this.profileName;
     }
 
-    public boolean isProfileActive(Profile profile) {
-        return profile != null && activeProfiles.contains(profile);
+    public static Profile getProfileByName(String name) {
+      for (Profile profile : values()) {
+        if (profile.profileName.equals(name)) return profile;
+      }
+      return null;
     }
+  }
 
+  @Override
+  public void afterPropertiesSet() {
+    String[] springProfilesSplit = activeProfilesString.split(" ");
+    activeProfiles = new ArrayList<>();
+
+    for (String profileName : springProfilesSplit) {
+      Profile profile = Profile.getProfileByName(profileName);
+      if (profile != null) activeProfiles.add(profile);
+    }
+  }
+
+  public boolean isProfileActive(Profile profile) {
+    return profile != null && activeProfiles.contains(profile);
+  }
 }

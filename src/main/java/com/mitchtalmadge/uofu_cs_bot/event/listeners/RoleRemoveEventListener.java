@@ -17,6 +17,4 @@ public class RoleRemoveEventListener extends EventListenerAbstract<GuildMemberRo
     public void onEvent(GuildMemberRoleRemoveEvent event) {
         roleAssignmentService.assignRoles(event.getMember());
     }
-
-
 }

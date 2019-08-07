@@ -69,23 +69,22 @@ public class DiscordSynchronizationService {
     }
 
     /**
-     * Begins server synchronization. <br/>
-     * This may involve creating, deleting, modifying, or moving Roles and Channels as needed, or more.
-     * <p>
-     * Synchronization only takes place if requested.
-     * <p>
-     * This method will fire every 15 seconds, with an initial delay of 15 seconds.
+     * Begins server synchronization. <br>
+     * This may involve creating, deleting, modifying, or moving Roles and Channels as needed, or
+     * more.
+     *
+     * <p>Synchronization only takes place if requested.
+     *
+     * <p>This method will fire every 15 seconds, with an initial delay of 15 seconds.
      */
     @Scheduled(fixedDelay = 15_000, initialDelay = 15_000)
     @Async
     protected void handleSynchronizationRequests() {
         // Make sure we have a requested synchronization.
-        if (!this.requestSurrogate.isSynchronizationRequested())
-            return;
+        if (!this.requestSurrogate.isSynchronizationRequested()) return;
 
         this.requestSurrogate.clearSynchronizationRequests();
 
         this.synchronizeServer();
     }
-
 }

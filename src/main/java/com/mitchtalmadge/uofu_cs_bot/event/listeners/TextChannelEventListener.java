@@ -12,7 +12,8 @@ public class TextChannelEventListener extends EventListenerAbstract<GenericTextC
     private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
 
     @Autowired
-    public TextChannelEventListener(DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+    public TextChannelEventListener(
+            DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
         this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
     }
 
@@ -20,5 +21,4 @@ public class TextChannelEventListener extends EventListenerAbstract<GenericTextC
     public void onEvent(GenericTextChannelEvent event) {
         discordSynchronizationService.requestSynchronization();
     }
-
 }

@@ -24,10 +24,11 @@ public class Course implements Comparable<Course> {
     }
 
     /**
-     * Constructs a Computer Science course reference from the given course name.
-     * The course name is how the course might be displayed to a user, such as "cs-3500".
+     * Constructs a Computer Science course reference from the given course name. The course name is
+     * how the course might be displayed to a user, such as "cs-3500".
      *
-     * @param courseName May be formatted like: "CS-3500" "cs-3500-ta" "CS3500" "3500" "3500-TA" ... etc
+     * @param courseName May be formatted like: "CS-3500" "cs-3500-ta" "CS3500" "3500" "3500-TA" ...
+     *                   etc
      * @throws InvalidCourseNameException If the provided course name cannot be parsed.
      */
     public Course(String courseName) throws InvalidCourseNameException {
@@ -48,12 +49,13 @@ public class Course implements Comparable<Course> {
         // Remove suffixes.
         for (CSSuffix suffix : CSSuffix.values()) {
             // Skip the default suffix.
-            if (suffix == CSSuffix.NONE)
-                continue;
+            if (suffix == CSSuffix.NONE) continue;
 
             // Check that the suffix exists in the string, and remove it if it does.
             if (formattedCourseName.toUpperCase().endsWith(suffix.getSuffix()))
-                formattedCourseName = formattedCourseName.substring(0, formattedCourseName.length() - suffix.getSuffix().length());
+                formattedCourseName =
+                        formattedCourseName.substring(
+                                0, formattedCourseName.length() - suffix.getSuffix().length());
         }
 
         // Try to parse the formattedCourseName as an int.

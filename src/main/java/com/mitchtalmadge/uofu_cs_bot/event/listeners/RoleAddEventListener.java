@@ -17,6 +17,4 @@ public class RoleAddEventListener extends EventListenerAbstract<GuildMemberRoleA
     public void onEvent(GuildMemberRoleAddEvent event) {
         roleAssignmentService.assignRoles(event.getMember());
     }
-
-
 }

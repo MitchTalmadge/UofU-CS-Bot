@@ -15,64 +15,63 @@ import java.util.regex.Pattern;
 @Service
 public class ClubService implements InitializingBean {
 
-    /**
-     * The environment variable that contains the list of enabled clubs.
-     */
-    private static final String CS_CLUBS_ENV_VAR = "CLUBS";
+  /**
+   * The environment variable that contains the list of enabled clubs.
+   */
+  private static final String CS_CLUBS_ENV_VAR = "CLUBS";
 
-    /**
-     * Pattern used for splitting the enabled clubs list into individual club names.
-     */
-    private static final Pattern CLUB_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
+  /**
+   * Pattern used for splitting the enabled clubs list into individual club names.
+   */
+  private static final Pattern CLUB_SPLIT_PATTERN = Pattern.compile("(,\\s*)+");
 
-    /**
-     * The enabled CS courses for the server.
-     */
-    private Set<Club> enabledClubs = new HashSet<>();
+  /**
+   * The enabled CS courses for the server.
+   */
+  private Set<Club> enabledClubs = new HashSet<>();
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        // Get the class number list from the environment variable.
-        String clubNameList = System.getenv(CS_CLUBS_ENV_VAR);
-        if (clubNameList == null) {
-            throw new IllegalArgumentException("The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing!");
-        }
-
-        // Split the list into individual class numbers.
-        String[] clubNames = CLUB_SPLIT_PATTERN.split(clubNameList);
-
-        // Parse each class number.
-        for (String clubName : clubNames) {
-            if(clubName.isEmpty())
-                continue;
-
-            enabledClubs.add(new Club(clubName));
-        }
+  @Override
+  public void afterPropertiesSet() {
+    // Get the class number list from the environment variable.
+    String clubNameList = System.getenv(CS_CLUBS_ENV_VAR);
+    if (clubNameList == null) {
+      throw new IllegalArgumentException(
+              "The clubs list environment variable (" + CS_CLUBS_ENV_VAR + ") is missing!");
     }
 
-    /**
-     * @return An unmodifiable set of enabled clubs.
-     */
-    public Set<Club> getEnabledClubs() {
-        return Collections.unmodifiableSet(enabledClubs);
+    // Split the list into individual class numbers.
+    String[] clubNames = CLUB_SPLIT_PATTERN.split(clubNameList);
+
+    // Parse each class number.
+    for (String clubName : clubNames) {
+      if (clubName.isEmpty()) continue;
+
+      enabledClubs.add(new Club(clubName));
+    }
+  }
+
+  /**
+   * @return An unmodifiable set of enabled clubs.
+   */
+  public Set<Club> getEnabledClubs() {
+    return Collections.unmodifiableSet(enabledClubs);
+  }
+
+  /**
+   * Given a Club name, returns the matching Club instance if one exists.
+   *
+   * @param clubName The name of the Club. Case-insensitive.
+   * @return The Club instance matching the name, or null if one does not exist.
+   */
+  public Club getClubFromName(String clubName) {
+
+    // Search for Club.
+    for (Club club : enabledClubs) {
+      // Compare names ignoring case.
+      if (club.getName().equalsIgnoreCase(clubName)) return club;
     }
 
-    /**
-     * Given a Club name, returns the matching Club instance if one exists.
-     *
-     * @param clubName The name of the Club. Case-insensitive.
-     * @return The Club instance matching the name, or null if one does not exist.
-     */
-    public Club getClubFromName(String clubName) {
-
-        // Search for Club.
-        for (Club club : enabledClubs) {
-            // Compare names ignoring case.
-            if(club.getName().equalsIgnoreCase(clubName))
-                return club;
-        }
-
-        // No Club found.
-        return null;
-    }
+    // No Club found.
+    return null;
+  }
 }

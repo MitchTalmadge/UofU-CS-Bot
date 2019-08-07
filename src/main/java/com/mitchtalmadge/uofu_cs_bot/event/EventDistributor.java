@@ -16,45 +16,48 @@ import java.util.Set;
 @Component
 public class EventDistributor implements InitializingBean {
 
-    private final DiscordService discordService;
+  private final DiscordService discordService;
 
-    /**
-     * Maps Event Listeners to their parametrized Event types.
-     */
-    private final Map<Class<? extends Event>, EventListenerAbstract> eventListenerMap = new HashMap<>();
+  /**
+   * Maps Event Listeners to their parametrized Event types.
+   */
+  private final Map<Class<? extends Event>, EventListenerAbstract> eventListenerMap =
+          new HashMap<>();
 
-    @Autowired
-    public EventDistributor(DiscordService discordService,
-                            Set<EventListenerAbstract> eventListeners) {
-        this.discordService = discordService;
+  @Autowired
+  public EventDistributor(
+          DiscordService discordService, Set<EventListenerAbstract> eventListeners) {
+    this.discordService = discordService;
 
-        // Get the generic types and map them to the listeners.
-        eventListeners.forEach(eventListener -> {
-            //noinspection unchecked
-            eventListenerMap.put(
-                    (Class<? extends Event>) GenericTypeResolver.resolveTypeArgument(eventListener.getClass(), EventListenerAbstract.class),
-                    eventListener
-            );
-        });
-    }
+    // Get the generic types and map them to the listeners.
+    eventListeners.forEach(
+            eventListener -> {
+              //noinspection unchecked
+              eventListenerMap.put(
+                      (Class<? extends Event>)
+                              GenericTypeResolver.resolveTypeArgument(
+                                      eventListener.getClass(), EventListenerAbstract.class),
+                      eventListener);
+            });
+  }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        discordService.getJDA().addEventListener((EventListener) this::onEvent);
-    }
+  @Override
+  public void afterPropertiesSet() {
+    discordService.getJDA().addEventListener((EventListener) this::onEvent);
+  }
 
-    /**
-     * Called when a Discord event takes place.
-     *
-     * @param event The event that took place.
-     */
-    public void onEvent(Event event) {
-        // Check for a specific listener for the event.
-        eventListenerMap.forEach((aClass, listener) -> {
-            if (aClass.isAssignableFrom(event.getClass()))
+  /**
+   * Called when a Discord event takes place.
+   *
+   * @param event The event that took place.
+   */
+  public void onEvent(Event event) {
+    // Check for a specific listener for the event.
+    eventListenerMap.forEach(
+            (aClass, listener) -> {
+              if (aClass.isAssignableFrom(event.getClass()))
                 //noinspection unchecked
                 listener.onEvent(event);
-        });
-    }
-
+            });
+  }
 }

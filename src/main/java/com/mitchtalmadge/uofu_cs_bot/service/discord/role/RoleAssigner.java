@@ -18,9 +18,9 @@ public abstract class RoleAssigner {
      * @param member        The Member.
      * @param rolesToAdd    The roles to add to the member. May already be populated from other filters.
      *                      Modify as necessary.
-     * @param rolesToRemove The roles to remove from the member. May already be populated from other filters.
-     *                      Modify as necessary.
+     * @param rolesToRemove The roles to remove from the member. May already be populated from other
+     *                      filters. Modify as necessary.
      */
-    public abstract void updateRoleAssignments(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove);
-
+    public abstract void updateRoleAssignments(
+            Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove);
 }

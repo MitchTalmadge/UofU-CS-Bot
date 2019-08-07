@@ -14,5 +14,4 @@ public class CourseNicknameValidator extends NicknameValidator {
         CSNickname csNickname = new CSNickname(member.getNickname());
         return csNickname.updateNicknameClassGroup(member.getNickname());
     }
-
 }

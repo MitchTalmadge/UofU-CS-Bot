@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 
     @AfterThrowing(pointcut = "execution(* com.mitchtalmadge.uofu_cs_bot..*.*(..))", throwing = "ex")
     public void handleUncaughtException(JoinPoint joinPoint, Throwable ex) {
-        logService.logException(joinPoint.getSourceLocation().getWithinType(), ex, "Uncaught Exception");
+        logService.logException(
+                joinPoint.getSourceLocation().getWithinType(), ex, "Uncaught Exception");
     }
-
 }

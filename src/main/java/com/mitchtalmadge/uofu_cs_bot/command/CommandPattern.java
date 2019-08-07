@@ -7,14 +7,13 @@ import java.lang.annotation.*;
 @Inherited
 public @interface CommandPattern {
 
-    /**
-     * @return The command pattern to match.
-     */
-    String[] value();
+  /**
+   * @return The command pattern to match.
+   */
+  String[] value();
 
-    /**
-     * @return True if this command must match exactly (No extra arguments).
-     */
-    boolean strict() default false;
-
+  /**
+   * @return True if this command must match exactly (No extra arguments).
+   */
+  boolean strict() default false;
 }

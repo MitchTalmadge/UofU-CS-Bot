@@ -32,8 +32,7 @@ public class ClubCommandListener extends CommandListener {
         String clubName = command.getArgs()[2];
 
         Club club = clubService.getClubFromName(clubName);
-        if (club == null)
-            return "The club '" + clubName + "' does not exist!";
+        if (club == null) return "The club '" + clubName + "' does not exist!";
 
         // TODO: !club list
 
@@ -46,7 +45,9 @@ public class ClubCommandListener extends CommandListener {
                 clubMembershipService.leaveClub(command.getMember(), club);
                 return "You are no longer a part of the '" + clubName + "' club.";
             default: // Invalid action.
-                return "Invalid Action: '" + action + "'\nSyntax: `!club <join|leave> <club name>`\nExample: `!club join acm`";
+                return "Invalid Action: '"
+                        + action
+                        + "'\nSyntax: `!club <join|leave> <club name>`\nExample: `!club join acm`";
         }
     }
 }

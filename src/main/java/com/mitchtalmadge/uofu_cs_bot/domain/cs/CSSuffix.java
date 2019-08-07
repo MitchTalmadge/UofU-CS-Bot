@@ -5,26 +5,31 @@ import net.dv8tion.jda.core.Permission;
 import java.awt.*;
 
 /**
- * Contains all valid suffixes for CS courses.
- * Suffixes act as modifiers that can determine a user's capabilities.
+ * Contains all valid suffixes for CS courses. Suffixes act as modifiers that can determine a user's
+ * capabilities.
  */
 public enum CSSuffix {
 
     /**
      * The default (no) suffix. Example: "CS-3500".
      */
-    NONE("", null, false, true,
+    NONE(
+            "",
+            null,
+            false,
+            true,
             new Permission[]{
-                    Permission.NICKNAME_CHANGE,
-                    Permission.MESSAGE_HISTORY,
-                    Permission.MESSAGE_ADD_REACTION,
-            }
-    ),
+                    Permission.NICKNAME_CHANGE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,
+            }),
 
     /**
      * The suffix for TAs.
      */
-    TA("TA", Color.decode("0x2ECC71"), true, true,
+    TA(
+            "TA",
+            Color.decode("0x2ECC71"),
+            true,
+            true,
             new Permission[]{
                     Permission.NICKNAME_CHANGE,
                     Permission.MESSAGE_HISTORY,
@@ -32,13 +37,16 @@ public enum CSSuffix {
                     // Administrative privileges
                     Permission.MESSAGE_MANAGE,
                     Permission.KICK_MEMBERS,
-            }
-    ),
+            }),
 
     /**
      * The suffix for Professors.
      */
-    PROFESSOR("PROF", Color.decode("0xE91E63"), true, true,
+    PROFESSOR(
+            "PROF",
+            Color.decode("0xE91E63"),
+            true,
+            true,
             new Permission[]{
                     Permission.NICKNAME_CHANGE,
                     Permission.MESSAGE_HISTORY,
@@ -46,8 +54,7 @@ public enum CSSuffix {
                     // Administrative privileges
                     Permission.MESSAGE_MANAGE,
                     Permission.KICK_MEMBERS,
-            }
-    );
+            });
 
     private final String suffix;
     private final Color roleColor;
@@ -64,7 +71,12 @@ public enum CSSuffix {
      * @param roleMentionable True if the suffix role can be mentioned.
      * @param permissions     The permissions for the suffix role.
      */
-    CSSuffix(String suffix, Color roleColor, boolean roleHoisted, boolean roleMentionable, Permission[] permissions) {
+    CSSuffix(
+            String suffix,
+            Color roleColor,
+            boolean roleHoisted,
+            boolean roleMentionable,
+            Permission[] permissions) {
         this.suffix = suffix.toUpperCase();
         this.roleColor = roleColor;
         this.roleHoisted = roleHoisted;
@@ -84,11 +96,9 @@ public enum CSSuffix {
         // Try each suffix.
         for (CSSuffix suffix : values()) {
             // Skip the default suffix.
-            if (suffix == CSSuffix.NONE)
-                continue;
+            if (suffix == CSSuffix.NONE) continue;
 
-            if (courseName.toUpperCase().endsWith(suffix.getSuffix()))
-                return suffix;
+            if (courseName.toUpperCase().endsWith(suffix.getSuffix())) return suffix;
         }
 
         // If no suffix was found, return default suffix.

@@ -61,50 +61,56 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
         Set<Club> enabledClubs = clubService.getEnabledClubs();
 
         // Determine which roles need to be created.
-        enabledClubs.forEach(club -> {
+        enabledClubs.forEach(
+                club -> {
 
-            // Public club role
-            if (discordService.getGuild().getTextChannelsByName(getRoleNameFromClub(club, false), false).size() == 0)
-                rolesToCreate.add(
-                        discordService
-                                .getGuild()
-                                .getController()
-                                .createRole()
-                                .setName(getRoleNameFromClub(club, false))
-                                .setHoisted(false)
-                                .setColor(Color.WHITE)
-                                .setMentionable(false)
-                                .setPermissions(PUBLIC_ROLE_PERMISSIONS)
-                );
+                    // Public club role
+                    if (discordService
+                            .getGuild()
+                            .getTextChannelsByName(getRoleNameFromClub(club, false), false)
+                            .size()
+                            == 0)
+                        rolesToCreate.add(
+                                discordService
+                                        .getGuild()
+                                        .getController()
+                                        .createRole()
+                                        .setName(getRoleNameFromClub(club, false))
+                                        .setHoisted(false)
+                                        .setColor(Color.WHITE)
+                                        .setMentionable(false)
+                                        .setPermissions(PUBLIC_ROLE_PERMISSIONS));
 
-            // Admin club role
-            if (discordService.getGuild().getTextChannelsByName(getRoleNameFromClub(club, true), false).size() == 0)
-                rolesToCreate.add(
-                        discordService
-                                .getGuild()
-                                .getController()
-                                .createRole()
-                                .setName(getRoleNameFromClub(club, true))
-                                .setHoisted(false)
-                                .setColor(Color.WHITE)
-                                .setMentionable(false)
-                                .setPermissions(ADMIN_ROLE_PERMISSIONS)
-                );
-        });
+                    // Admin club role
+                    if (discordService
+                            .getGuild()
+                            .getTextChannelsByName(getRoleNameFromClub(club, true), false)
+                            .size()
+                            == 0)
+                        rolesToCreate.add(
+                                discordService
+                                        .getGuild()
+                                        .getController()
+                                        .createRole()
+                                        .setName(getRoleNameFromClub(club, true))
+                                        .setHoisted(false)
+                                        .setColor(Color.WHITE)
+                                        .setMentionable(false)
+                                        .setPermissions(ADMIN_ROLE_PERMISSIONS));
+                });
 
         // Determine which roles need to be deleted.
-        filteredRoles.forEach(role -> {
-            // Ensure role is a club role.
-            if (!role.getName().startsWith("club-"))
-                return;
+        filteredRoles.forEach(
+                role -> {
+                    // Ensure role is a club role.
+                    if (!role.getName().startsWith("club-")) return;
 
-            // Get club from role.
-            Club club = getClubFromRole(role);
+                    // Get club from role.
+                    Club club = getClubFromRole(role);
 
-            // Delete role if the club is not enabled.
-            if (club == null)
-                rolesToRemove.add(role);
-        });
+                    // Delete role if the club is not enabled.
+                    if (club == null) rolesToRemove.add(role);
+                });
 
         // Return collections.
         return Pair.of(rolesToRemove, rolesToCreate);
@@ -132,9 +138,9 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
      */
     private Club getClubFromRole(Role role) {
         // Iterate over all clubs and compare names.
-        return clubService.getEnabledClubs()
-                .stream()
-                .filter(club -> role.getName().toLowerCase().startsWith("club-" + club.getName().toLowerCase()))
+        return clubService.getEnabledClubs().stream()
+                .filter(
+                        club -> role.getName().toLowerCase().startsWith("club-" + club.getName().toLowerCase()))
                 .findFirst()
                 .orElse(null);
     }
@@ -149,5 +155,4 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
     private String getRoleNameFromClub(Club club, boolean adminRole) {
         return "club-" + club.getName().toLowerCase() + (adminRole ? "-admin" : "");
     }
-
 }

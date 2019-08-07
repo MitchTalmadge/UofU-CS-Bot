@@ -21,9 +21,7 @@ public class CourseRoleAssigner extends RoleAssigner {
     private final CourseService courseService;
 
     @Autowired
-    public CourseRoleAssigner(
-            DiscordService discordService,
-            CourseService courseService) {
+    public CourseRoleAssigner(DiscordService discordService, CourseService courseService) {
         this.discordService = discordService;
         this.courseService = courseService;
     }
@@ -33,26 +31,34 @@ public class CourseRoleAssigner extends RoleAssigner {
         // Get nickname of member.
         CSNickname csNickname = new CSNickname(member.getNickname());
 
-        // This map will initially contain all expected combinations of Course instances and CSSuffix instances that the
-        // member should be assigned to. Once found, the suffixes will be removed one-by-one. The remaining suffixes determine
+        // This map will initially contain all expected combinations of Course instances and CSSuffix
+        // instances that the
+        // member should be assigned to. Once found, the suffixes will be removed one-by-one. The
+        // remaining suffixes determine
         // which roles are missing from the member.
         Map<Course, Set<CSSuffix>> missingRolesMap = new HashMap<>();
         // Populate the missing roles map.
-        csNickname.getClasses().forEach(csClass -> {
-            // Don't allow courses which are not enabled.
-            if (!courseService.getEnabledCourses().contains(csClass))
-                return;
+        csNickname
+                .getClasses()
+                .forEach(
+                        csClass -> {
+                            // Don't allow courses which are not enabled.
+                            if (!courseService.getEnabledCourses().contains(csClass)) return;
 
-            // The suffixes that a member will be added to always includes NONE, as well as any specific suffix they may have.
-            Set<CSSuffix> allowedSuffixes = new HashSet<>();
-            allowedSuffixes.add(CSSuffix.NONE);
-            allowedSuffixes.add(csNickname.getSuffixForClass(csClass));
-            missingRolesMap.put(csClass, allowedSuffixes);
-        });
+                            // The suffixes that a member will be added to always includes NONE, as well as any
+                            // specific suffix they may have.
+                            Set<CSSuffix> allowedSuffixes = new HashSet<>();
+                            allowedSuffixes.add(CSSuffix.NONE);
+                            allowedSuffixes.add(csNickname.getSuffixForClass(csClass));
+                            missingRolesMap.put(csClass, allowedSuffixes);
+                        });
 
         // Check each role of the member.
-        member.getRoles().forEach(role -> {
-            try {
+        member
+                .getRoles()
+                .forEach(
+                        role -> {
+                            try {
                 Course roleClass = new Course(role.getName());
                 CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
@@ -62,7 +68,8 @@ public class CourseRoleAssigner extends RoleAssigner {
                     return;
                 }
 
-                // Check that the current role's suffix is either the default or matches the nickname's role suffix.
+                                // Check that the current role's suffix is either the default or matches the
+                                // nickname's role suffix.
                 CSSuffix nicknameRoleSuffix = csNickname.getSuffixForClass(roleClass);
                 if (nicknameRoleSuffix != roleSuffix && roleSuffix != CSSuffix.NONE) {
                     // This role suffix is not allowed for the current class.
@@ -72,20 +79,22 @@ public class CourseRoleAssigner extends RoleAssigner {
 
                 // Remove this role from the missing map as it is present.
                 missingRolesMap.get(roleClass).remove(roleSuffix);
-            } catch (Course.InvalidCourseNameException ignored) {
+                            } catch (Course.InvalidCourseNameException ignored) {
                 // Not a class role.
-            }
-        });
+                            }
+                        });
 
         // Determine the roles to be added to the member.
-        missingRolesMap.forEach((csClass, suffixes) -> {
-            suffixes.forEach(suffix -> {
-                List<Role> roles = discordService.getGuild().getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false);
+        missingRolesMap.forEach(
+                (csClass, suffixes) ->
+                        suffixes.forEach(
+                                suffix -> {
+                                    List<Role> roles =
+                                            discordService
+                                                    .getGuild()
+                                                    .getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false);
 
-                if (!roles.isEmpty())
-                    rolesToAdd.add(roles.get(0));
-            });
-        });
+                                    if (!roles.isEmpty()) rolesToAdd.add(roles.get(0));
+                                }));
     }
-
 }

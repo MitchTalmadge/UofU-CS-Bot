@@ -12,7 +12,8 @@ public class ChannelCategoryEventListener extends EventListenerAbstract<GenericC
     private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
 
     @Autowired
-    public ChannelCategoryEventListener(DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+    public ChannelCategoryEventListener(
+            DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
         this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
     }
 
@@ -20,5 +21,4 @@ public class ChannelCategoryEventListener extends EventListenerAbstract<GenericC
     public void onEvent(GenericCategoryEvent event) {
         discordSynchronizationService.requestSynchronization();
     }
-
 }

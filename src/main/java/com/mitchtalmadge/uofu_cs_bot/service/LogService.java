@@ -36,14 +36,16 @@ public class LogService {
     /**
      * The Raygun client, generated using the RAYGUN_API_KEY.
      */
-    private static final RaygunClient RAYGUN_CLIENT = RAYGUN_API_KEY != null ? new RaygunClient(RAYGUN_API_KEY) : null;
+    private static final RaygunClient RAYGUN_CLIENT =
+            RAYGUN_API_KEY != null ? new RaygunClient(RAYGUN_API_KEY) : null;
 
     private final SpringProfileService springProfileService;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
 
     @Autowired
-    public LogService(SpringProfileService springProfileService,
-                      AutowireCapableBeanFactory autowireCapableBeanFactory) {
+    public LogService(
+            SpringProfileService springProfileService,
+            AutowireCapableBeanFactory autowireCapableBeanFactory) {
         this.springProfileService = springProfileService;
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
     }
@@ -77,7 +79,8 @@ public class LogService {
      */
     public void logException(Class clazz, Throwable t, String message) {
         LOGGER.error("[" + clazz.getSimpleName() + "] " + message, t);
-        if (RAYGUN_CLIENT != null && springProfileService.isProfileActive(SpringProfileService.Profile.PRODUCTION)) {
+        if (RAYGUN_CLIENT != null
+                && springProfileService.isProfileActive(SpringProfileService.Profile.PRODUCTION)) {
             List<String> tags = new ArrayList<>();
 
             // TODO: Add the version number.
@@ -103,5 +106,4 @@ public class LogService {
     public void logDebug(Class clazz, String message) {
         LOGGER.debug("[" + clazz.getSimpleName() + "] " + message);
     }
-
 }

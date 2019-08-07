@@ -12,7 +12,8 @@ public class RoleEventListener extends EventListenerAbstract<GenericRoleEvent> {
     private final DiscordSynchronizationRequestSurrogate discordSynchronizationService;
 
     @Autowired
-    public RoleEventListener(DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
+    public RoleEventListener(
+            DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate) {
         this.discordSynchronizationService = discordSynchronizationRequestSurrogate;
     }
 
@@ -20,5 +21,4 @@ public class RoleEventListener extends EventListenerAbstract<GenericRoleEvent> {
     public void onEvent(GenericRoleEvent event) {
         discordSynchronizationService.requestSynchronization();
     }
-
 }

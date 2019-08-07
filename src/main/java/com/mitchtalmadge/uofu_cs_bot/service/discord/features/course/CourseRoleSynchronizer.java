@@ -35,8 +35,10 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
         // Get all enabled courses.
         Set<Course> enabledCourses = courseService.getEnabledCourses();
 
-        // This map starts by containing all enabled courses mapped to all suffixes. Suffixes are removed one-by-one as their roles are found.
-        // The remaining suffixes which have not been removed must be created as new roles for the mapped courses.
+        // This map starts by containing all enabled courses mapped to all suffixes. Suffixes are
+        // removed one-by-one as their roles are found.
+        // The remaining suffixes which have not been removed must be created as new roles for the
+        // mapped courses.
         Map<Course, Set<CSSuffix>> missingRoles = new HashMap<>();
 
         // Pre-fill the missingRoles map.
@@ -65,18 +67,25 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
         }
 
         // Create missing roles.
-        missingRoles.forEach((course, suffixes) -> suffixes.forEach(suffix -> {
-            String roleName = CSNamingConventions.toRoleName(course, suffix);
+        missingRoles.forEach(
+                (course, suffixes) ->
+                        suffixes.forEach(
+                                suffix -> {
+                                    String roleName = CSNamingConventions.toRoleName(course, suffix);
 
-            RoleAction roleAction = discordService.getGuild().getController().createRole()
-                    .setName(roleName)
-                    .setColor(suffix.getRoleColor())
-                    .setHoisted(suffix.isRoleHoisted())
-                    .setMentionable(suffix.isRoleMentionable())
-                    .setPermissions(suffix.getPermissions());
+                                    RoleAction roleAction =
+                                            discordService
+                                                    .getGuild()
+                                                    .getController()
+                                                    .createRole()
+                                                    .setName(roleName)
+                                                    .setColor(suffix.getRoleColor())
+                                                    .setHoisted(suffix.isRoleHoisted())
+                                                    .setMentionable(suffix.isRoleMentionable())
+                                                    .setPermissions(suffix.getPermissions());
 
-            rolesToCreate.add(roleAction);
-        }));
+                                    rolesToCreate.add(roleAction);
+                                }));
 
         // Return collections.
         return Pair.of(rolesToRemove, rolesToCreate);
@@ -88,23 +97,25 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
         // Create collection to return.
         Collection<RoleManager> roleManagers = new HashSet<>();
 
-        filteredRoles.forEach(role -> {
-            try {
-                Course course = new Course(role.getName());
-                CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
+        filteredRoles.forEach(
+                role -> {
+                    try {
+                        Course course = new Course(role.getName());
+                        CSSuffix roleSuffix = CSSuffix.fromCourseName(role.getName());
 
-                RoleManager manager = role.getManager()
-                        .setName(CSNamingConventions.toRoleName(course, roleSuffix))
-                        .setColor(roleSuffix.getRoleColor())
-                        .setHoisted(roleSuffix.isRoleHoisted())
-                        .setMentionable(roleSuffix.isRoleMentionable())
-                        .setPermissions(roleSuffix.getPermissions());
+                        RoleManager manager =
+                                role.getManager()
+                                        .setName(CSNamingConventions.toRoleName(course, roleSuffix))
+                                        .setColor(roleSuffix.getRoleColor())
+                                        .setHoisted(roleSuffix.isRoleHoisted())
+                                        .setMentionable(roleSuffix.isRoleMentionable())
+                                        .setPermissions(roleSuffix.getPermissions());
 
-                // Add for queue later.
-                roleManagers.add(manager);
-            } catch (Course.InvalidCourseNameException ignored) {
-                // This is not a Course Role.
-            }
+                        // Add for queue later.
+                        roleManagers.add(manager);
+                    } catch (Course.InvalidCourseNameException ignored) {
+                        // This is not a Course Role.
+                    }
         });
 
         return roleManagers;
@@ -114,11 +125,15 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
     public List<Role> updateRoleOrdering(List<Role> filteredRoles) {
         // Sort filtered roles by suffix, then by name.
         filteredRoles.sort(
-                Comparator.comparing(obj -> CSSuffix.fromCourseName(((Role) obj).getName())) // Order by suffix
-                        .thenComparing(obj -> ((Role) obj).getName().toUpperCase()) // Order by name; ignore case by forcing all to uppercase.
+                Comparator.comparing(
+                        obj -> CSSuffix.fromCourseName(((Role) obj).getName())) // Order by suffix
+                        .thenComparing(
+                                obj ->
+                                        ((Role) obj)
+                                                .getName()
+                                                .toUpperCase()) // Order by name; ignore case by forcing all to uppercase.
                         .reversed()); // Reverse order so suffixes are at top of roles.
 
         return filteredRoles;
     }
-
 }

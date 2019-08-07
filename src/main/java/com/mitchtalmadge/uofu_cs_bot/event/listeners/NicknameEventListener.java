@@ -15,10 +15,11 @@ public class NicknameEventListener extends EventListenerAbstract<GuildMemberNick
     private RoleAssignmentService roleAssignmentService;
 
     @Autowired
-    public NicknameEventListener(LogService logService,
-                                 CourseService courseService,
-                                 NicknameService nicknameService,
-                                 RoleAssignmentService roleAssignmentService) {
+    public NicknameEventListener(
+            LogService logService,
+            CourseService courseService,
+            NicknameService nicknameService,
+            RoleAssignmentService roleAssignmentService) {
         this.logService = logService;
         this.courseService = courseService;
         this.nicknameService = nicknameService;
@@ -27,12 +28,17 @@ public class NicknameEventListener extends EventListenerAbstract<GuildMemberNick
 
     @Override
     public void onEvent(GuildMemberNickChangeEvent event) {
-        logService.logInfo(getClass(), "Nickname changed for " + event.getMember().getUser().getName() + ". Old: " + event.getPrevNick() + " - New: " + event.getNewNick());
+        logService.logInfo(
+                getClass(),
+                "Nickname changed for "
+                        + event.getMember().getUser().getName()
+                        + ". Old: "
+                        + event.getPrevNick()
+                        + " - New: "
+                        + event.getNewNick());
 
         nicknameService.validateNickname(event.getMember());
         courseService.computeEnabledCourses();
         roleAssignmentService.assignRoles(event.getMember());
     }
-
-
 }

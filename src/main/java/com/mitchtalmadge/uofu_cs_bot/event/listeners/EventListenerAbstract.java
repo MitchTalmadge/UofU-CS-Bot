@@ -7,5 +7,4 @@ import net.dv8tion.jda.core.events.Event;
 public abstract class EventListenerAbstract<E extends Event> {
 
     public abstract void onEvent(E event);
-
 }

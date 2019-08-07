@@ -30,10 +30,13 @@ public class VerificationRoleAssigner extends RoleAssigner {
         }
 
         // Update accordingly.
-        Role verifiedRole = member.getGuild().getRolesByName(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME, false).get(0);
+        Role verifiedRole =
+                member
+                        .getGuild()
+                        .getRolesByName(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME, false)
+                        .get(0);
         if (!isVerified && shouldBeVerified) {
             rolesToAdd.add(verifiedRole);
         }
     }
-
 }

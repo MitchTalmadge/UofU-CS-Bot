@@ -23,16 +23,17 @@ public class RoleSynchronizationService {
     private Set<RoleSynchronizer> roleSynchronizers;
 
     @Autowired
-    public RoleSynchronizationService(LogService logService,
-                                      DiscordService discordService,
-                                      Set<RoleSynchronizer> roleSynchronizers) {
+    public RoleSynchronizationService(
+            LogService logService,
+            DiscordService discordService,
+            Set<RoleSynchronizer> roleSynchronizers) {
         this.logService = logService;
         this.discordService = discordService;
         this.roleSynchronizers = roleSynchronizers;
     }
 
     /**
-     * Begins synchronization of Roles. <br/>
+     * Begins synchronization of Roles. <br>
      * This may involve creating, deleting, modifying, or moving Roles as needed.
      */
     public void synchronize() {
@@ -52,41 +53,48 @@ public class RoleSynchronizationService {
     private void synchronizeRoles() {
         logService.logInfo(getClass(), "Creating and Deleting Roles...");
 
-        roleSynchronizers.forEach(roleSynchronizer -> {
-            // Perform synchronization
-            Pair<Collection<Role>, Collection<RoleAction>> synchronizationResult = roleSynchronizer.synchronizeRoles(getFilteredRolesForSynchronizer(roleSynchronizer));
+        roleSynchronizers.forEach(
+                roleSynchronizer -> {
+                    // Perform synchronization
+                    Pair<Collection<Role>, Collection<RoleAction>> synchronizationResult =
+                            roleSynchronizer.synchronizeRoles(getFilteredRolesForSynchronizer(roleSynchronizer));
 
-            if (synchronizationResult != null) {
+                    if (synchronizationResult != null) {
 
-                // Delete any requested Roles.
-                if (synchronizationResult.getLeft() != null) {
-                    synchronizationResult.getLeft().forEach(role -> {
+                        // Delete any requested Roles.
+                        if (synchronizationResult.getLeft() != null) {
+                            synchronizationResult
+                                    .getLeft()
+                                    .forEach(
+                                            role -> {
                         logService.logInfo(getClass(), "--> Deleting Role: " + role.getName());
                         role.delete().complete();
-                    });
-                }
+                                            });
+                        }
 
-                // Create any requested Categories.
-                if (synchronizationResult.getRight() != null) {
-                    synchronizationResult.getRight().forEach(roleAction -> {
+                        // Create any requested Categories.
+                        if (synchronizationResult.getRight() != null) {
+                            synchronizationResult
+                                    .getRight()
+                                    .forEach(
+                                            roleAction -> {
 
                         // Use Reflection to get Role name.
-                        try {
-                            Field nameField = RoleAction.class.getDeclaredField("name");
-                            nameField.setAccessible(true);
+                                                try {
+                                                    Field nameField = RoleAction.class.getDeclaredField("name");
+                                                    nameField.setAccessible(true);
 
-                            String name = (String) nameField.get(roleAction);
-                            logService.logInfo(getClass(), "--> Creating Role: " + name);
+                                                    String name = (String) nameField.get(roleAction);
+                                                    logService.logInfo(getClass(), "--> Creating Role: " + name);
                         } catch (IllegalAccessException | NoSuchFieldException e) {
-                            logService.logInfo(getClass(), "--> Creating Role (Name Unknown)");
+                                                    logService.logInfo(getClass(), "--> Creating Role (Name Unknown)");
                         }
 
                         roleAction.complete();
-                    });
-                }
-
-            }
-        });
+                                            });
+                        }
+                    }
+                });
     }
 
     /**
@@ -95,15 +103,18 @@ public class RoleSynchronizationService {
     private void updateRoleSettings() {
         logService.logInfo(getClass(), "Updating Role Settings...");
 
-        roleSynchronizers.forEach(roleSynchronizer -> {
-            // Perform Update
-            Collection<RoleManager> updateResult = roleSynchronizer.updateRoleSettings(getFilteredRolesForSynchronizer(roleSynchronizer));
+        roleSynchronizers.forEach(
+                roleSynchronizer -> {
+                    // Perform Update
+                    Collection<RoleManager> updateResult =
+                            roleSynchronizer.updateRoleSettings(
+                                    getFilteredRolesForSynchronizer(roleSynchronizer));
 
-            // Queue any requested Updatable instances.
-            if (updateResult != null) {
-                updateResult.forEach(RestAction::queue);
-            }
-        });
+                    // Queue any requested Updatable instances.
+                    if (updateResult != null) {
+                        updateResult.forEach(RestAction::queue);
+                    }
+                });
     }
 
     /**
@@ -116,32 +127,36 @@ public class RoleSynchronizationService {
         List<Role> sortedRoles = new ArrayList<>();
 
         // Add each synchronizer's sorted roles.
-        roleSynchronizers
-                .stream()
-                .sorted(Comparator.comparingInt(RoleSynchronizer::getOrderingPriority).thenComparing(RoleSynchronizer::getRolePrefix))
-                .forEach(roleSynchronizer -> {
-                    // Perform Update
-                    List<Role> updateResult = roleSynchronizer.updateRoleOrdering(getFilteredRolesForSynchronizer(roleSynchronizer));
+        roleSynchronizers.stream()
+                .sorted(
+                        Comparator.comparingInt(RoleSynchronizer::getOrderingPriority)
+                                .thenComparing(RoleSynchronizer::getRolePrefix))
+                .forEach(
+                        roleSynchronizer -> {
+                            // Perform Update
+                            List<Role> updateResult =
+                                    roleSynchronizer.updateRoleOrdering(
+                                            getFilteredRolesForSynchronizer(roleSynchronizer));
 
-                    // Store results
-                    if (updateResult != null) {
-                        sortedRoles.addAll(updateResult);
-                    }
-                });
+                            // Store results
+                            if (updateResult != null) {
+                                sortedRoles.addAll(updateResult);
+                            }
+                        });
 
         // Find any un-sorted roles and place them at the beginning of the sorted roles list.
-        sortedRoles.addAll(0,
-                discordService.getGuild().getRoles()
-                        .stream()
+        sortedRoles.addAll(
+                0,
+                discordService.getGuild().getRoles().stream()
                         .filter(role -> !sortedRoles.contains(role))
                         .collect(Collectors.toList()));
-
 
         // Remove @everyone role since it cannot be sorted.
         sortedRoles.removeIf(Role::isPublicRole);
 
         // Perform ordering.
-        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyRolePositions(false), sortedRoles);
+        DiscordUtils.orderEntities(
+                discordService.getGuild().getController().modifyRolePositions(false), sortedRoles);
     }
 
     /**
@@ -153,8 +168,11 @@ public class RoleSynchronizationService {
     private List<Role> getFilteredRolesForSynchronizer(RoleSynchronizer roleSynchronizer) {
         return discordService.getGuild().getRoles().stream()
                 // Ignore case when filtering.
-                .filter(role -> role.getName().toLowerCase().startsWith(roleSynchronizer.getRolePrefix().toLowerCase()))
+                .filter(
+                        role ->
+                                role.getName()
+                                        .toLowerCase()
+                                        .startsWith(roleSynchronizer.getRolePrefix().toLowerCase()))
                 .collect(Collectors.toList());
     }
-
 }
