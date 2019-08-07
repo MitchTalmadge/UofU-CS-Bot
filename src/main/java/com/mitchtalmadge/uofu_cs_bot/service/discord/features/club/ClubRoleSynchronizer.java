@@ -28,9 +28,6 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
             Permission.MESSAGE_EMBED_LINKS,
             Permission.MESSAGE_HISTORY,
             Permission.MESSAGE_ADD_REACTION,
-            Permission.VOICE_CONNECT,
-            Permission.VOICE_SPEAK,
-            Permission.VOICE_USE_VAD
     };
 
     /**
@@ -43,9 +40,6 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
             Permission.MESSAGE_EMBED_LINKS,
             Permission.MESSAGE_HISTORY,
             Permission.MESSAGE_ADD_REACTION,
-            Permission.VOICE_CONNECT,
-            Permission.VOICE_SPEAK,
-            Permission.VOICE_USE_VAD
     };
 
     private ClubService clubService;

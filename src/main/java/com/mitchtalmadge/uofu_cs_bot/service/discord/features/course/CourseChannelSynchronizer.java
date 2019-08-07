@@ -1,6 +1,5 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.features.course;
 
-import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSConstants;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
@@ -20,8 +19,7 @@ import java.util.*;
  */
 public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
-    private static final String COURSE_TEXT_CATEGORY_NAME = "Courses (Text)";
-    private static final String COURSE_VOICE_CATEGORY_NAME = "Courses (Voice)";
+    private static final String COURSE_CATEGORY_NAME = "Courses";
 
     private CourseService courseService;
 
@@ -36,19 +34,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
      * May be null if the Category does not yet exist.
      */
     private Category getCourseTextCategory(Guild guild) {
-        List<Category> categories = guild.getCategoriesByName(COURSE_TEXT_CATEGORY_NAME, false);
-        if (categories.size() > 0)
-            return categories.get(0);
-
-        return null;
-    }
-
-    /**
-     * @return The category that all voice-based Course Channels belong to.
-     * May be null if the Category does not yet exist.
-     */
-    private Category getCourseVoiceCategory(Guild guild) {
-        List<Category> categories = guild.getCategoriesByName(COURSE_VOICE_CATEGORY_NAME, false);
+        List<Category> categories = guild.getCategoriesByName(COURSE_CATEGORY_NAME, false);
         if (categories.size() > 0)
             return categories.get(0);
 
@@ -62,15 +48,9 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
         Collection<String> categoriesToCreate = new HashSet<>();
 
         // Check if the Text Courses Category does not exist.
-        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_TEXT_CATEGORY_NAME))) {
+        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_CATEGORY_NAME))) {
             // Create the Category.
-            categoriesToCreate.add(COURSE_TEXT_CATEGORY_NAME);
-        }
-
-        // Check if the Voice Courses Category does not exist.
-        if (categories.stream().noneMatch(category -> category.getName().equalsIgnoreCase(COURSE_VOICE_CATEGORY_NAME))) {
-            // Create the Category.
-            categoriesToCreate.add(COURSE_VOICE_CATEGORY_NAME);
+            categoriesToCreate.add(COURSE_CATEGORY_NAME);
         }
 
         // Return Collections.
@@ -82,45 +62,6 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
         // Create collections for returning.
         Collection<TextChannel> channelsToRemove = new HashSet<>();
-        Collection<String> channelsToCreate = new HashSet<>();
-
-        // Get all enabled Courses.
-        Set<Course> enabledCourses = courseService.getEnabledCourses();
-
-        // This set starts by containing all enabled Courses. Courses are removed one-by-one as their channels are found.
-        // The remaining Courses which have not been removed must be created as new channels.
-        Set<Course> missingCourses = new HashSet<>(enabledCourses);
-
-        // Find the existing channels and delete invalid channels.
-        filteredChannels.forEach(channel -> {
-            try {
-                // Parse the channel as a Course.
-                Course course = new Course(channel.getName());
-
-                // Remove the Course if it exists.
-                if (missingCourses.contains(course)) {
-                    missingCourses.remove(course);
-                } else {
-                    // Since the Course for this channel is not enabled, the channel should be removed.
-                    channelsToRemove.add(channel);
-                }
-            } catch (Course.InvalidCourseNameException ignored) {
-                // This channel is not a Course channel.
-            }
-        });
-
-        // Convert the missing Courses into Channel names.
-        missingCourses.forEach(course -> channelsToCreate.add(CSNamingConventions.toChannelName(course)));
-
-        // Return collections.
-        return Pair.of(channelsToRemove, channelsToCreate);
-    }
-
-    @Override
-    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> filteredChannels) {
-
-        // Create collections for returning.
-        Collection<VoiceChannel> channelsToRemove = new HashSet<>();
         Collection<String> channelsToCreate = new HashSet<>();
 
         // Get all enabled Courses.
@@ -187,32 +128,6 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Collection<ChannelManager> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
-
-        // Create Collection to be returned.
-        Collection<ChannelManager> channelManagers = new HashSet<>();
-
-        filteredChannels.forEach(voiceChannel -> {
-            try {
-                Course course = new Course(voiceChannel.getName());
-
-                ChannelManager manager = voiceChannel.getManager()
-                        .setName(CSNamingConventions.toChannelName(course))
-                        .setParent(getCourseVoiceCategory(voiceChannel.getGuild()))
-                        .setBitrate(CSConstants.CS_CHANNEL_VOICE_BITRATE)
-                        .setUserLimit(CSConstants.CS_CHANNEL_VOICE_USERLIMIT);
-
-                channelManagers.add(manager);
-            } catch (Course.InvalidCourseNameException ignored) {
-                // This is not a course channel.
-            }
-        });
-
-        // Return managers to be queued.
-        return channelManagers;
-    }
-
-    @Override
     public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateChannelCategoryPermissions(List<Category> categories) {
         // TODO: Category Permissions
         return null;
@@ -232,34 +147,6 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
                 // Compute Permissions.
                 Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = updateChannelPermissions(textChannel, course);
-
-                // Append to Collections.
-                permissionOverrides.addAll(updateResult.getLeft().getLeft());
-                permissionOverrideActions.addAll(updateResult.getLeft().getRight());
-                permOverrideManagers.addAll(updateResult.getRight());
-            } catch (Course.InvalidCourseNameException ignored) {
-                // This is not a course channel.
-            }
-        });
-
-        // Return Collections.
-        return Pair.of(Pair.of(permissionOverrides, permissionOverrideActions), permOverrideManagers);
-    }
-
-    @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
-
-        // Create Collections for returning.
-        Collection<PermissionOverride> permissionOverrides = new HashSet<>();
-        Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-        Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
-
-        filteredChannels.forEach(voiceChannel -> {
-            try {
-                Course course = new Course(voiceChannel.getName());
-
-                // Compute Permissions.
-                Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = updateChannelPermissions(voiceChannel, course);
 
                 // Append to Collections.
                 permissionOverrides.addAll(updateResult.getLeft().getLeft());
@@ -365,14 +252,6 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
     @Override
     public List<TextChannel> updateTextChannelOrdering(List<TextChannel> filteredChannels) {
-        // Sort filtered channels by name.
-        filteredChannels.sort(Comparator.comparing(Channel::getName));
-
-        return filteredChannels;
-    }
-
-    @Override
-    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> filteredChannels) {
         // Sort filtered channels by name.
         filteredChannels.sort(Comparator.comparing(Channel::getName));
 
