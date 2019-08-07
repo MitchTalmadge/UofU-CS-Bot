@@ -10,86 +10,79 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 @Service
 public class DiscordSynchronizationService {
 
-    private LogService logService;
-    private final RoleSynchronizationService roleSynchronizationService;
-    private DiscordService discordService;
-    private RoleAssignmentService roleAssignmentService;
-    private final ChannelSynchronizationService channelSynchronizationService;
-    private NicknameService nicknameService;
+  private LogService logService;
+  private DiscordSynchronizationRequestSurrogate requestSurrogate;
+  private final RoleSynchronizationService roleSynchronizationService;
+  private RoleAssignmentService roleAssignmentService;
+  private final ChannelSynchronizationService channelSynchronizationService;
+  private NicknameService nicknameService;
 
-    /**
-     * Whenever another class requests synchronization, this field will be set to true. <br/>
-     * On the next scheduled synchronization, this field is checked to determine if synchronization should take place. <br/>
-     * Once finished, this field is set to false again.
-     * <p>
-     * This field is set to true initially so that synchronization occurs at least once on startup.
-     */
-    private boolean synchronizationRequested = true;
+  @Autowired
+  public DiscordSynchronizationService(
+      LogService logService,
+      DiscordSynchronizationRequestSurrogate requestSurrogate,
+      RoleSynchronizationService roleSynchronizationService,
+      RoleAssignmentService roleAssignmentService,
+      ChannelSynchronizationService channelSynchronizationService,
+      NicknameService nicknameService) {
+    this.logService = logService;
+    this.requestSurrogate = requestSurrogate;
+    this.roleSynchronizationService = roleSynchronizationService;
+    this.roleAssignmentService = roleAssignmentService;
+    this.channelSynchronizationService = channelSynchronizationService;
+    this.nicknameService = nicknameService;
+  }
 
-    @Autowired
-    public DiscordSynchronizationService(
-            LogService logService,
-            DiscordService discordService,
-            RoleSynchronizationService roleSynchronizationService,
-            RoleAssignmentService roleAssignmentService,
-            ChannelSynchronizationService channelSynchronizationService,
-            NicknameService nicknameService) {
-        this.logService = logService;
-        this.discordService = discordService;
-        this.roleSynchronizationService = roleSynchronizationService;
-        this.roleAssignmentService = roleAssignmentService;
-        this.channelSynchronizationService = channelSynchronizationService;
-        this.nicknameService = nicknameService;
-    }
+  @PostConstruct
+  public void init() {
+    this.synchronizeServer();
+  }
 
-    /**
-     * Requests that Roles and Channels be synchronized at the next scheduled time.
-     */
-    public void requestSynchronization() {
-        synchronizationRequested = true;
-    }
+  /** Forces server synchronization. */
+  private void synchronizeServer() {
+    logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
 
-    /**
-     * Begins synchronization of Roles and Channels. <br/>
-     * This may involve creating, deleting, modifying, or moving Roles and Channels as needed.
-     * <p>
-     * Synchronization only takes place if synchronizationRequested is true.
-     * <p>
-     * This method will fire every 15 seconds, with an initial delay of 15 seconds.
-     *
-     * @see #synchronizationRequested
-     */
-    @Scheduled(fixedDelay = 15_000, initialDelay = 15_000)
-    @Async
-    protected void synchronize() {
-        // Make sure we have a requested synchronization.
-        if (!synchronizationRequested)
-            return;
+    // Synchronize roles.
+    logService.logInfo(getClass(), "Synchronizing Roles...");
+    roleSynchronizationService.synchronize();
 
-        synchronizationRequested = false;
+    // Synchronize channels, after roles.
+    logService.logInfo(getClass(), "Synchronizing Channels...");
+    channelSynchronizationService.synchronize();
 
-        logService.logInfo(getClass(), "Beginning Synchronization as Requested.");
+    // Validate nicknames.
+    logService.logInfo(getClass(), "Validating Nicknames...");
+    nicknameService.validateNicknames();
 
-        // Synchronize roles.
-        logService.logInfo(getClass(), "Synchronizing Roles...");
-        roleSynchronizationService.synchronize();
+    // Assign Roles.
+    logService.logInfo(getClass(), "Assigning Roles...");
+    roleAssignmentService.assignRoles();
 
-        // Synchronize channels, after roles.
-        logService.logInfo(getClass(), "Synchronizing Channels...");
-        channelSynchronizationService.synchronize();
+    logService.logInfo(getClass(), "Synchronization Finished.");
+  }
 
-        // Validate nicknames.
-        logService.logInfo(getClass(), "Validating Nicknames...");
-        nicknameService.validateNicknames();
+  /**
+   * Begins server synchronization. <br>
+   * This may involve creating, deleting, modifying, or moving Roles and Channels as needed, or
+   * more.
+   *
+   * <p>Synchronization only takes place if requested.
+   *
+   * <p>This method will fire every 15 seconds, with an initial delay of 15 seconds.
+   */
+  @Scheduled(fixedDelay = 15_000, initialDelay = 15_000)
+  @Async
+  protected void handleSynchronizationRequests() {
+    // Make sure we have a requested synchronization.
+    if (!this.requestSurrogate.isSynchronizationRequested()) return;
 
-        // Assign Roles.
-        logService.logInfo(getClass(), "Assigning Roles...");
-        roleAssignmentService.assignRoles();
+    this.requestSurrogate.clearSynchronizationRequests();
 
-        logService.logInfo(getClass(), "Synchronization Finished.");
-    }
-
+    this.synchronizeServer();
+  }
 }

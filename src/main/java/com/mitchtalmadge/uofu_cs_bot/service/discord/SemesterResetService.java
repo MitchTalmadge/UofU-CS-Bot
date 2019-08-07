@@ -23,120 +23,117 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SemesterResetService {
 
-    /**
-     * Contains days on which the semester reset should be triggered.
-     */
-    private static final MonthDay[] SEMESTER_RESET_DAYS = {
-            MonthDay.of(Month.AUGUST, 15),
-            MonthDay.of(Month.JANUARY, 5)
-    };
+  /** Contains days on which the semester reset should be triggered. */
+  private static final MonthDay[] SEMESTER_RESET_DAYS = {
+    MonthDay.of(Month.AUGUST, 15), MonthDay.of(Month.JANUARY, 5)
+  };
 
-    /**
-     * The announcement to send when the semester resets.
-     */
-    private static final String SEMESTER_RESET_ANNOUNCEMENT = "@everyone\n" +
-            "\n" +
-            "Welcome to a new semester! **All class-specific channels have been reset.** " +
-            "If you haven't updated your nickname within the last month, it has been cleared. " +
-            "Please update your nickname with any CS courses you are enrolled in this semester, and " +
-            "remember to invite your friends!\n" +
-            "\n" +
-            "*Note: If you are a TA for any courses, just let a moderator know.*\n" +
-            "*Invite Link:* **bit.ly/csattheu**";
+  /** The announcement to send when the semester resets. */
+  private static final String SEMESTER_RESET_ANNOUNCEMENT =
+      "@everyone\n"
+          + "\n"
+          + "Welcome to a new semester! **All class-specific channels have been reset.** "
+          + "If you haven't updated your nickname within the last month, it has been cleared. "
+          + "Please update your nickname with any CS courses you are enrolled in this semester, and "
+          + "remember to invite your friends!\n"
+          + "\n"
+          + "*Note: If you are a TA for any courses, just let a moderator know.*\n"
+          + "*Invite Link:* **bit.ly/csattheu**";
 
-    private final LogService logService;
-    private final DiscordService discordService;
-    private final DiscordSynchronizationService discordSynchronizationService;
-    private NicknameService nicknameService;
+  private final LogService logService;
+  private final DiscordService discordService;
+  private final DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate;
+  private NicknameService nicknameService;
 
-    @Autowired
-    public SemesterResetService(LogService logService,
-                                DiscordService discordService,
-                                DiscordSynchronizationService discordSynchronizationService,
-                                NicknameService nicknameService) {
-        this.logService = logService;
-        this.discordService = discordService;
-        this.discordSynchronizationService = discordSynchronizationService;
-        this.nicknameService = nicknameService;
+  @Autowired
+  public SemesterResetService(
+      LogService logService,
+      DiscordService discordService,
+      DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate,
+      NicknameService nicknameService) {
+    this.logService = logService;
+    this.discordService = discordService;
+    this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
+    this.nicknameService = nicknameService;
+  }
+
+  /**
+   * Checks if it is the end of the semester each day at 12pm MST.
+   *
+   * <p>If it is the end of the semester, deletes all CS class channels and removes all CS roles
+   * from users.
+   *
+   * <p>Finally, puts out an announcement that it is the end of the semester.
+   */
+  @Scheduled(cron = "0 0 12 * * *", zone = "America/Denver")
+  @Async
+  protected void semesterReset() {
+
+    boolean reset = false;
+    MonthDay currentDay = MonthDay.now(ZoneId.of("America/Denver"));
+
+    // Determine if today is a reset day.
+    for (MonthDay day : SEMESTER_RESET_DAYS) {
+      if (day.equals(currentDay)) {
+        reset = true;
+        break;
+      }
+    }
+    if (!reset) {
+      return;
     }
 
-    /**
-     * Checks if it is the end of the semester each day at 12pm MST.
-     * <p>
-     * If it is the end of the semester, deletes all CS class channels
-     * and removes all CS roles from users.
-     * <p>
-     * Finally, puts out an announcement that it is the end of the semester.
-     */
-    @Scheduled(cron = "0 0 12 * * *", zone = "America/Denver")
-    @Async
-    protected void semesterReset() {
+    logService.logInfo(getClass(), "!!!!!!!!!!!!!! Initiating Semester Reset !!!!!!!!!!!!!!");
 
-        boolean reset = false;
-        MonthDay currentDay = MonthDay.now(ZoneId.of("America/Denver"));
+    // Today is a reset day, begin resetting.
+    nicknameService.clearNicknamesOlderThanDays(30);
+    deleteChannels();
+    discordSynchronizationRequestSurrogate.requestSynchronization();
+    announceReset();
+  }
 
-        // Determine if today is a reset day.
-        for (MonthDay day : SEMESTER_RESET_DAYS) {
-            if (day.equals(currentDay)) {
-                reset = true;
-                break;
-            }
-        }
-        if (!reset) {
-            return;
-        }
-
-        logService.logInfo(getClass(), "!!!!!!!!!!!!!! Initiating Semester Reset !!!!!!!!!!!!!!");
-
-        // Today is a reset day, begin resetting.
-        nicknameService.clearNicknamesOlderThanDays(30);
-        deleteChannels();
-        discordSynchronizationService.requestSynchronization();
-        announceReset();
-    }
-
-    /**
-     * Deletes all CS channels, to be re-added later.
-     */
-    private void deleteChannels() {
-        discordService.getGuild().getTextChannels().forEach(channel -> {
-            try {
+  /** Deletes all CS channels, to be re-added later. */
+  private void deleteChannels() {
+    discordService
+        .getGuild()
+        .getTextChannels()
+        .forEach(
+            channel -> {
+              try {
                 // Parse the channel as a course to ensure it is actually a course channel.
                 new Course(channel.getName());
 
                 logService.logInfo(getClass(), "Deleting Text Channel: " + channel.getName());
                 channel.delete().complete();
 
-            } catch (Course.InvalidCourseNameException ignored) {
+              } catch (Course.InvalidCourseNameException ignored) {
                 // This channel is not a course channel.
-            }
-        });
+              }
+            });
+  }
+
+  /** Makes an announcement that the server was reset for the beginning of the new semester. */
+  private void announceReset() {
+
+    // Find announcement channel
+    List<TextChannel> channels =
+        discordService.getGuild().getTextChannelsByName("announcements", true);
+
+    if (channels.isEmpty()) {
+      logService.logError(getClass(), "No #announcements text channel found!");
+      return;
     }
 
-    /**
-     * Makes an announcement that the server was reset for the beginning of the new semester.
-     */
-    private void announceReset() {
+    TextChannel announcementChannel = channels.get(0);
 
-        // Find announcement channel
-        List<TextChannel> channels = discordService.getGuild().getTextChannelsByName("announcements", true);
-
-        if (channels.isEmpty()) {
-            logService.logError(getClass(), "No #announcements text channel found!");
-            return;
-        }
-
-        TextChannel announcementChannel = channels.get(0);
-
-        // Try to make an announcement
-        if (!announcementChannel.canTalk()) {
-            logService.logError(getClass(), "No permission to talk in the #announcements text channel.");
-            return;
-        }
-
-        // Delay 1 minute to allow for channel synchronization.
-        announcementChannel.sendMessage(SEMESTER_RESET_ANNOUNCEMENT).queueAfter(1, TimeUnit.MINUTES);
-        logService.logInfo(getClass(), "Announcement scheduled to post in 1 minute.");
+    // Try to make an announcement
+    if (!announcementChannel.canTalk()) {
+      logService.logError(getClass(), "No permission to talk in the #announcements text channel.");
+      return;
     }
 
+    // Delay 1 minute to allow for channel synchronization.
+    announcementChannel.sendMessage(SEMESTER_RESET_ANNOUNCEMENT).queueAfter(1, TimeUnit.MINUTES);
+    logService.logInfo(getClass(), "Announcement scheduled to post in 1 minute.");
+  }
 }

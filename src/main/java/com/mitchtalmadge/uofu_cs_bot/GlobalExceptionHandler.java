@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalExceptionHandler {
 
-    private final LogService logService;
+  private final LogService logService;
 
-    @Autowired
-    public GlobalExceptionHandler(LogService logService) {
-        this.logService = logService;
-    }
+  @Autowired
+  public GlobalExceptionHandler(LogService logService) {
+    this.logService = logService;
+  }
 
-    @AfterThrowing(pointcut = "execution(* com.mitchtalmadge.uofu_cs_bot..*.*(..))", throwing = "ex")
-    public void handleUncaughtException(JoinPoint joinPoint, Throwable ex) {
-        logService.logException(joinPoint.getSourceLocation().getWithinType(), ex, "Uncaught Exception");
-    }
-
+  @AfterThrowing(pointcut = "execution(* com.mitchtalmadge.uofu_cs_bot..*.*(..))", throwing = "ex")
+  public void handleUncaughtException(JoinPoint joinPoint, Throwable ex) {
+    logService.logException(
+        joinPoint.getSourceLocation().getWithinType(), ex, "Uncaught Exception");
+  }
 }

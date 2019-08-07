@@ -6,17 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class RoleAddEventListener extends EventListenerAbstract<GuildMemberRoleAddEvent> {
 
-    private RoleAssignmentService roleAssignmentService;
+  private RoleAssignmentService roleAssignmentService;
 
-    @Autowired
-    public RoleAddEventListener(RoleAssignmentService roleAssignmentService) {
-        this.roleAssignmentService = roleAssignmentService;
-    }
+  @Autowired
+  public RoleAddEventListener(RoleAssignmentService roleAssignmentService) {
+    this.roleAssignmentService = roleAssignmentService;
+  }
 
-    @Override
-    public void onEvent(GuildMemberRoleAddEvent event) {
-        roleAssignmentService.assignRoles(event.getMember());
-    }
-
-
+  @Override
+  public void onEvent(GuildMemberRoleAddEvent event) {
+    roleAssignmentService.assignRoles(event.getMember());
+  }
 }

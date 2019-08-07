@@ -8,5 +8,4 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 @Inherited
-public @interface InheritedComponent {
-}
+public @interface InheritedComponent {}

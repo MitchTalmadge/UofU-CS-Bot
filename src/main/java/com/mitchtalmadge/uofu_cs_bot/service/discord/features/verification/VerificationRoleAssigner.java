@@ -8,32 +8,35 @@ import java.util.Set;
 
 public class VerificationRoleAssigner extends RoleAssigner {
 
-    @Override
-    public void updateRoleAssignments(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove) {
+  @Override
+  public void updateRoleAssignments(Member member, Set<Role> rolesToAdd, Set<Role> rolesToRemove) {
 
-        // Check if already verified.
-        boolean isVerified = false;
-        for (Role role : member.getRoles()) {
-            if (role.getName().equals(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME)) {
-                isVerified = true;
-                break;
-            }
-        }
-
-        // Check if should be verified.
-        boolean shouldBeVerified = false;
-        for (Role role : member.getRoles()) {
-            if (role.getName().startsWith("cs-")) {
-                shouldBeVerified = true;
-                break;
-            }
-        }
-
-        // Update accordingly.
-        Role verifiedRole = member.getGuild().getRolesByName(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME, false).get(0);
-        if (!isVerified && shouldBeVerified) {
-            rolesToAdd.add(verifiedRole);
-        }
+    // Check if already verified.
+    boolean isVerified = false;
+    for (Role role : member.getRoles()) {
+      if (role.getName().equals(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME)) {
+        isVerified = true;
+        break;
+      }
     }
 
+    // Check if should be verified.
+    boolean shouldBeVerified = false;
+    for (Role role : member.getRoles()) {
+      if (role.getName().startsWith("cs-")) {
+        shouldBeVerified = true;
+        break;
+      }
+    }
+
+    // Update accordingly.
+    Role verifiedRole =
+        member
+            .getGuild()
+            .getRolesByName(VerificationRoleSynchronizer.VERIFIED_ROLE_NAME, false)
+            .get(0);
+    if (!isVerified && shouldBeVerified) {
+      rolesToAdd.add(verifiedRole);
+    }
+  }
 }
