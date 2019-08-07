@@ -36,7 +36,7 @@ public class CSNamingConventions {
     }
 
     /**
-     * From a Course instance, creates a properly formatted text/voice channel name.
+     * From a Course instance, creates a properly formatted channel name.
      *
      * @param course The class.
      * @return The channel name.

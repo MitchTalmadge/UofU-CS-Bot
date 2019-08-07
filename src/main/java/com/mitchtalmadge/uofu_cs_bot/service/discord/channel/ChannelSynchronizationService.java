@@ -6,7 +6,6 @@ import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.ChannelManager;
 import net.dv8tion.jda.core.managers.PermOverrideManager;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -35,7 +34,7 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Begins synchronization of Channel Categories, Text Channels, and Voice Channels. <br/>
+     * Begins synchronization of Channel Categories & Text Channels. <br/>
      * This may involve creating, deleting, modifying, or moving Categories and Channels as needed.
      */
     public void synchronize() {
@@ -45,22 +44,18 @@ public class ChannelSynchronizationService {
         // Creation and Deletion
         synchronizeChannelCategories();
         synchronizeTextChannels();
-        synchronizeVoiceChannels();
 
         // Settings
         updateChannelCategorySettings();
         updateTextChannelSettings();
-        updateVoiceChannelSettings();
 
         // Permissions
         updateChannelCategoryPermissions();
         updateTextChannelPermissions();
-        updateVoiceChannelPermissions();
 
         // Order
         updateChannelCategoryOrdering();
         updateTextChannelOrdering();
-        updateVoiceChannelOrdering();
     }
 
     /**
@@ -128,38 +123,6 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Creates and/or deletes Voice Channels as necessary.
-     */
-    private void synchronizeVoiceChannels() {
-        logService.logInfo(getClass(), "Synchronizing Voice Channels...");
-
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform synchronization
-            Pair<Collection<VoiceChannel>, Collection<String>> synchronizationResult = channelSynchronizer.synchronizeVoiceChannels(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
-
-            if (synchronizationResult != null) {
-
-                // Delete any requested Voice Channels.
-                if (synchronizationResult.getLeft() != null) {
-                    synchronizationResult.getLeft().forEach(voiceChannel -> {
-                        logService.logInfo(getClass(), "--> Deleting Voice Channel: " + voiceChannel.getName());
-                        voiceChannel.delete().complete();
-                    });
-                }
-
-                // Create any requested Voice Channels.
-                if (synchronizationResult.getRight() != null) {
-                    synchronizationResult.getRight().forEach(voiceChannelName -> {
-                        logService.logInfo(getClass(), "--> Creating Voice Channel: " + voiceChannelName);
-                        discordService.getGuild().getController().createVoiceChannel(voiceChannelName).complete();
-                    });
-                }
-
-            }
-        });
-    }
-
-    /**
      * Ensures that all Channel Categories have the correct settings.
      */
     private void updateChannelCategorySettings() {
@@ -185,23 +148,6 @@ public class ChannelSynchronizationService {
         channelSynchronizers.forEach(channelSynchronizer -> {
             // Perform Update
             Collection<ChannelManager> updateResult = channelSynchronizer.updateTextChannelSettings(getFilteredTextChannelsForSynchronizer(channelSynchronizer));
-
-            // Queue any requested managers.
-            if (updateResult != null) {
-                updateResult.forEach(RestAction::queue);
-            }
-        });
-    }
-
-    /**
-     * Ensures that all Voice Channels have the correct settings.
-     */
-    private void updateVoiceChannelSettings() {
-        logService.logInfo(getClass(), "Updating Voice Channel Settings...");
-
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            Collection<ChannelManager> updateResult = channelSynchronizer.updateVoiceChannelSettings(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
 
             // Queue any requested managers.
             if (updateResult != null) {
@@ -279,40 +225,6 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Ensures that all Voice Channels have the correct permissions.
-     */
-    private void updateVoiceChannelPermissions() {
-        logService.logInfo(getClass(), "Updating Voice Channel Permissions...");
-
-        channelSynchronizers.forEach(channelSynchronizer -> {
-            // Perform Update
-            Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateResult = channelSynchronizer.updateVoiceChannelPermissions(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
-
-            if (updateResult != null) {
-
-                if (updateResult.getLeft() != null) {
-
-                    // Delete any requested Overrides.
-                    if (updateResult.getLeft().getLeft() != null) {
-                        updateResult.getLeft().getLeft().forEach(permissionOverride -> permissionOverride.delete().queue());
-                    }
-
-                    // Create any requested Overrides.
-                    if (updateResult.getLeft().getRight() != null) {
-                        updateResult.getLeft().getRight().forEach(RestAction::queue);
-                    }
-
-                }
-
-                // Queue any requested Override Updates.
-                if (updateResult.getRight() != null) {
-                    updateResult.getRight().forEach(RestAction::queue);
-                }
-            }
-        });
-    }
-
-    /**
      * Updates the order of Channel Categories in the Guild.
      */
     private void updateChannelCategoryOrdering() {
@@ -364,40 +276,6 @@ public class ChannelSynchronizationService {
     }
 
     /**
-     * Updates the order of Voice Channels in the Guild.
-     */
-    private void updateVoiceChannelOrdering() {
-        logService.logInfo(getClass(), "Updating Voice Channel Ordering...");
-
-        // Will contain all the roles in their sorted order.
-        List<VoiceChannel> sortedChannels = new ArrayList<>();
-
-        // Add each synchronizer's sorted channels.
-        channelSynchronizers
-                .stream()
-                .sorted(Comparator.comparingInt(ChannelSynchronizer::getOrderingPriority).thenComparing(ChannelSynchronizer::getChannelPrefix))
-                .forEach(channelSynchronizer -> {
-                    // Perform Update
-                    List<VoiceChannel> updateResult = channelSynchronizer.updateVoiceChannelOrdering(getFilteredVoiceChannelsForSynchronizer(channelSynchronizer));
-
-                    // Store results
-                    if (updateResult != null) {
-                        sortedChannels.addAll(updateResult);
-                    }
-                });
-
-        // Find any un-sorted roles and place them at the beginning of the sorted roles list.
-        sortedChannels.addAll(0,
-                discordService.getGuild().getVoiceChannels()
-                        .stream()
-                        .filter(channel -> !sortedChannels.contains(channel))
-                        .collect(Collectors.toList()));
-
-        // Perform ordering.
-        DiscordUtils.orderEntities(discordService.getGuild().getController().modifyVoiceChannelPositions(), sortedChannels);
-    }
-
-    /**
      * Filters and returns the text channels that are requested by the given synchronizer.
      *
      * @param channelSynchronizer The synchronizer.
@@ -405,19 +283,6 @@ public class ChannelSynchronizationService {
      */
     private List<TextChannel> getFilteredTextChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
         return discordService.getGuild().getTextChannels().stream()
-                // Ignore case when filtering.
-                .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Filters and returns the voice channels that are requested by the given synchronizer.
-     *
-     * @param channelSynchronizer The synchronizer.
-     * @return The filtered voice channels.
-     */
-    private List<VoiceChannel> getFilteredVoiceChannelsForSynchronizer(ChannelSynchronizer channelSynchronizer) {
-        return discordService.getGuild().getVoiceChannels().stream()
                 // Ignore case when filtering.
                 .filter(channel -> channel.getName().toLowerCase().startsWith(channelSynchronizer.getChannelPrefix().toLowerCase()))
                 .collect(Collectors.toList());

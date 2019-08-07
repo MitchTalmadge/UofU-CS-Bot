@@ -32,8 +32,6 @@ public enum CSSuffix {
                     // Administrative privileges
                     Permission.MESSAGE_MANAGE,
                     Permission.KICK_MEMBERS,
-                    Permission.VOICE_MUTE_OTHERS,
-                    Permission.VOICE_DEAF_OTHERS
             }
     ),
 
@@ -48,8 +46,6 @@ public enum CSSuffix {
                     // Administrative privileges
                     Permission.MESSAGE_MANAGE,
                     Permission.KICK_MEMBERS,
-                    Permission.VOICE_MUTE_OTHERS,
-                    Permission.VOICE_DEAF_OTHERS
             }
     );
 

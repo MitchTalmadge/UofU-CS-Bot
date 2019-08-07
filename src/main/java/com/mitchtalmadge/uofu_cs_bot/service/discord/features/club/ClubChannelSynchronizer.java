@@ -39,8 +39,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
             categoriesToCreate.add(CLUB_CATEGORY_NAME);
         }
 
-        // TODO: Create Clubs Voice Category
-
         // Return Collections.
         return Pair.of(categoriesToRemove, categoriesToCreate);
     }
@@ -83,13 +81,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Collection<VoiceChannel>, Collection<String>> synchronizeVoiceChannels(List<VoiceChannel> filteredChannels) {
-        // TODO: Create club and club admin channels.
-
-        return null;
-    }
-
-    @Override
     public Collection<ChannelManager> updateChannelCategorySettings(List<Category> categories) {
         return null;
     }
@@ -115,11 +106,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
 
         // Return managers to be queued.
         return channelManagers;
-    }
-
-    @Override
-    public Collection<ChannelManager> updateVoiceChannelSettings(List<VoiceChannel> filteredChannels) {
-        return null;
     }
 
     @Override
@@ -231,11 +217,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
     }
 
     @Override
-    public Pair<Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>, Collection<PermOverrideManager>> updateVoiceChannelPermissions(List<VoiceChannel> filteredChannels) {
-        return null;
-    }
-
-    @Override
     public List<Category> updateChannelCategoryOrdering(List<Category> categories) {
         return null;
     }
@@ -246,11 +227,6 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
         filteredChannels.sort(Comparator.comparing(Channel::getName));
 
         return filteredChannels;
-    }
-
-    @Override
-    public List<VoiceChannel> updateVoiceChannelOrdering(List<VoiceChannel> filteredChannels) {
-        return null;
     }
 
     /**
