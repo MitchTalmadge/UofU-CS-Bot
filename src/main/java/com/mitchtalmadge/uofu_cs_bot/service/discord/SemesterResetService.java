@@ -46,17 +46,17 @@ public class SemesterResetService {
 
     private final LogService logService;
     private final DiscordService discordService;
-    private final DiscordSynchronizationService discordSynchronizationService;
+    private final DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate;
     private NicknameService nicknameService;
 
     @Autowired
     public SemesterResetService(LogService logService,
                                 DiscordService discordService,
-                                DiscordSynchronizationService discordSynchronizationService,
+                                DiscordSynchronizationRequestSurrogate discordSynchronizationRequestSurrogate,
                                 NicknameService nicknameService) {
         this.logService = logService;
         this.discordService = discordService;
-        this.discordSynchronizationService = discordSynchronizationService;
+        this.discordSynchronizationRequestSurrogate = discordSynchronizationRequestSurrogate;
         this.nicknameService = nicknameService;
     }
 
@@ -91,7 +91,7 @@ public class SemesterResetService {
         // Today is a reset day, begin resetting.
         nicknameService.clearNicknamesOlderThanDays(30);
         deleteChannels();
-        discordSynchronizationService.requestSynchronization();
+        discordSynchronizationRequestSurrogate.requestSynchronization();
         announceReset();
     }
 

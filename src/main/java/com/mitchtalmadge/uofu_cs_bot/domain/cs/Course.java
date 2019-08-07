@@ -2,6 +2,8 @@ package com.mitchtalmadge.uofu_cs_bot.domain.cs;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Represents a Computer Science course, like CS-3500.
  */
@@ -78,15 +80,13 @@ public class Course implements Comparable<Course> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Course course = (Course) o;
-
         return number == course.number;
     }
 
     @Override
     public int hashCode() {
-        return number;
+        return Objects.hash(number);
     }
 
     /**

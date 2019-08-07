@@ -10,10 +10,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Assigns course roles to members where needed.
@@ -83,7 +80,10 @@ public class CourseRoleAssigner extends RoleAssigner {
         // Determine the roles to be added to the member.
         missingRolesMap.forEach((csClass, suffixes) -> {
             suffixes.forEach(suffix -> {
-                rolesToAdd.add(discordService.getGuild().getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false).get(0));
+                List<Role> roles = discordService.getGuild().getRolesByName(CSNamingConventions.toRoleName(csClass, suffix), false);
+
+                if (!roles.isEmpty())
+                    rolesToAdd.add(roles.get(0));
             });
         });
     }
