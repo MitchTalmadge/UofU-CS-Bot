@@ -30,10 +30,8 @@ public class CourseRoleAssigner extends RoleAssigner {
     CSNickname csNickname = new CSNickname(member.getNickname());
 
     // This map will initially contain all expected combinations of Course instances and CSSuffix
-    // instances that the
-    // member should be assigned to. Once found, the suffixes will be removed one-by-one. The
-    // remaining suffixes determine
-    // which roles are missing from the member.
+    // instances that the member should be assigned to. Once found, the suffixes will be removed
+    // one-by-one. The remaining suffixes determine which roles are missing from the member.
     Map<Course, Set<CSSuffix>> missingRolesMap = new HashMap<>();
     // Populate the missing roles map.
     csNickname
