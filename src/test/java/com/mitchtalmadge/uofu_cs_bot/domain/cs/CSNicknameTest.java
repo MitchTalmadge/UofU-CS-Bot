@@ -17,17 +17,17 @@ public class CSNicknameTest {
   public void TestParseStandardNickname() {
     // One class
     Assert.assertArrayEquals(
-            new Course[]{cs3500}, new CSNickname("John Doe [3500]").getClasses().toArray());
+        new Course[] {cs3500}, new CSNickname("John Doe [3500]").getClasses().toArray());
 
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("John Doe [3500, 3810]").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("John Doe [3500, 3810]").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe [2420, 3500, 3810]").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe [2420, 3500, 3810]").getClasses().toArray());
   }
 
   /**
@@ -37,190 +37,170 @@ public class CSNicknameTest {
   public void TestParseRandomOrderNickname() {
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("John Doe [3810, 3500]").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("John Doe [3810, 3500]").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe [3500, 2420, 3810]").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe [3500, 2420, 3810]").getClasses().toArray());
   }
 
-  /**
-   * Tests nicknames that include prefixes.
-   */
+  /** Tests nicknames that include prefixes. */
   @Test
   public void TestParseWithPrefixes() {
     // One class
     Assert.assertArrayEquals(
-            new Course[]{cs3500}, new CSNickname("John Doe [cs-3500]").getClasses().toArray());
+        new Course[] {cs3500}, new CSNickname("John Doe [cs-3500]").getClasses().toArray());
 
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("John Doe [CS 3500, 3810]").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("John Doe [CS 3500, 3810]").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe [2420, Cs-3500, cs3810]").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe [2420, Cs-3500, cs3810]").getClasses().toArray());
   }
 
-  /**
-   * Tests nicknames that include suffixes.
-   */
+  /** Tests nicknames that include suffixes. */
   @Test
   public void TestParseWithSuffixes() {
     // One class
     CSNickname oneClass = new CSNickname("John Doe [3500-TA]");
-    Assert.assertArrayEquals(new Course[]{cs3500}, oneClass.getClasses().toArray());
+    Assert.assertArrayEquals(new Course[] {cs3500}, oneClass.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, oneClass.getSuffixForClass(cs3500));
 
     // Two courses
     CSNickname twoClasses = new CSNickname("John Doe [3500 ta, 3810]");
-    Assert.assertArrayEquals(new Course[]{cs3500, cs3810}, twoClasses.getClasses().toArray());
+    Assert.assertArrayEquals(new Course[] {cs3500, cs3810}, twoClasses.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, twoClasses.getSuffixForClass(cs3500));
     Assert.assertEquals(CSSuffix.NONE, twoClasses.getSuffixForClass(cs3810));
 
     // Three courses
     CSNickname threeClasses = new CSNickname("John Doe [2420-ta, 3500 PROF, 3810]");
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810}, threeClasses.getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810}, threeClasses.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, threeClasses.getSuffixForClass(cs2420));
     Assert.assertEquals(CSSuffix.PROFESSOR, threeClasses.getSuffixForClass(cs3500));
     Assert.assertEquals(CSSuffix.NONE, threeClasses.getSuffixForClass(cs3810));
   }
 
-  /**
-   * Tests nicknames that include both prefixes and suffixes.
-   */
+  /** Tests nicknames that include both prefixes and suffixes. */
   @Test
   public void TestParseWithPrefixesAndSuffixes() {
     // One class
     CSNickname oneClass = new CSNickname("John Doe [cs3500-TA]");
-    Assert.assertArrayEquals(new Course[]{cs3500}, oneClass.getClasses().toArray());
+    Assert.assertArrayEquals(new Course[] {cs3500}, oneClass.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, oneClass.getSuffixForClass(cs3500));
 
     // Two courses
     CSNickname twoClasses = new CSNickname("John Doe [CS-3500 ta, cs 3810]");
-    Assert.assertArrayEquals(new Course[]{cs3500, cs3810}, twoClasses.getClasses().toArray());
+    Assert.assertArrayEquals(new Course[] {cs3500, cs3810}, twoClasses.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, twoClasses.getSuffixForClass(cs3500));
     Assert.assertEquals(CSSuffix.NONE, twoClasses.getSuffixForClass(cs3810));
 
     // Three courses
     CSNickname threeClasses = new CSNickname("John Doe [2420-ta, CS 3500 PROF, 3810]");
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810}, threeClasses.getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810}, threeClasses.getClasses().toArray());
     Assert.assertEquals(CSSuffix.TA, threeClasses.getSuffixForClass(cs2420));
     Assert.assertEquals(CSSuffix.PROFESSOR, threeClasses.getSuffixForClass(cs3500));
     Assert.assertEquals(CSSuffix.NONE, threeClasses.getSuffixForClass(cs3810));
   }
 
-  /**
-   * Tests nicknames that use parentheses instead of square brackets.
-   */
+  /** Tests nicknames that use parentheses instead of square brackets. */
   @Test
   public void TestParentheses() {
     // One class
     Assert.assertArrayEquals(
-            new Course[]{cs3500}, new CSNickname("John Doe (3500)").getClasses().toArray());
+        new Course[] {cs3500}, new CSNickname("John Doe (3500)").getClasses().toArray());
 
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("John Doe (3500, 3810)").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("John Doe (3500, 3810)").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe (2420, 3500, 3810)").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe (2420, 3500, 3810)").getClasses().toArray());
   }
 
-  /**
-   * Tests nicknames that use a mix of parentheses and square brackets.
-   */
+  /** Tests nicknames that use a mix of parentheses and square brackets. */
   @Test
   public void TestMixedParenthesesSquareBrackets() {
     // One class
     Assert.assertArrayEquals(
-            new Course[]{cs3500}, new CSNickname("John Doe (3500]").getClasses().toArray());
+        new Course[] {cs3500}, new CSNickname("John Doe (3500]").getClasses().toArray());
 
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("John Doe [3500, 3810)").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("John Doe [3500, 3810)").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe [2420, 3500, 3810)").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe [2420, 3500, 3810)").getClasses().toArray());
   }
 
-  /**
-   * Tests nicknames which include more than one set of brackets in the nickname.
-   */
+  /** Tests nicknames which include more than one set of brackets in the nickname. */
   @Test
   public void TestMultipleBracketsInNickname() {
     // One class
     Assert.assertArrayEquals(
-            new Course[]{cs3500}, new CSNickname("John Doe [3500] [USD]").getClasses().toArray());
+        new Course[] {cs3500}, new CSNickname("John Doe [3500] [USD]").getClasses().toArray());
 
     // Two courses
     Assert.assertArrayEquals(
-            new Course[]{cs3500, cs3810},
-            new CSNickname("[Super Cool Clan] John Doe [3500, 3810]").getClasses().toArray());
+        new Course[] {cs3500, cs3810},
+        new CSNickname("[Super Cool Clan] John Doe [3500, 3810]").getClasses().toArray());
 
     // Three courses
     Assert.assertArrayEquals(
-            new Course[]{cs2420, cs3500, cs3810},
-            new CSNickname("John Doe [Supreme Overlord][2420, 3500, 3810]").getClasses().toArray());
+        new Course[] {cs2420, cs3500, cs3810},
+        new CSNickname("John Doe [Supreme Overlord][2420, 3500, 3810]").getClasses().toArray());
   }
 
-  /**
-   * Tests that a null nickname results in no courses parsed.
-   */
+  /** Tests that a null nickname results in no courses parsed. */
   @Test
   public void TestNullNickname() {
     Assert.assertArrayEquals(new Course[0], new CSNickname(null).getClasses().toArray());
   }
 
-  /**
-   * Tests updating a nickname to proper naming conventions.
-   */
+  /** Tests updating a nickname to proper naming conventions. */
   @Test
   public void TestUpdateNicknameClassGroup() {
     // One class
     Assert.assertEquals(
-            "John Doe [3500] [USD]",
-            new CSNickname("John Doe (CS3500] [USD]")
-                    .updateNicknameClassGroup("John Doe (CS3500] [USD]"));
+        "John Doe [3500] [USD]",
+        new CSNickname("John Doe (CS3500] [USD]")
+            .updateNicknameClassGroup("John Doe (CS3500] [USD]"));
 
     // Two courses
     Assert.assertEquals(
-            "[Super Cool Clan] John Doe [3500,3810TA]",
-            new CSNickname("[Super Cool Clan] John Doe (cs-3500, CS-3810-TA)")
-                    .updateNicknameClassGroup("[Super Cool Clan] John Doe (CS-3500, CS-3810-TA)"));
+        "[Super Cool Clan] John Doe [3500,3810TA]",
+        new CSNickname("[Super Cool Clan] John Doe (cs-3500, CS-3810-TA)")
+            .updateNicknameClassGroup("[Super Cool Clan] John Doe (CS-3500, CS-3810-TA)"));
 
     // Three courses
     Assert.assertEquals(
-            "John Doe [Supreme Overlord][2420PROF,3500,3810]",
-            new CSNickname("John Doe [Supreme Overlord][3500,    2420prof,      3810]")
-                    .updateNicknameClassGroup("John Doe [Supreme Overlord][3500,    2420prof,      3810]"));
+        "John Doe [Supreme Overlord][2420PROF,3500,3810]",
+        new CSNickname("John Doe [Supreme Overlord][3500,    2420prof,      3810]")
+            .updateNicknameClassGroup("John Doe [Supreme Overlord][3500,    2420prof,      3810]"));
   }
 
-  /**
-   * Tests updating a nickname when the CSNickname has parsed no courses.
-   */
+  /** Tests updating a nickname when the CSNickname has parsed no courses. */
   @Test
   public void TestUpdateNicknameClassGroupWithNoClasses() {
     Assert.assertEquals(
-            "John Doe [USD]",
-            new CSNickname("John Doe [USD]").updateNicknameClassGroup("John Doe [USD]"));
+        "John Doe [USD]",
+        new CSNickname("John Doe [USD]").updateNicknameClassGroup("John Doe [USD]"));
   }
 
-  /**
-   * Tests updating a nickname when the nickname provided is null.
-   */
+  /** Tests updating a nickname when the nickname provided is null. */
   @Test
   public void TestUpdateNicknameClassGroupWhenNull() {
     Assert.assertNull(new CSNickname(null).updateNicknameClassGroup(null));

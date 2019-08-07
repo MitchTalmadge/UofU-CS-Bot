@@ -16,9 +16,7 @@ public class CourseTest {
     Assert.assertEquals("3500", cs3500.toString());
   }
 
-  /**
-   * Tests parsing numbers in string format.
-   */
+  /** Tests parsing numbers in string format. */
   @Test
   public void TestParseClassNumber() throws Exception {
     Assert.assertEquals(cs1410, new Course("1410"));
@@ -26,9 +24,7 @@ public class CourseTest {
     Assert.assertEquals(cs3810, new Course("  3810  "));
   }
 
-  /**
-   * Tests parsing class names with prefixes.
-   */
+  /** Tests parsing class names with prefixes. */
   @Test
   public void TestParseWithPrefixes() throws Exception {
     Assert.assertEquals(cs3810, new Course("cs-3810"));
@@ -36,9 +32,7 @@ public class CourseTest {
     Assert.assertEquals(cs1410, new Course("CS1410"));
   }
 
-  /**
-   * Tests parsing class names with suffixes.
-   */
+  /** Tests parsing class names with suffixes. */
   @Test
   public void TestParseWithSuffixes() throws Exception {
     Assert.assertEquals(cs3810, new Course("3810-TA"));
@@ -46,9 +40,7 @@ public class CourseTest {
     Assert.assertEquals(cs1410, new Course("1410 Prof"));
   }
 
-  /**
-   * Tests parsing class names with prefixes and suffixes.
-   */
+  /** Tests parsing class names with prefixes and suffixes. */
   @Test
   public void TestParseWithPrefixesAndSuffixes() throws Exception {
     Assert.assertEquals(cs3810, new Course("cs-3810 TA"));
