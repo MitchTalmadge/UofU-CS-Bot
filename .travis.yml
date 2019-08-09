@@ -15,7 +15,6 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script:
-    - heroku deploy:jar UofU-CS-Bot.jar --app mitchtalmadge-uofu-cs-bot
+  script: heroku deploy:jar UofU-CS-Bot.jar --app mitchtalmadge-uofu-cs-bot
   on:
     branch: master
