@@ -66,8 +66,8 @@ public class VerificationCommandListener extends CommandListener {
       return FORMAT_INSTRUCTIONS;
     }
 
-    String unid = email.substring(1, email.indexOf('@'));
-    if (unid.length() != 7 || !unid.matches("^\\d+$")) {
+    String unid = email.substring(0, email.indexOf('@'));
+    if (unid.length() != 8 || !unid.matches("^u\\d{7}$")) {
       return "The uNID in your u-mail should be a 'u' followed by 7 digits. " + "\n" + EXAMPLE;
     }
 
