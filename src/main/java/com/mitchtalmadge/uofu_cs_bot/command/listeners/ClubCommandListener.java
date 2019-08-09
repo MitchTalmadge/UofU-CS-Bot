@@ -20,8 +20,20 @@ public class ClubCommandListener extends CommandListener {
   }
 
   @Override
-  public String onCommand(Command command) {
+  public String getPublicReply(Command command) {
+    return getReply(command);
+  }
 
+  @Override
+  public String getPrivateReply(Command command, boolean publicReplyMade) {
+    if (publicReplyMade) {
+      return null;
+    }
+
+    return getReply(command);
+  }
+
+  private String getReply(Command command) {
     // Ensure we have at least three arguments.
     if (command.getArgs().length < 3) {
       return "Missing arguments.\nSyntax: `!club <join|leave> <club name>`\nExample: `!club join acm`";
