@@ -24,7 +24,7 @@ public class Command {
   public Command(MessageReceivedEvent messageReceivedEvent, String[] args) {
     this.messageReceivedEvent = messageReceivedEvent;
     this.args = args;
-    this.privateChannel = messageReceivedEvent.getPrivateChannel() != null;
+    this.privateChannel = messageReceivedEvent == null || messageReceivedEvent.getPrivateChannel() != null;
   }
 
   public MessageReceivedEvent getMessageReceivedEvent() {
