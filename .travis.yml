@@ -1,20 +1,28 @@
-language: java
-jdk: openjdk12
-sudo: required
-cache:
-  directories:
-    - "$HOME/.m2"
+jobs:
+  include:
+    - stage: compile
+      language: java
+      jdk: openjdk12
+      sudo: required
+      cache:
+        directories:
+          - "$HOME/.m2"
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
+      script: skip
 
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
-script: mvn test -Drevision=${TRAVIS_COMMIT} -B
+    - stage: test
+      language: java
+      jdk: openjdk12
+      sudo: required
+      cache:
+        directories:
+          - "$HOME/.m2"
 
-before_deploy:
-  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
-  - heroku plugins:install heroku-cli-deploy
-  - mv target/UofU-CS-Bot.jar .
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: heroku deploy:jar UofU-CS-Bot.jar --app mitchtalmadge-uofu-cs-bot
-  on:
-    branch: master
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Drevision=${TRAVIS_COMMIT} -B -V
+      script: mvn test -Drevision=${TRAVIS_COMMIT} -B
+
+    - stage: build
+      services:
+        - docker
+
+      script: docker build -t mitchtalmadge/uofu-cs-bot .
