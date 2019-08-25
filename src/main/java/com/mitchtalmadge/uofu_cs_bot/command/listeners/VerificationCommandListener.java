@@ -14,7 +14,6 @@ public class VerificationCommandListener extends CommandListener {
   private static final String VERIFICATION_CHANNEL = System.getenv("VERIFICATION_CHANNEL");
 
   private static final String EXAMPLE = "**Example:** !verify u1234567";
-  private static final String EXAMPLE_CODE = "**Example:** !verify a12345";
 
   private VerificationService verificationService;
   private LogService logService;
@@ -52,30 +51,8 @@ public class VerificationCommandListener extends CommandListener {
       return "You are already verified! :)";
     }
     if (verificationStatus.equals(VerificationStatus.CODE_SENT)) {
-      if (command.getArgs().length < 2) {
-        return "Did you forget something? A code was previously sent to your u-mail. Please check your spam if you can't find it."
-            + "The code will be an 'a' followed by 5 digits. If you need help, please message an admin.\n\n"
-            + EXAMPLE_CODE;
-      } else if (command.getArgs().length > 2) {
-        return "You supplied too many arguments. In case that was an accident, nothing will happen. "
-            + "Please only supply one argument.\n\n"
-            + EXAMPLE_CODE;
-      }
-
-      String code = command.getArgs()[1].toLowerCase();
-      if (code.length() != 6 || !code.matches("^a\\d{5}$")) {
-        return "The verification code sent to your u-mail starts with an 'a' followed by 5 digits. "
-            + "Check your spam! If you need help, please message an admin.\n\n"
-            + EXAMPLE_CODE;
-      }
-
-      try {
-        this.verificationService.completeVerification(command.getMember(), code);
-      } catch (VerificationService.VerificationCodeInvalidException e) {
-        return "The code you gave me did not match what was sent to your u-mail. If you need help, please message an admin.";
-      }
-
-      return "Verification Complete! You will be given the ability to speak shortly.";
+      return "A verification link has already been sent to your u-mail. Please check spam. "
+          + "If you can't find it, ask an admin for help!";
     }
 
     if (command.getArgs().length < 2) {
@@ -110,8 +87,7 @@ public class VerificationCommandListener extends CommandListener {
           + e.getMessage();
     }
 
-    return "Thanks! **Please check your u-mail for a verification code.** Be sure to look in your spam. "
-        + "Once you get the code, come back here and use the !verify command again to confirm.\n\n"
-        + EXAMPLE_CODE;
+    return "Looks good! **Please check your u-mail for a verification link.** Be sure to look in your spam. "
+        + "Thanks for helping to keep the server safe!";
   }
 }

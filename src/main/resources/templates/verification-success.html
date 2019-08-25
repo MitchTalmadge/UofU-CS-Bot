@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Verification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="refresh"
+          th:content="'3;url=discord://discordapp.com/channels/' + ${guildId} + (channelId != null ? ('/' + ${channelId}) : '')"/>
+</head>
+<body style="font-family: sans-serif">
+<h1>Verification Successful!</h1>
+<h2>Redirecting to Discord in 3 Seconds...</h2>
+<p>If redirection doesn't work, just open Discord -- you should be able to speak very soon.</p>
+</body>
+</html>

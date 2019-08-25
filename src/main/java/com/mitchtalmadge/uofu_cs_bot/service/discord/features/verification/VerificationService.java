@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.SecureRandom;
 
@@ -124,15 +125,19 @@ public class VerificationService {
         getClass(), "InternalUser created for verification. Code: " + iUser.getVerificationCode());
 
     try {
+      String verifyUrl =
+          UriComponentsBuilder.fromHttpUrl(System.getenv("EXTERNAL_URL_ROOT"))
+              .path("/verify")
+              .queryParam("memberId", member.getUser().getIdLong())
+              .queryParam("code", iUser.getVerificationCode())
+              .toUriString();
       this.emailService.sendEmail(
           unid + "@umail.utah.edu",
           "<CS @ The U /> Discord Verification",
           "Hi there!\n\n"
-              + "If you requested a verification code for the <CS @ The U /> Discord server, you will find it below. "
-              + "If not, please delete this email and have a great day :)\n\nVERIFICATION CODE: "
-              + iUser.getVerificationCode()
-              + "\nExample: !verify "
-              + iUser.getVerificationCode());
+              + "If you requested verification for the <CS @ The U /> Discord server, you will find a link below. "
+              + "If not, please delete this email and have a great day :)\n\n"
+              + verifyUrl);
     } catch (MailException e) {
       this.internalUserRepository.delete(iUser);
       throw new VerificationBeginException("Could not send verification email.", e);
@@ -141,7 +146,7 @@ public class VerificationService {
 
   private String generateVerificationCode() {
     SecureRandom random = new SecureRandom();
-    return "a" + String.format("%05d", random.nextInt(100_000));
+    return String.format("%05d", random.nextInt(100_000));
   }
 
   public static class VerificationCodeInvalidException extends Exception {}
