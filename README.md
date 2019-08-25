@@ -17,5 +17,5 @@ The bot also has the ability to manage private club channels, where entire clubs
 The U of U CS Bot is build upon the [Spring Boot](https://github.com/spring-projects/spring-boot) framework. 
 Spring Boot provides a great underlying framework for building new features quickly and with as few errors as possible. 
 
-The Bot uses a PostgreSQL server to manage user verification data, and an STMP server to send verification emails.
+The Bot uses [my own custom HSQLDB docker image](https://github.com/MitchTalmadge/hsqldb-dockerized) to store user verification data, and an STMP server to send verification emails.
 
