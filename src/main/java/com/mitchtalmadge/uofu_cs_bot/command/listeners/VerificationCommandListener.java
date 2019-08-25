@@ -32,7 +32,9 @@ public class VerificationCommandListener extends CommandListener {
       return "This command only works in the verification channel or via private message.";
     }
 
-    return getReply(command);
+    String reply = getReply(command);
+    command.getMessageReceivedEvent().getMessage().delete().queue();
+    return reply;
   }
 
   @Override
@@ -48,30 +50,33 @@ public class VerificationCommandListener extends CommandListener {
     VerificationStatus verificationStatus =
         this.verificationService.getVerificationStatus(command.getMember());
     if (verificationStatus.equals(VerificationStatus.VERIFIED)) {
-      return "You are already verified! :)";
+      return command.getMember().getAsMention() + " You are already verified! :)";
     }
     if (verificationStatus.equals(VerificationStatus.CODE_SENT)) {
-      return "A verification link has already been sent to your u-mail. Please check spam. "
+      return command.getMember().getAsMention()
+          + " A verification link has already been sent to your u-mail. Please check spam. "
           + "If you can't find it, ask an admin for help!";
     }
 
     if (command.getArgs().length < 2) {
-      return "To verify your account, I need to know your uNID!\n"
-          + (command.isPrivateChannel()
-              ? "\n"
-              : "You are welcome to direct message this bot if you are concerned about privacy.\n\n")
+      return command.getMember().getAsMention()
+          + " To verify your account, I need to know your uNID!\n\n"
           + EXAMPLE;
     }
 
     if (command.getArgs().length > 2) {
-      return "You supplied too many arguments. In case that was an accident, nothing will happen. "
+      return command.getMember().getAsMention()
+          + " You supplied too many arguments. In case that was an accident, nothing will happen. "
           + "Please only supply one argument.\n\n"
           + EXAMPLE;
     }
 
     String unid = command.getArgs()[1].toLowerCase();
     if (unid.length() != 8 || !unid.matches("^u\\d{7}$")) {
-      return "The uNID should be a 'u' followed by 7 digits. " + "\n" + EXAMPLE;
+      return command.getMember().getAsMention()
+          + " The uNID should be a 'u' followed by 7 digits. "
+          + "\n"
+          + EXAMPLE;
     }
 
     try {
@@ -82,12 +87,14 @@ public class VerificationCommandListener extends CommandListener {
           e,
           "Could not begin verification for member " + command.getMember().getEffectiveName());
 
-      return "Uh oh! Something went wrong internally while trying to verify you. Please let an admin know!\n\n"
+      return command.getMember().getAsMention()
+          + " Uh oh! Something went wrong internally while trying to verify you. Please let an admin know!\n\n"
           + "**Error:** "
           + e.getMessage();
     }
 
-    return "Looks good! **Please check your u-mail for a verification link.** Be sure to look in your spam. "
+    return command.getMember().getAsMention()
+        + " Looks good! **Please check your u-mail for a verification link.** Be sure to look in your spam. "
         + "Thanks for helping to keep the server safe!";
   }
 }
