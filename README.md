@@ -15,7 +15,7 @@ The bot also has the ability to manage private club channels, where entire clubs
 
 ## Architecture
 The U of U CS Bot is build upon the [Spring Boot](https://github.com/spring-projects/spring-boot) framework. 
-Spring Boot is not fully necessary for the functionality of this bot, but provides a great underlying framework for building new features quickly and with as few errors as possible. 
+Spring Boot provides a great underlying framework for building new features quickly and with as few errors as possible. 
 
-Hosting is provided by [Heroku](https://www.heroku.com/) on a free tier dyno.
+The Bot uses [my own custom HSQLDB docker image](https://github.com/MitchTalmadge/hsqldb-dockerized) to store user verification data, and an STMP server to send verification emails.
 

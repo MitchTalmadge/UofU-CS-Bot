@@ -10,6 +10,11 @@ public class Command {
   private final String[] args;
 
   /**
+   * True if the command was sent in a private channel.
+   */
+  private final boolean privateChannel;
+
+  /**
    * Creates a new Command instance from a message received event and an array of arguments.
    *
    * @param messageReceivedEvent The event that triggered this command.
@@ -19,6 +24,7 @@ public class Command {
   public Command(MessageReceivedEvent messageReceivedEvent, String[] args) {
     this.messageReceivedEvent = messageReceivedEvent;
     this.args = args;
+    this.privateChannel = messageReceivedEvent == null || messageReceivedEvent.getPrivateChannel() != null;
   }
 
   public MessageReceivedEvent getMessageReceivedEvent() {
@@ -27,6 +33,13 @@ public class Command {
 
   public String[] getArgs() {
     return args;
+  }
+
+  /**
+   * @return True if the command was sent in a private DM channel.
+   */
+  public boolean isPrivateChannel() {
+    return privateChannel;
   }
 
   /**

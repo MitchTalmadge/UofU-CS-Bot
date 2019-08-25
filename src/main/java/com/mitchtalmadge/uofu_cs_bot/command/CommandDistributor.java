@@ -1,6 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.command;
 
 import com.mitchtalmadge.uofu_cs_bot.command.listeners.CommandListener;
+import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,12 @@ public class CommandDistributor {
   /** All Command Distribution Listeners. */
   private final Set<CommandListener> commandListeners;
 
+  private LogService logService;
+
   @Autowired
-  public CommandDistributor(Set<CommandListener> commandListeners) {
+  public CommandDistributor(Set<CommandListener> commandListeners, LogService logService) {
     this.commandListeners = commandListeners;
+    this.logService = logService;
   }
 
   /**
@@ -56,7 +60,8 @@ public class CommandDistributor {
       // Extract CommandPattern annotation from listener class.
       CommandPattern commandPattern = listener.getClass().getAnnotation(CommandPattern.class);
       if (commandPattern == null) {
-        System.err.println(
+        this.logService.logError(
+            getClass(),
             "Command Distribution Listener '"
                 + listener.getClass().getSimpleName()
                 + "' is missing a Command Pattern.");
@@ -77,21 +82,59 @@ public class CommandDistributor {
       }
     }
 
-    // Send the command to the proper listener, or send an error message if no listener matched the
-    // command.
     if (mostSpecificListener == null) {
-      sendPrivateMessage(command, "I didn't understand your command.");
+      sendMessageToSource(command, "I didn't understand your command.");
+
+      // Display the result of the help command.
       onCommand(new Command(command.getMessageReceivedEvent(), new String[] {"help"}));
     } else {
-      String response = mostSpecificListener.onCommand(command);
-      if (response != null) {
-        sendPrivateMessage(command, response);
+      String publicReply = null;
+      if (!command.isPrivateChannel()) {
+        publicReply = mostSpecificListener.getPublicReply(command);
+      }
+      String privateReply = mostSpecificListener.getPrivateReply(command, publicReply != null);
+
+      if (publicReply != null) {
+        this.sendPublicMessage(command, publicReply);
+      }
+      if (privateReply != null) {
+        this.sendPrivateMessage(command, privateReply);
       }
     }
   }
 
   /**
-   * Sends a private message to the sender of the command.
+   * Sends a message to the same channel that the command came from.
+   *
+   * @param command The command received.
+   * @param message The message to send.
+   */
+  private void sendMessageToSource(Command command, String message) {
+    if (command.isPrivateChannel()) {
+      this.sendPrivateMessage(command, message);
+    } else {
+      this.sendPublicMessage(command, message);
+    }
+  }
+
+  /**
+   * Sends a message to the public channel that the command was received in. If the command was
+   * received in a private channel, this function will do nothing.
+   *
+   * @param command The command received.
+   * @param message The message to send.
+   */
+  private void sendPublicMessage(Command command, String message) {
+    if (command.getMessageReceivedEvent().getPrivateChannel() != null) {
+      // Channel is not public.
+      return;
+    }
+
+    command.getMessageReceivedEvent().getChannel().sendMessage(message).queue();
+  }
+
+  /**
+   * Sends a message to the sender of the command in a private DM channel.
    *
    * @param command The command received.
    * @param message The message to send to the sender.
@@ -100,13 +143,29 @@ public class CommandDistributor {
 
     // If the command was sent from a private channel, use the same channel.
     PrivateChannel privateChannel = command.getMessageReceivedEvent().getPrivateChannel();
-    if (privateChannel != null) privateChannel.sendMessage(message).queue();
-    else // Otherwise, open a new private channel.
-    command
+    if (privateChannel != null) {
+      privateChannel.sendMessage(message).queue();
+    } else {
+      // Otherwise, open a new private channel.
+      command
           .getMessageReceivedEvent()
           .getMember()
           .getUser()
           .openPrivateChannel()
-          .queue(channel -> channel.sendMessage(message).queue());
+          .queue(
+              channel ->
+                  channel
+                      .sendMessage(message)
+                      .queue(
+                          success -> {},
+                          error ->
+                              command
+                                  .getMessageReceivedEvent()
+                                  .getChannel()
+                                  .sendMessage(
+                                      command.getMember().getAsMention()
+                                          + " I could not send you a private message. Please enable direct messaging for this server.")
+                                  .queue()));
+    }
   }
 }
