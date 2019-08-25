@@ -37,7 +37,7 @@ public class HelpCommandListener extends CommandListener {
     return "Valid Commands:\n"
         + "```\n"
         + "!help [subtopic] - Brings up this menu.\n"
-        + "!verify <u#######@umail.utah.edu> - Verifies your account to allow access to chat rooms.\n"
+        + "!verify <uNID> - Verifies your account, allowing you to speak.\n"
         + "!club <join|leave> <club name> - Join or leave a club.\n"
         + "```";
   }
