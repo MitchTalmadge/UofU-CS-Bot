@@ -7,6 +7,9 @@ import com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification.Verif
 import com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification.VerificationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @CommandPattern(value = {"verify"})
 public class VerificationCommandListener extends CommandListener {
 
@@ -72,7 +75,8 @@ public class VerificationCommandListener extends CommandListener {
     }
 
     String unid = command.getArgs()[1].toLowerCase();
-    if (unid.length() != 8 || !unid.matches("^u\\d{7}$")) {
+    Matcher unidMatcher = Pattern.compile("^<?(u\\d{7})>?$").matcher(unid);
+    if (!unidMatcher.matches()) {
       return command.getMember().getAsMention()
           + " The uNID should be a 'u' followed by 7 digits. "
           + "\n"
@@ -80,7 +84,7 @@ public class VerificationCommandListener extends CommandListener {
     }
 
     try {
-      this.verificationService.beginVerification(command.getMember(), unid);
+      this.verificationService.beginVerification(command.getMember(), unidMatcher.group(1));
     } catch (VerificationService.VerificationBeginException e) {
       this.logService.logException(
           getClass(),
