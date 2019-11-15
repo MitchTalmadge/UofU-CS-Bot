@@ -4,18 +4,23 @@ import com.mitchtalmadge.uofu_cs_bot.domain.entity.InternalUser;
 import com.mitchtalmadge.uofu_cs_bot.domain.entity.repository.InternalUserRepository;
 import com.mitchtalmadge.uofu_cs_bot.service.EmailService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
+import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
 import net.dv8tion.jda.core.entities.Member;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class VerificationService {
 
+  private DiscordService discordService;
   private InternalUserRepository internalUserRepository;
   private RoleAssignmentService roleAssignmentService;
   private EmailService emailService;
@@ -23,10 +28,12 @@ public class VerificationService {
 
   @Autowired
   public VerificationService(
+      DiscordService discordService,
       InternalUserRepository internalUserRepository,
       RoleAssignmentService roleAssignmentService,
       EmailService emailService,
       LogService logService) {
+    this.discordService = discordService;
     this.internalUserRepository = internalUserRepository;
     this.roleAssignmentService = roleAssignmentService;
     this.emailService = emailService;
@@ -49,6 +56,62 @@ public class VerificationService {
     }
 
     return iUser.getVerificationStatus();
+  }
+
+  /**
+   * Finds all members by unid of a certain status.
+   *
+   * @param unid The uNID needle.
+   * @return A map of Discord user IDs to Member instances (null if not a member).
+   */
+  private Map<Long, Member> getVerifiedMembersByUnidAndStatus(
+      String unid, VerificationStatus status) {
+    Iterable<InternalUser> iUsers = this.internalUserRepository.findAllByUnid(unid);
+    Map<Long, Member> members = new HashMap<>();
+    iUsers.forEach(
+        iUser -> {
+          if (iUser.getVerificationStatus().equals(status)) {
+            var discordId = iUser.getDiscordUserId();
+            var member = this.discordService.getGuild().getMemberById(discordId);
+            members.put(discordId, member);
+          }
+        });
+
+    return members;
+  }
+
+  /**
+   * Finds all members by unid who are verified.
+   *
+   * @param unid The uNID needle.
+   * @return A map of Discord user IDs to Member instances (null if not a member).
+   */
+  public Map<Long, Member> getVerifiedMembersByUnid(String unid) {
+    return getVerifiedMembersByUnidAndStatus(unid, VerificationStatus.VERIFIED);
+  }
+
+  /**
+   * Finds all members by unid who are pending verification.
+   *
+   * @param unid The uNID needle.
+   * @return A map of Discord user IDs to Member instances (null if not a member).
+   */
+  public Map<Long, Member> getPendingVerifiedMembersByUnid(String unid) {
+    return getVerifiedMembersByUnidAndStatus(unid, VerificationStatus.CODE_SENT);
+  }
+
+  /**
+   * Gets the uNID and verification status of a member if they exist.
+   *
+   * @param member The member.
+   * @return The member's uNID (or null if they are not verified) and verification status.
+   */
+  public Pair<String, VerificationStatus> getUnidAndStatusByMember(Member member) {
+    var iUser =
+        this.internalUserRepository.findDistinctByDiscordUserId(member.getUser().getIdLong());
+    return iUser
+        .map(internalUser -> Pair.of(internalUser.getUnid(), internalUser.getVerificationStatus()))
+        .orElse(Pair.of(null, VerificationStatus.UNVERIFIED));
   }
 
   /**
