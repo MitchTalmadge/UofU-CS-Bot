@@ -59,7 +59,7 @@ public class AdminVerificationIdCommandListener extends CommandListener {
     }
 
     var members = command.getMessageReceivedEvent().getMessage().getMentionedMembers();
-    if(members.size() == 0) {
+    if (members.size() == 0) {
       return "No Results";
     }
 
@@ -86,10 +86,10 @@ public class AdminVerificationIdCommandListener extends CommandListener {
           });
     }
 
+    result.append("- Pending Verification:").append('\n');
     if (pendingVerified.size() == 0) {
       result.append("\t(No Results)").append('\n');
     } else {
-      result.append("- Pending Verification:").append('\n');
       pendingVerified.forEach(
           (discordId, member) -> {
             result
@@ -107,7 +107,8 @@ public class AdminVerificationIdCommandListener extends CommandListener {
   private String getMemberResults(Member member) {
     var details = this.verificationService.getUnidAndStatusByMember(member);
 
-    var result = new StringBuilder("**Details of ")
+    var result =
+        new StringBuilder("**Details of ")
             .append(member.getAsMention())
             .append(":**")
             .append('\n')
