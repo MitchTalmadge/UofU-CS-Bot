@@ -1,6 +1,6 @@
 # U of U CS Bot
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/mitchtalmadge/uofu-cs-bot/master/LICENSE)
-[![Build Status](https://travis-ci.org/MitchTalmadge/UofU-CS-Bot.svg?branch=master)](https://travis-ci.org/MitchTalmadge/UofU-CS-Bot)
+[![Actions Status](https://github.com/MitchTalmadge/UofU-CS-Bot/workflows/CI/badge.svg)](https://github.com/MitchTalmadge/UofU-CS-Bot/actions)
 [![GitHub issues](https://img.shields.io/github/issues/MitchTalmadge/UofU-CS-Bot.svg)](https://github.com/MitchTalmadge/UofU-CS-Bot/issues)
 
 <img src="http://i.imgur.com/yQYPYFh.png" width="100px" align="left"/>
@@ -17,5 +17,5 @@ The bot also has the ability to manage private club channels, where entire clubs
 The U of U CS Bot is build upon the [Spring Boot](https://github.com/spring-projects/spring-boot) framework. 
 Spring Boot provides a great underlying framework for building new features quickly and with as few errors as possible. 
 
-The Bot uses [my own custom HSQLDB docker image](https://github.com/MitchTalmadge/hsqldb-dockerized) to store user verification data, and an STMP server to send verification emails.
+The Bot uses [my own custom HSQLDB docker image](https://github.com/MitchTalmadge/hsqldb-dockerized) to store user verification data, and an SMTP server to send verification emails.
 
