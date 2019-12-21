@@ -54,7 +54,8 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
                   Permission.MESSAGE_EMBED_LINKS,
                   Permission.MESSAGE_ATTACH_FILES,
                   Permission.MESSAGE_HISTORY,
-                  Permission.MESSAGE_ADD_REACTION);
+                  Permission.MESSAGE_ADD_REACTION,
+                  Permission.MESSAGE_EXT_EMOJI);
 
       rolesToCreate.add(roleAction);
     }
@@ -82,7 +83,8 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
                       Permission.MESSAGE_EMBED_LINKS,
                       Permission.MESSAGE_ATTACH_FILES,
                       Permission.MESSAGE_HISTORY,
-                      Permission.MESSAGE_ADD_REACTION);
+                      Permission.MESSAGE_ADD_REACTION,
+                      Permission.MESSAGE_EXT_EMOJI);
 
           // Add for queue later.
           roleManagers.add(updatable);
