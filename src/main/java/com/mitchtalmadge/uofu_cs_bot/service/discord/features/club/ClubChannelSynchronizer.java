@@ -2,11 +2,10 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.managers.ChannelManager;
-import net.dv8tion.jda.core.managers.PermOverrideManager;
-import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -122,7 +121,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateChannelCategoryPermissions(List<Category> categories) {
     return null;
   }
@@ -130,12 +129,12 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateTextChannelPermissions(List<TextChannel> filteredChannels) {
     // Create Collections for returning.
     Collection<PermissionOverride> permissionOverrides = new HashSet<>();
     Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-    Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
+    Collection<PermissionOverrideAction> permOverrideManagers = new HashSet<>();
 
     filteredChannels.forEach(
         textChannel -> {
@@ -280,7 +279,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public List<TextChannel> updateTextChannelOrdering(List<TextChannel> filteredChannels) {
     // Sort filtered channels by name.
-    filteredChannels.sort(Comparator.comparing(Channel::getName));
+    filteredChannels.sort(Comparator.comparing(GuildChannel::getName));
 
     return filteredChannels;
   }
@@ -291,7 +290,7 @@ public class ClubChannelSynchronizer extends ChannelSynchronizer {
    * @param channel The channel.
    * @return The club associated with the channel, or null if one could not be associated.
    */
-  private Club getClubFromChannel(Channel channel) {
+  private Club getClubFromChannel(GuildChannel channel) {
     // Iterate over all clubs and compare names.
     return clubService.getEnabledClubs().stream()
         .filter(

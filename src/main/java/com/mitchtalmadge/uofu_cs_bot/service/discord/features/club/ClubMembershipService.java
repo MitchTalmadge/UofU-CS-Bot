@@ -1,8 +1,8 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class ClubMembershipService {
     if (clubRoles.size() == 0) return;
 
     // Add Role to Member. If they already have it, nothing will happen.
-    member.getGuild().getController().addSingleRoleToMember(member, clubRoles.get(0)).queue();
+    member.getGuild().addRoleToMember(member, clubRoles.get(0)).queue();
   }
 
   /**
@@ -40,6 +40,6 @@ public class ClubMembershipService {
     if (clubRoles.size() == 0) return;
 
     // Remove Role from Member. If they don't have it, nothing will happen.
-    member.getGuild().getController().removeSingleRoleFromMember(member, clubRoles.get(0)).queue();
+    member.getGuild().removeRoleFromMember(member, clubRoles.get(0)).queue();
   }
 }

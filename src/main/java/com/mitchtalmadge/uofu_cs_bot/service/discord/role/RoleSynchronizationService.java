@@ -3,10 +3,10 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManager;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.managers.RoleManager;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -150,7 +150,7 @@ public class RoleSynchronizationService {
 
     // Perform ordering.
     DiscordUtils.orderEntities(
-        discordService.getGuild().getController().modifyRolePositions(false), sortedRoles);
+        discordService.getGuild().modifyRolePositions(false), sortedRoles);
   }
 
   /**

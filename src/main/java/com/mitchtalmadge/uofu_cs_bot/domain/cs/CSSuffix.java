@@ -1,6 +1,6 @@
 package com.mitchtalmadge.uofu_cs_bot.domain.cs;
 
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.awt.*;
 

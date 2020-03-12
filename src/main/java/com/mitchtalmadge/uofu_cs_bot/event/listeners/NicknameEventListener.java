@@ -4,10 +4,10 @@ import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.features.course.CourseService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.nickname.NicknameService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class NicknameEventListener extends EventListenerAbstract<GuildMemberNickChangeEvent> {
+public class NicknameEventListener extends EventListenerAbstract<GuildMemberUpdateNicknameEvent> {
 
   private final LogService logService;
   private CourseService courseService;
@@ -27,15 +27,15 @@ public class NicknameEventListener extends EventListenerAbstract<GuildMemberNick
   }
 
   @Override
-  public void onEvent(GuildMemberNickChangeEvent event) {
+  public void onEvent(GuildMemberUpdateNicknameEvent event) {
     logService.logInfo(
         getClass(),
         "Nickname changed for "
             + event.getMember().getUser().getName()
             + ". Old: "
-            + event.getPrevNick()
+            + event.getOldNickname()
             + " - New: "
-            + event.getNewNick());
+            + event.getNewNickname());
 
     nicknameService.validateNickname(event.getMember());
     courseService.computeEnabledCourses();

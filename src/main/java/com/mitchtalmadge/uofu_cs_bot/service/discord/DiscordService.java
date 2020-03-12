@@ -1,10 +1,11 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,20 @@ public class DiscordService implements InitializingBean, DisposableBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     try {
-      jda = new JDABuilder(AccountType.BOT).setToken(discordToken).build().awaitReady();
+      jda = JDABuilder.create(
+              discordToken,
+              GatewayIntent.GUILD_MEMBERS,
+              GatewayIntent.GUILD_PRESENCES,
+              GatewayIntent.DIRECT_MESSAGES,
+              GatewayIntent.GUILD_MESSAGES,
+              GatewayIntent.GUILD_EMOJIS,
+              GatewayIntent.GUILD_VOICE_STATES)
+              .setMemberCachePolicy(MemberCachePolicy.ALL)
+              .build()
+              .awaitReady();
 
       this.guild = jda.getGuilds().get(0);
+
     } catch (LoginException e) {
       logService.logException(getClass(), e, "Could not sign in to Discord");
       throw e;

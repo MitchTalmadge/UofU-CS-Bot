@@ -3,7 +3,7 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.nickname.NicknameService;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;

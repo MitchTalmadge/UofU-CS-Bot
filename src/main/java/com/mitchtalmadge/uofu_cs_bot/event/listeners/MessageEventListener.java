@@ -2,7 +2,7 @@ package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
 import com.mitchtalmadge.uofu_cs_bot.command.Command;
 import com.mitchtalmadge.uofu_cs_bot.command.CommandDistributor;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MessageEventListener extends EventListenerAbstract<MessageReceivedEvent> {

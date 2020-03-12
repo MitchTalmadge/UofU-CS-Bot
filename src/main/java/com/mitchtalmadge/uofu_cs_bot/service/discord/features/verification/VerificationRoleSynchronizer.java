@@ -1,10 +1,10 @@
 package com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManager;
-import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.managers.RoleManager;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,7 +42,6 @@ public class VerificationRoleSynchronizer extends RoleSynchronizer {
       RoleAction roleAction =
           discordService
               .getGuild()
-              .getController()
               .createRole()
               .setName(VERIFIED_ROLE_NAME)
               .setColor(Color.decode("0x3498DB"))

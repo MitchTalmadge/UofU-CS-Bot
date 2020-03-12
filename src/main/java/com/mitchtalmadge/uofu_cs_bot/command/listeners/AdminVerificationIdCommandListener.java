@@ -5,8 +5,8 @@ import com.mitchtalmadge.uofu_cs_bot.command.CommandPattern;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification.VerificationService;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.regex.Pattern;

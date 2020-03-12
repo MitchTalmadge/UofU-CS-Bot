@@ -1,8 +1,8 @@
 package com.mitchtalmadge.uofu_cs_bot.util;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.requests.restaction.order.OrderAction;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.requests.restaction.order.OrderAction;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class DiscordUtils {
    * @param <O> The OrderAction type.
    */
   public static <E, O extends OrderAction<? extends E, ? extends O>> void orderEntities(
-      O orderAction, List<E> order) {
+      O orderAction, List<? extends E> order) {
     // Order the channels.
     for (int i = 0; i < order.size(); i++) {
       // Find and select the current item being sorted.

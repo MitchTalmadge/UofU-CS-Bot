@@ -2,8 +2,9 @@ package com.mitchtalmadge.uofu_cs_bot.event;
 
 import com.mitchtalmadge.uofu_cs_bot.event.listeners.EventListenerAbstract;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
@@ -49,7 +50,7 @@ public class EventDistributor implements InitializingBean {
    *
    * @param event The event that took place.
    */
-  public void onEvent(Event event) {
+  public void onEvent(GenericEvent event) {
     // Check for a specific listener for the event.
     eventListenerMap.forEach(
         (aClass, listener) -> {

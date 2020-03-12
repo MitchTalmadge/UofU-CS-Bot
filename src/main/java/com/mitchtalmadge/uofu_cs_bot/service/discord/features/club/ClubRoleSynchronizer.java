@@ -2,10 +2,10 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.club;
 
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Club;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManager;
-import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.managers.RoleManager;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,7 +67,6 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
             rolesToCreate.add(
                 discordService
                     .getGuild()
-                    .getController()
                     .createRole()
                     .setName(getRoleNameFromClub(club, false))
                     .setHoisted(false)
@@ -84,7 +83,6 @@ public class ClubRoleSynchronizer extends RoleSynchronizer {
             rolesToCreate.add(
                 discordService
                     .getGuild()
-                    .getController()
                     .createRole()
                     .setName(getRoleNameFromClub(club, true))
                     .setHoisted(false)

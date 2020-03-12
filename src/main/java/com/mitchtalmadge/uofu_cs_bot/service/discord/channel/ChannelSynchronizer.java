@@ -2,12 +2,11 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.InheritedComponent;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.managers.ChannelManager;
-import net.dv8tion.jda.core.managers.PermOverrideManager;
-import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -111,12 +110,12 @@ public abstract class ChannelSynchronizer {
    *             <li>A Collection of {@link PermissionOverride} to delete.
    *             <li>A Collection of {@link PermissionOverrideAction} to queue.
    *           </ol>
-   *       <li>A Collection of {@link PermOverrideManager} to queue.
+   *       <li>A Collection of {@link PermissionOverrideAction} to queue.
    *     </ol>
    */
   public abstract Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateChannelCategoryPermissions(List<Category> categories);
 
   /**
@@ -131,12 +130,12 @@ public abstract class ChannelSynchronizer {
    *             <li>A Collection of {@link PermissionOverride} to delete.
    *             <li>A Collection of {@link PermissionOverrideAction} to queue.
    *           </ol>
-   *       <li>A Collection of {@link PermOverrideManager} to queue.
+   *       <li>A Collection of {@link PermissionOverrideAction} to queue.
    *     </ol>
    */
   public abstract Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateTextChannelPermissions(List<TextChannel> filteredChannels);
 
   /**

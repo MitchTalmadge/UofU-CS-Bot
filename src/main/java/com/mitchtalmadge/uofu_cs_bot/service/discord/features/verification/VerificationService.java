@@ -6,7 +6,7 @@ import com.mitchtalmadge.uofu_cs_bot.service.EmailService;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.api.entities.Member;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;

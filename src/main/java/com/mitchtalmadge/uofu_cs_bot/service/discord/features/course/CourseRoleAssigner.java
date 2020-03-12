@@ -6,8 +6,8 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssigner;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;

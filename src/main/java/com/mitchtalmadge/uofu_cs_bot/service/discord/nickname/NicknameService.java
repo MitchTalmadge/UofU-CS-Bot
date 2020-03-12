@@ -4,10 +4,10 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSNickname;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.audit.ActionType;
-import net.dv8tion.jda.core.audit.AuditLogKey;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.requests.restaction.pagination.AuditLogPaginationAction;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogKey;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,8 +70,7 @@ public class NicknameService {
                 + "'.");
         this.discordService
             .getGuild()
-            .getController()
-            .setNickname(member, nickname)
+            .modifyNickname(member, nickname)
             .queue(
                 (success) -> {},
                 (error) ->
@@ -101,7 +100,7 @@ public class NicknameService {
     this.logService.logInfo(getClass(), "Clearing nicknames older than " + days + " days.");
 
     AuditLogPaginationAction updateLogs =
-        this.discordService.getGuild().getAuditLogs().type(ActionType.MEMBER_UPDATE);
+        this.discordService.getGuild().retrieveAuditLogs().type(ActionType.MEMBER_UPDATE);
 
     this.discordService
         .getGuild()
@@ -126,7 +125,7 @@ public class NicknameService {
                             }
 
                             // Check age.
-                            return log.getCreationTime()
+                            return log.getTimeCreated()
                                 .isAfter(OffsetDateTime.now().minusDays(days));
                           });
 
@@ -175,8 +174,7 @@ public class NicknameService {
           getClass(), "Cleared nickname for member " + member.getUser().getName() + ".");
       this.discordService
           .getGuild()
-          .getController()
-          .setNickname(member, nickname)
+          .modifyNickname(member, nickname)
           .queue(
               (success) -> {},
               (error) ->
