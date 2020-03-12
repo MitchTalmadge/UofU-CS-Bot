@@ -1,7 +1,7 @@
 package com.mitchtalmadge.uofu_cs_bot.event.listeners;
 
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssignmentService;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class RoleAddEventListener extends EventListenerAbstract<GuildMemberRoleAddEvent> {

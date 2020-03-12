@@ -4,9 +4,9 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.RoleManager;
-import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.managers.RoleManager;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -74,7 +74,6 @@ public class CourseRoleSynchronizer extends RoleSynchronizer {
                   RoleAction roleAction =
                       discordService
                           .getGuild()
-                          .getController()
                           .createRole()
                           .setName(roleName)
                           .setColor(suffix.getRoleColor())

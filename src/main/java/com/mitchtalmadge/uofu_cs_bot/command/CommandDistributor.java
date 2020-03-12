@@ -2,7 +2,8 @@ package com.mitchtalmadge.uofu_cs_bot.command;
 
 import com.mitchtalmadge.uofu_cs_bot.command.listeners.CommandListener;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
-import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,7 +126,7 @@ public class CommandDistributor {
    * @param message The message to send.
    */
   private void sendPublicMessage(Command command, String message) {
-    if (command.getMessageReceivedEvent().getPrivateChannel() != null) {
+    if (command.getMessageReceivedEvent().getChannelType() == ChannelType.PRIVATE) {
       // Channel is not public.
       return;
     }
@@ -142,8 +143,8 @@ public class CommandDistributor {
   private void sendPrivateMessage(Command command, String message) {
 
     // If the command was sent from a private channel, use the same channel.
-    PrivateChannel privateChannel = command.getMessageReceivedEvent().getPrivateChannel();
-    if (privateChannel != null) {
+    if (command.getMessageReceivedEvent().getChannelType() == ChannelType.PRIVATE) {
+      PrivateChannel privateChannel = command.getMessageReceivedEvent().getPrivateChannel();
       privateChannel.sendMessage(message).queue();
     } else {
       // Otherwise, open a new private channel.

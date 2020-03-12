@@ -3,13 +3,12 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.channel;
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
 import com.mitchtalmadge.uofu_cs_bot.util.DiscordUtils;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.managers.ChannelManager;
-import net.dv8tion.jda.core.managers.PermOverrideManager;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,7 +92,6 @@ public class ChannelSynchronizationService {
                         logService.logInfo(getClass(), "--> Creating Category: " + categoryName);
                         discordService
                             .getGuild()
-                            .getController()
                             .createCategory(categoryName)
                             .complete();
                       });
@@ -137,7 +135,6 @@ public class ChannelSynchronizationService {
                             getClass(), "--> Creating Text Channel: " + textChannelName);
                         discordService
                             .getGuild()
-                            .getController()
                             .createTextChannel(textChannelName)
                             .complete();
                       });
@@ -191,7 +188,7 @@ public class ChannelSynchronizationService {
           // Perform Update
           Pair<
                   Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-                  Collection<PermOverrideManager>>
+                  Collection<PermissionOverrideAction>>
               updateResult =
                   channelSynchronizer.updateChannelCategoryPermissions(
                       discordService.getGuild().getCategories());
@@ -231,7 +228,7 @@ public class ChannelSynchronizationService {
           // Perform Update
           Pair<
                   Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-                  Collection<PermOverrideManager>>
+                  Collection<PermissionOverrideAction>>
               updateResult =
                   channelSynchronizer.updateTextChannelPermissions(
                       getFilteredTextChannelsForSynchronizer(channelSynchronizer));
@@ -276,7 +273,7 @@ public class ChannelSynchronizationService {
           // Queue any requested Updatable instances.
           if (updateResult != null) {
             DiscordUtils.orderEntities(
-                discordService.getGuild().getController().modifyCategoryPositions(), updateResult);
+                discordService.getGuild().modifyCategoryPositions(), updateResult);
           }
         });
   }
@@ -315,7 +312,7 @@ public class ChannelSynchronizationService {
 
     // Perform ordering.
     DiscordUtils.orderEntities(
-        discordService.getGuild().getController().modifyTextChannelPositions(), sortedChannels);
+        discordService.getGuild().modifyTextChannelPositions(), sortedChannels);
   }
 
   /**

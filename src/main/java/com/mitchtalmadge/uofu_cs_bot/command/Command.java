@@ -1,7 +1,8 @@
 package com.mitchtalmadge.uofu_cs_bot.command;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /** Represents a chat command sent by a user. */
 public class Command {
@@ -24,7 +25,7 @@ public class Command {
   public Command(MessageReceivedEvent messageReceivedEvent, String[] args) {
     this.messageReceivedEvent = messageReceivedEvent;
     this.args = args;
-    this.privateChannel = messageReceivedEvent == null || messageReceivedEvent.getPrivateChannel() != null;
+    this.privateChannel = messageReceivedEvent == null || messageReceivedEvent.getChannelType() == ChannelType.PRIVATE;
   }
 
   public MessageReceivedEvent getMessageReceivedEvent() {

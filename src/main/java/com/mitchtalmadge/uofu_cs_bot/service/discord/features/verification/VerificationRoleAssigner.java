@@ -3,8 +3,8 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.features.verification;
 import com.mitchtalmadge.uofu_cs_bot.domain.entity.InternalUser;
 import com.mitchtalmadge.uofu_cs_bot.domain.entity.repository.InternalUserRepository;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.role.RoleAssigner;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;

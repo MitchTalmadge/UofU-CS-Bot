@@ -2,8 +2,8 @@ package com.mitchtalmadge.uofu_cs_bot.service.discord.role;
 
 import com.mitchtalmadge.uofu_cs_bot.service.LogService;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.DiscordService;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +71,6 @@ public class RoleAssignmentService {
     // Modify the roles.
     discordService
         .getGuild()
-        .getController()
         .modifyMemberRoles(member, rolesToAdd, rolesToRemove)
         .queue(
             (success) -> {},

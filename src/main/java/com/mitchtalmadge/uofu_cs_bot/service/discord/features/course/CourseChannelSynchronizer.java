@@ -4,11 +4,10 @@ import com.mitchtalmadge.uofu_cs_bot.domain.cs.CSSuffix;
 import com.mitchtalmadge.uofu_cs_bot.domain.cs.Course;
 import com.mitchtalmadge.uofu_cs_bot.service.discord.channel.ChannelSynchronizer;
 import com.mitchtalmadge.uofu_cs_bot.util.CSNamingConventions;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.managers.ChannelManager;
-import net.dv8tion.jda.core.managers.PermOverrideManager;
-import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -136,7 +135,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateChannelCategoryPermissions(List<Category> categories) {
     // TODO: Category Permissions
     return null;
@@ -145,13 +144,13 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
+          Collection<PermissionOverrideAction>>
       updateTextChannelPermissions(List<TextChannel> filteredChannels) {
 
     // Create Collections for returning.
     Collection<PermissionOverride> permissionOverrides = new HashSet<>();
     Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-    Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
+    Collection<PermissionOverrideAction> permOverrideManagers = new HashSet<>();
 
     filteredChannels.forEach(
         textChannel -> {
@@ -161,7 +160,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
             // Compute Permissions.
             Pair<
                     Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-                    Collection<PermOverrideManager>>
+                    Collection<PermissionOverrideAction>>
                 updateResult = updateChannelPermissions(textChannel, course);
 
             // Append to Collections.
@@ -185,13 +184,13 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
    */
   private Pair<
           Pair<Collection<PermissionOverride>, Collection<PermissionOverrideAction>>,
-          Collection<PermOverrideManager>>
-      updateChannelPermissions(Channel channel, Course channelClass) {
+          Collection<PermissionOverrideAction>>
+      updateChannelPermissions(GuildChannel channel, Course channelClass) {
 
     // Create collections for returning.
     Collection<PermissionOverride> permissionOverrides = new HashSet<>();
     Collection<PermissionOverrideAction> permissionOverrideActions = new HashSet<>();
-    Collection<PermOverrideManager> permOverrideManagers = new HashSet<>();
+    Collection<PermissionOverrideAction> permOverrideManagers = new HashSet<>();
 
     // Keeps track of whether the channel has a permission override for each suffix, and for
     // @everyone (null key).
@@ -213,7 +212,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
               if (role.isPublicRole()) { // @everyone role
                 overrideDetectionMap.put(null, true);
 
-                PermOverrideManager manager = override.getManager();
+                PermissionOverrideAction manager = override.getManager();
 
                 // Clear all permissions
                 manager = manager.clear(Permission.ALL_PERMISSIONS);
@@ -230,7 +229,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
 
                   overrideDetectionMap.put(roleSuffix, true);
 
-                  PermOverrideManager manager = override.getManager();
+                  PermissionOverrideAction manager = override.getManager();
 
                   // Clear all permissions
                   manager = manager.clear(Permission.ALL_PERMISSIONS);
@@ -280,7 +279,7 @@ public class CourseChannelSynchronizer extends ChannelSynchronizer {
   @Override
   public List<TextChannel> updateTextChannelOrdering(List<TextChannel> filteredChannels) {
     // Sort filtered channels by name.
-    filteredChannels.sort(Comparator.comparing(Channel::getName));
+    filteredChannels.sort(Comparator.comparing(GuildChannel::getName));
 
     return filteredChannels;
   }

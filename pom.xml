@@ -47,7 +47,7 @@
         <repository>
             <id>jcenter</id>
             <name>jcenter-bintray</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
 
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.8.3_463</version>
+            <version>4.1.1_112</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
