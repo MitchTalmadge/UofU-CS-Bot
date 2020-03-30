@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,6 +27,9 @@ public class VerificationService {
   private RoleAssignmentService roleAssignmentService;
   private EmailService emailService;
   private LogService logService;
+
+  private static final List<String> BLACKLISTED_UNIDS =
+          Arrays.asList(System.getenv("BLACKLISTED_UNIDS").toLowerCase().split(",?\\s+"));
 
   @Autowired
   public VerificationService(
@@ -166,6 +171,11 @@ public class VerificationService {
     this.logService.logInfo(
         getClass(),
         "Beginning verification for Member " + member.getEffectiveName() + " w/ uNID " + unid);
+
+    if(BLACKLISTED_UNIDS.contains(unid)) {
+      throw new VerificationBeginException("uNID " + unid + " is blacklisted.");
+    }
+
     InternalUser iUser =
         this.internalUserRepository
             .findDistinctByDiscordUserId(member.getUser().getIdLong())

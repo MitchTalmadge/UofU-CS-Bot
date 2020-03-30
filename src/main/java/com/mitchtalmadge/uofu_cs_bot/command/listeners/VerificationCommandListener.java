@@ -92,9 +92,7 @@ public class VerificationCommandListener extends CommandListener {
           "Could not begin verification for member " + command.getMember().getEffectiveName());
 
       return command.getMember().getAsMention()
-          + " Uh oh! Something went wrong internally while trying to verify you. Please let an admin know!\n\n"
-          + "**Error:** "
-          + e.getMessage();
+          + " Uh oh! Something went wrong internally while trying to verify you. Please let an admin know!\n\n";
     }
 
     return command.getMember().getAsMention()
